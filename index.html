@@ -32,12 +32,13 @@
         
         <div id="tab-dash" class="tab-content space-y-6">
             
-            <div class="bg-white p-6 rounded-xl shadow-xs border border-slate-100 space-y-4">
-                <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-slate-100 pb-3">
-                    <div>
-                        <h2 class="text-sm font-bold text-slate-700 uppercase tracking-wider">Filtro de Período Inteligente</h2>
-                        <p class="text-xs text-slate-400">Selecione o ano e clique nos meses para combinar e comparar resultados</p>
-                    </div>
+            <div class="bg-white p-5 rounded-xl shadow-xs border border-slate-100 flex flex-col md:flex-row md:items-center justify-between gap-4">
+                <div>
+                    <h2 class="text-sm font-bold text-slate-700 uppercase tracking-wider">Filtro de Período</h2>
+                    <p class="text-xs text-slate-400">Combine múltiplos meses e anos para analisar a performance</p>
+                </div>
+                
+                <div class="flex flex-wrap items-center gap-3">
                     <div class="flex items-center gap-2">
                         <label class="text-xs font-bold uppercase text-slate-400">Ano:</label>
                         <select id="dash-filtro-ano" onchange="renderApp()" class="p-2 border border-slate-200 rounded-lg text-sm bg-slate-50 font-semibold text-slate-700 focus:bg-white focus:outline-hidden">
@@ -45,13 +46,27 @@
                             <option value="2027">2027</option>
                             <option value="2028">2028</option>
                         </select>
-                        <button onclick="selecionarTodosMeses(true)" class="ml-2 px-3 py-2 text-xs font-medium text-indigo-600 bg-indigo-50 hover:bg-indigo-100 rounded-lg transition-colors cursor-pointer">Todo o Ano</button>
-                        <button onclick="selecionarTodosMeses(false)" class="px-3 py-2 text-xs font-medium text-slate-500 bg-slate-100 hover:bg-slate-200 rounded-lg transition-colors cursor-pointer">Limpar</button>
+                    </div>
+
+                    <div class="relative inline-block text-left w-64">
+                        <label class="block text-[10px] font-bold uppercase text-slate-400 mb-1">Múltiplos Meses:</label>
+                        <div>
+                            <button type="button" onclick="toggleDropdown()" id="dropdown-btn" class="w-full flex justify-between items-center rounded-lg border border-slate-200 bg-slate-50 p-2.5 text-sm font-medium text-slate-700 shadow-xs hover:bg-slate-100 focus:outline-hidden cursor-pointer">
+                                <span id="dropdown-label">Todos os meses</span>
+                                <svg class="h-4 w-4 text-slate-400" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M5.23 7.21a.75.75 0 011.06.02L10 11.168l3.71-3.938a.75.75 0 111.08 1.04l-4.25 4.5a.75.75 0 01-1.08 0l-4.25-4.5a.75.75 0 01.02-1.06z" clip-rule="evenodd" /></svg>
+                            </button>
+                        </div>
+
+                        <div id="dropdown-menu" class="hidden absolute right-0 z-10 mt-1 w-full max-h-60 overflow-y-auto rounded-lg bg-white shadow-lg ring-1 ring-black/5 focus:outline-hidden border border-slate-100 p-2 space-y-1">
+                            <div class="flex items-center justify-between border-b border-slate-100 pb-1.5 mb-1 px-2">
+                                <button onclick="selecionarTodosMeses(true); event.stopPropagation();" class="text-[11px] font-bold text-indigo-600 hover:underline cursor-pointer">Marcar todos</button>
+                                <button onclick="selecionarTodosMeses(false); event.stopPropagation();" class="text-[11px] font-bold text-slate-400 hover:underline cursor-pointer">Limpar</button>
+                            </div>
+                            <div id="dropdown-checkboxes-container">
+                                </div>
+                        </div>
                     </div>
                 </div>
-                
-                <div class="grid grid-cols-3 sm:grid-cols-4 md:grid-cols-6 lg:grid-cols-12 gap-2" id="grid-meses-filtro">
-                    </div>
             </div>
 
             <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-4">
@@ -256,9 +271,10 @@
         let selectedType = 'receita';
         let selectedSala = 'sala1';
         
-        // Estado global dos meses selecionados (0 = Jan, 1 = Fev, etc)
+        // Estado inicial de múltiplos meses (todos marcados)
         let mesesAtivos = [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11]; 
-        const nomesMeses = ['Jan', 'Fev', 'Mar', 'Abr', 'Mai', 'Jun', 'Jul', 'Ago', 'Set', 'Out', 'Nov', 'Dez'];
+        const nomesMeses = ['Janeiro', 'Fevereiro', 'Março', 'Abril', 'Maio', 'Junho', 'Julho', 'Agosto', 'Setembro', 'Outubro', 'Novembro', 'Dezembro'];
+        const nomesCurtos = ['Jan', 'Fev', 'Mar', 'Abr', 'Mai', 'Jun', 'Jul', 'Ago', 'Set', 'Out', 'Nov', 'Dez'];
 
         let lancamentos = JSON.parse(localStorage.getItem('simulador_lancamentos')) || [
             { id: 1, data: '2026-01-01', tipo: 'investimento', sala: '-', desc: 'Reforma Estrutural Inicial', valor: 45000 },
@@ -279,52 +295,76 @@
 
         document.addEventListener("DOMContentLoaded", () => {
             document.getElementById('lanc-data').valueAsDate = new Date();
-            renderFiltroMeses();
+            renderDropdownCheckboxes();
             updateMetricaUI();
             renderApp();
+
+            // Fecha o menu se clicar fora dele
+            document.addEventListener('click', (e) => {
+                const menu = document.getElementById('dropdown-menu');
+                const btn = document.getElementById('dropdown-btn');
+                if (!menu.contains(e.target) && !btn.contains(e.target)) {
+                    menu.classList.add('hidden');
+                }
+            });
         });
 
-        function renderFiltroMeses() {
-            const container = document.getElementById('grid-meses-filtro');
+        function toggleDropdown() {
+            document.getElementById('dropdown-menu').classList.toggle('hidden');
+        }
+
+        function renderDropdownCheckboxes() {
+            const container = document.getElementById('dropdown-checkboxes-container');
             container.innerHTML = '';
             
             nomesMeses.forEach((mes, idx) => {
-                const btn = document.createElement('button');
-                btn.type = 'button';
-                btn.innerText = mes;
-                btn.onclick = () => toggleMesFiltro(idx);
-                btn.id = `btn-filtro-mes-${idx}`;
-                container.appendChild(btn);
+                const label = document.createElement('label');
+                label.className = "flex items-center gap-2 px-2 py-1.5 rounded-sm hover:bg-slate-50 text-sm font-medium text-slate-700 cursor-pointer w-full select-none";
+                
+                // Força evitar que clique no label feche o menu
+                label.onclick = (e) => e.stopPropagation();
+
+                label.innerHTML = `
+                    <input type="checkbox" id="chk-mes-${idx}" checked onchange="onCheckboxChange(${idx})" class="h-4 w-4 rounded-sm border-slate-300 text-indigo-600 focus:ring-indigo-500 cursor-pointer">
+                    <span>${mes}</span>
+                `;
+                container.appendChild(label);
             });
-            atualizarEstiloFiltros();
         }
 
-        function toggleMesFiltro(idx) {
-            if (mesesAtivos.includes(idx)) {
-                mesesAtivos = mesesAtivos.filter(m => m !== idx);
+        function onCheckboxChange(idx) {
+            const chk = document.getElementById(`chk-mes-${idx}`);
+            if (chk.checked) {
+                if (!mesesAtivos.includes(idx)) mesesAtivos.push(idx);
             } else {
-                mesesAtivos.push(idx);
+                mesesAtivos = mesesAtivos.filter(m => m !== idx);
             }
-            atualizarEstiloFiltros();
+            mesesAtivos.sort((a, b) => a - b);
+            updateDropdownLabel();
             renderApp();
         }
 
         function selecionarTodosMeses(status) {
             mesesAtivos = status ? [0,1,2,3,4,5,6,7,8,9,10,11] : [];
-            atualizarEstiloFiltros();
+            nomesMeses.forEach((_, idx) => {
+                const chk = document.getElementById(`chk-mes-${idx}`);
+                if (chk) chk.checked = status;
+            });
+            updateDropdownLabel();
             renderApp();
         }
 
-        function atualizarEstiloFiltros() {
-            nomesMeses.forEach((_, idx) => {
-                const btn = document.getElementById(`btn-filtro-mes-${idx}`);
-                if (!btn) return;
-                if (mesesAtivos.includes(idx)) {
-                    btn.className = "p-2 text-xs font-semibold rounded-lg text-center bg-indigo-600 text-white shadow-xs cursor-pointer border border-transparent transition-all";
-                } else {
-                    btn.className = "p-2 text-xs font-medium rounded-lg text-center bg-slate-50 text-slate-600 border border-slate-200 hover:bg-slate-100 cursor-pointer transition-all";
-                }
-            });
+        function updateDropdownLabel() {
+            const labelEl = document.getElementById('dropdown-label');
+            if (mesesAtivos.length === 12) {
+                labelEl.innerText = "Todos os meses";
+            } else if (mesesAtivos.length === 0) {
+                labelEl.innerText = "Nenhum selecionado";
+            } else if (mesesAtivos.length <= 3) {
+                labelEl.innerText = mesesAtivos.map(m => nomesCurtos[m]).join(', ');
+            } else {
+                labelEl.innerText = `${mesesAtivos.length} meses selecionados`;
+            }
         }
 
         function setMetrica(m) {
@@ -492,7 +532,6 @@
                 const itemMes = itemDate.getMonth();
                 const itemAno = itemDate.getFullYear().toString();
 
-                // Monta a listagem estática do histórico sempre com tudo
                 const tr = document.createElement('tr');
                 let badge = '';
                 if(item.tipo === 'receita') badge = '<span class="px-2 py-0.5 text-[10px] font-semibold rounded-sm bg-emerald-50 text-emerald-700">Entrada</span>';
@@ -512,7 +551,6 @@
                 `;
                 tbody.appendChild(tr);
 
-                // Processa apenas o cruzamento correto de múltiplos meses + o ano selecionado no Dashboard
                 if (itemAno === filtroAno && mesesAtivos.includes(itemMes)) {
                     if(item.tipo === 'receita' && item.sala === 'sala1') sala1Tot += item.valor;
                     if(item.tipo === 'receita' && item.sala === 'sala2') sala2Tot += item.valor;
@@ -527,7 +565,6 @@
             let totalReceitas = sala1Tot + sala2Tot;
             document.getElementById('sum-liquido').innerText = formatCurrency(totalReceitas - totalDespesas - totalInvestido);
 
-            // Custo fixo escala linearmente com a quantidade de meses ativos selecionados
             const qtdMesesSelecionados = mesesAtivos.length || 1;
             let custoFixoBase = 3500 * qtdMesesSelecionados;
             document.getElementById('kpi-break-even').innerText = formatCurrency(custoFixoBase);
@@ -539,7 +576,6 @@
             document.getElementById('kpi-ponto-eq').innerText = ocuPct.toFixed(1) + '%';
             document.getElementById('lbl-metrica-eq').innerText = `Eq. em ${config.metrica === 'turnos' ? 'Turnos' : 'Horas'}`;
 
-            // Métricas estruturais de payback & ROI ponderadas
             let totalInvestidoGeral = lancamentos.filter(i => i.tipo === 'investimento').reduce((acc, i) => acc + i.valor, 0);
             let lucroMensalMedio = (totalReceitas - totalDespesas) / qtdMesesSelecionados;
             if(lucroMensalMedio <= 0) lucroMensalMedio = 1600;
@@ -562,16 +598,14 @@
 
             const filtroAno = document.getElementById('dash-filtro-ano').value;
             
-            // Monta o gráfico refletindo apenas o escopo do que está ativado na barra de filtros
             let labelsFiltradas = [];
             let receitasData = [];
             let despesasData = [];
 
-            nomesMeses.forEach((mes, idx) => {
+            nomesCurtos.forEach((mes, idx) => {
                 if (mesesAtivos.includes(idx)) {
                     labelsFiltradas.push(mes);
                     
-                    // Soma valores para este respectivo mês e ano
                     let rMes = 0, dMes = 0;
                     lancamentos.forEach(item => {
                         const itemDate = new Date(item.data + 'T00:00:00');
