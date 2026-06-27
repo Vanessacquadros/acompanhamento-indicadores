@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Gestão Avançada - Salas de Saúde</title>
+    <title>Simulador Financeiro - Salas de Saúde</title>
     <!-- Tailwind CSS -->
     <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
     <!-- Chart.js -->
@@ -19,13 +19,13 @@
     <header class="bg-indigo-900 text-white shadow-md">
         <div class="max-w-7xl mx-auto px-4 py-5 flex flex-col sm:flex-row justify-between items-center gap-4">
             <div>
-                <h1 class="text-xl font-bold tracking-tight">Gestão de Salas Clientes</h1>
-                <p class="text-xs text-indigo-200 mt-0.5">Indicadores de Viabilidade & Fluxo de Caixa</p>
+                <h1 class="text-xl font-bold tracking-tight">Simulador Financeiro</h1>
+                <p class="text-xs text-indigo-200 mt-0.5">Gestão Estratégica & Viabilidade de Salas de Saúde</p>
             </div>
             <nav class="flex gap-2 bg-indigo-950 p-1 rounded-lg">
                 <button onclick="switchTab('dash')" id="btn-dash" class="tab-btn px-4 py-2 text-sm font-medium rounded-md bg-indigo-600 text-white shadow">Dashboard</button>
-                <button onclick="switchTab('lanc')" id="btn-lanc" class="tab-btn px-4 py-2 text-sm font-medium rounded-md text-indigo-200 hover:text-white">Novo Lançamento</button>
-                <button onclick="switchTab('extrato')" id="btn-extrato" class="tab-btn px-4 py-2 text-sm font-medium rounded-md text-indigo-200 hover:text-white">Extrato</button>
+                <button onclick="switchTab('lanc')" id="btn-lanc" class="tab-btn px-4 py-2 text-sm font-medium rounded-md text-indigo-200 hover:text-white">Lançamentos & Importação</button>
+                <button onclick="switchTab('extrato')" id="btn-extrato" class="tab-btn px-4 py-2 text-sm font-medium rounded-md text-indigo-200 hover:text-white">Histórico</button>
                 <button onclick="switchTab('config')" id="btn-config" class="tab-btn px-4 py-2 text-sm font-medium rounded-md text-indigo-200 hover:text-white">Configurações</button>
             </nav>
         </div>
@@ -65,7 +65,7 @@
                 </div>
             </div>
 
-            <!-- Chart and Summary -->
+            <!-- Chart and Room Breakdown -->
             <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
                 <div class="bg-white p-6 rounded-xl shadow-xs border border-slate-100 lg:col-span-2">
                     <h3 class="text-md font-semibold text-slate-700 mb-4">Evolução Mensal (Receitas vs. Despesas)</h3>
@@ -73,77 +73,129 @@
                         <canvas id="mainChart"></canvas>
                     </div>
                 </div>
+                
                 <div class="bg-white p-6 rounded-xl shadow-xs border border-slate-100 flex flex-col justify-between">
                     <div>
-                        <h3 class="text-md font-semibold text-slate-700 mb-4">Resumo Acumulado</h3>
-                        <div class="space-y-3">
-                            <div class="flex justify-between border-b border-slate-100 pb-2">
-                                <span class="text-sm text-slate-500">Total Receitas:</span>
-                                <span id="sum-receitas" class="text-sm font-semibold text-emerald-600">R$ 0,00</span>
+                        <h3 class="text-md font-semibold text-slate-700 mb-4">Desempenho por Sala</h3>
+                        <div class="space-y-4">
+                            <div class="p-3 bg-slate-50 rounded-lg">
+                                <span class="text-xs font-bold text-slate-500 block uppercase">Sala 01</span>
+                                <span id="faturamento-sala1" class="text-xl font-bold text-indigo-600 mt-1 block">R$ 0,00</span>
                             </div>
-                            <div class="flex justify-between border-b border-slate-100 pb-2">
-                                <span class="text-sm text-slate-500">Total Despesas:</span>
-                                <span id="sum-despesas" class="text-sm font-semibold text-rose-600">R$ 0,00</span>
-                            </div>
-                            <div class="flex justify-between border-b border-slate-100 pb-2">
-                                <span class="text-sm text-slate-500">Total Investido:</span>
-                                <span id="sum-investido" class="text-sm font-semibold text-indigo-600">R$ 0,00</span>
+                            <div class="p-3 bg-slate-50 rounded-lg">
+                                <span class="text-xs font-bold text-slate-500 block uppercase">Sala 02</span>
+                                <span id="faturamento-sala2" class="text-xl font-bold text-purple-600 mt-1 block">R$ 0,00</span>
                             </div>
                         </div>
                     </div>
-                    <div class="bg-slate-50 p-4 rounded-xl mt-4">
+                    <div class="bg-indigo-50 p-4 rounded-xl mt-4">
                         <div class="flex justify-between items-center">
-                            <span class="text-xs font-bold text-slate-500 uppercase">Resultado Líquido:</span>
-                            <span id="sum-liquido" class="text-lg font-bold">R$ 0,00</span>
+                            <span class="text-xs font-bold text-indigo-700 uppercase">Resultado Acumulado:</span>
+                            <span id="sum-liquido" class="text-lg font-bold text-indigo-900">R$ 0,00</span>
                         </div>
                     </div>
                 </div>
             </div>
         </div>
 
-        <!-- TAB: NOVO LANCAMENTO -->
-        <div id="tab-lanc" class="tab-content hidden max-w-xl mx-auto">
+        <!-- TAB: LANÇAMENTOS & IMPORTAÇÃO -->
+        <div id="tab-lanc" class="tab-content hidden max-w-4xl mx-auto space-y-8">
+            
+            <!-- Import Section -->
             <div class="bg-white p-6 rounded-xl shadow-xs border border-slate-100">
-                <h2 class="text-lg font-bold text-slate-700 mb-2">Registrar Movimentação</h2>
-                <p class="text-xs text-slate-400 mb-6">Insira os dados financeiros da clínica. O painel calculará tudo automaticamente.</p>
+                <h2 class="text-md font-bold text-slate-700 mb-2">📥 Importar Dados de Planilha</h2>
+                <p class="text-xs text-slate-400 mb-4">Selecione um arquivo CSV com os dados formatados para atualizar tudo instantaneamente.</p>
                 
-                <form id="form-lancamento" onsubmit="saveLancamento(event)" class="space-y-4">
+                <div class="flex items-center justify-center w-full">
+                    <label class="flex flex-col items-center justify-center w-full h-32 border-2 border-slate-200 border-dashed rounded-lg cursor-pointer bg-slate-50 hover:bg-slate-100 transition-all">
+                        <div class="flex flex-col items-center justify-center pt-5 pb-6">
+                            <svg class="w-8 h-8 mb-3 text-slate-400" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12"></path></svg>
+                            <p class="text-sm text-slate-500 font-medium">Clique para selecionar ou arraste o arquivo CSV</p>
+                            <p class="text-[10px] text-slate-400 mt-1">Estrutura das colunas: Data, Tipo, Sala, Descrição, Valor</p>
+                        </div>
+                        <input type="file" id="file-uploader" accept=".csv" class="hidden" onchange="importCSV(this)" />
+                    </label>
+                </div>
+            </div>
+
+            <!-- Highly Visual Custom Input Grid -->
+            <div class="bg-white p-6 rounded-xl shadow-xs border border-slate-100">
+                <h2 class="text-md font-bold text-slate-700 mb-4">✍️ Novo Lançamento Manual</h2>
+                
+                <form id="form-lancamento" onsubmit="saveLancamento(event)" class="space-y-6">
+                    <!-- Step 1: Select Type -->
                     <div>
-                        <label class="block text-xs font-bold uppercase text-slate-500 mb-1">Data</label>
-                        <input type="date" id="lanc-data" required class="w-full p-2.5 border border-slate-200 rounded-lg text-sm bg-slate-50 focus:bg-white focus:ring-2 focus:ring-indigo-500 focus:outline-none">
+                        <label class="block text-xs font-bold uppercase text-slate-400 mb-2">1. Tipo de Movimentação</label>
+                        <div class="grid grid-cols-1 sm:grid-cols-3 gap-3">
+                            <button type="button" onclick="setFormType('receita')" id="btn-type-receita" class="type-btn p-4 border rounded-xl flex items-center gap-3 font-medium transition-all bg-emerald-50 border-emerald-500 text-emerald-800 cursor-pointer">
+                                <span class="text-xl">🟢</span>
+                                <div class="text-left">
+                                    <span class="block text-sm">Receita</span>
+                                    <span class="text-[10px] opacity-70">Entrada de Locações</span>
+                                </div>
+                            </button>
+                            <button type="button" onclick="setFormType('despesa')" id="btn-type-despesa" class="type-btn p-4 border border-slate-200 rounded-xl flex items-center gap-3 font-medium transition-all text-slate-600 hover:bg-slate-50 cursor-pointer">
+                                <span class="text-xl">🔴</span>
+                                <div class="text-left">
+                                    <span class="block text-sm">Despesa</span>
+                                    <span class="text-[10px] opacity-70">Custos e Manutenção</span>
+                                </div>
+                            </button>
+                            <button type="button" onclick="setFormType('investimento')" id="btn-type-investimento" class="type-btn p-4 border border-slate-200 rounded-xl flex items-center gap-3 font-medium transition-all text-slate-600 hover:bg-slate-50 cursor-pointer">
+                                <span class="text-xl">🔵</span>
+                                <div class="text-left">
+                                    <span class="block text-sm">Investimento</span>
+                                    <span class="text-[10px] opacity-70">Reforma e Aquisições</span>
+                                </div>
+                            </button>
+                        </div>
                     </div>
-                    <div>
-                        <label class="block text-xs font-bold uppercase text-slate-500 mb-1">Tipo de Registro</label>
-                        <select id="lanc-tipo" required class="w-full p-2.5 border border-slate-200 rounded-lg text-sm bg-slate-50 focus:bg-white focus:ring-2 focus:ring-indigo-500 focus:outline-none">
-                            <option value="receita">🟢 Entrada (Locação por Turno, Hora, Pacote)</option>
-                            <option value="despesa">🔴 Saída (Custos Fixos, Limpeza, Impostos)</option>
-                            <option value="investimento">🔵 Investimento Estrutural (Reforma, Móveis, Equipamentos)</option>
-                        </select>
+
+                    <!-- Step 2: Contextual Room Selector -->
+                    <div id="sala-selector-block">
+                        <label class="block text-xs font-bold uppercase text-slate-400 mb-2">2. Destinação da Receita (Selecione a Sala)</label>
+                        <div class="grid grid-cols-2 gap-3">
+                            <button type="button" onclick="setFormSala('sala1')" id="btn-sala1" class="sala-btn p-3 border rounded-xl font-medium text-sm transition-all bg-indigo-50 border-indigo-500 text-indigo-800 cursor-pointer text-center">
+                                Sala 01
+                            </button>
+                            <button type="button" onclick="setFormSala('sala2')" id="btn-sala2" class="sala-btn p-3 border border-slate-200 rounded-xl font-medium text-sm transition-all text-slate-600 hover:bg-slate-50 cursor-pointer text-center">
+                                Sala 02
+                            </button>
+                        </div>
                     </div>
-                    <div>
-                        <label class="block text-xs font-bold uppercase text-slate-500 mb-1">Categoria / Profissional</label>
-                        <input type="text" id="lanc-desc" required placeholder="Ex: Dr. Carlos - Turno Sala 1 ou Conta de Energia" class="w-full p-2.5 border border-slate-200 rounded-lg text-sm bg-slate-50 focus:bg-white focus:ring-2 focus:ring-indigo-500 focus:outline-none">
+
+                    <!-- Step 3: Core Data Row -->
+                    <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
+                        <div>
+                            <label class="block text-xs font-bold uppercase text-slate-400 mb-1">Data</label>
+                            <input type="date" id="lanc-data" required class="w-full p-2.5 border border-slate-200 rounded-lg text-sm bg-slate-50 focus:bg-white focus:outline-hidden">
+                        </div>
+                        <div>
+                            <label class="block text-xs font-bold uppercase text-slate-400 mb-1">Descrição / Notas</label>
+                            <input type="text" id="lanc-desc" required placeholder="Ex: Dr. Silva - Turno da manhã" class="w-full p-2.5 border border-slate-200 rounded-lg text-sm bg-slate-50 focus:bg-white focus:outline-hidden">
+                        </div>
+                        <div>
+                            <label class="block text-xs font-bold uppercase text-slate-400 mb-1">Valor do Lançamento (R$)</label>
+                            <input type="number" step="0.01" id="lanc-valor" required placeholder="0,00" class="w-full p-2.5 border border-slate-200 rounded-lg text-sm bg-slate-50 focus:bg-white focus:outline-hidden">
+                        </div>
                     </div>
-                    <div>
-                        <label class="block text-xs font-bold uppercase text-slate-500 mb-1">Valor (R$)</label>
-                        <input type="number" step="0.01" id="lanc-valor" required placeholder="0,00" class="w-full p-2.5 border border-slate-200 rounded-lg text-sm bg-slate-50 focus:bg-white focus:ring-2 focus:ring-indigo-500 focus:outline-none">
-                    </div>
-                    <button type="submit" class="w-full bg-indigo-600 hover:bg-indigo-700 text-white font-medium py-3 rounded-lg text-sm shadow transition-all mt-4 cursor-pointer">Salvar Lançamento</button>
+
+                    <button type="submit" class="w-full bg-indigo-600 hover:bg-indigo-700 text-white font-medium py-3 rounded-lg text-sm shadow transition-all cursor-pointer">Adicionar ao Simulador</button>
                 </form>
             </div>
         </div>
 
-        <!-- TAB: EXTRATO -->
+        <!-- TAB: HISTORICO / EXTRATO -->
         <div id="tab-extrato" class="tab-content hidden">
             <div class="bg-white rounded-xl shadow-xs border border-slate-100 overflow-hidden">
                 <div class="p-6 border-b border-slate-100 flex flex-col sm:flex-row justify-between items-center gap-4">
                     <div>
-                        <h2 class="text-lg font-bold text-slate-700">Histórico de Transações</h2>
-                        <p class="text-xs text-slate-400">Lista de todas as entradas, saídas e investimentos inseridos no sistema.</p>
+                        <h2 class="text-md font-bold text-slate-700">Histórico Completo</h2>
+                        <p class="text-xs text-slate-400">Todos os registros inseridos ou importados no Simulador Financeiro.</p>
                     </div>
                     <div class="flex gap-2">
-                        <button onclick="clearData()" class="px-3 py-1.5 text-xs font-medium text-rose-600 border border-rose-200 hover:bg-rose-50 rounded-lg cursor-pointer">Limpar Tudo</button>
-                        <button onclick="exportJSON()" class="px-3 py-1.5 text-xs font-medium text-slate-600 border border-slate-200 hover:bg-slate-50 rounded-lg cursor-pointer">Fazer Backup</button>
+                        <button onclick="clearData()" class="px-3 py-1.5 text-xs font-medium text-rose-600 border border-rose-200 hover:bg-rose-50 rounded-lg cursor-pointer">Limpar Banco</button>
+                        <button onclick="exportJSON()" class="px-3 py-1.5 text-xs font-medium text-slate-600 border border-slate-200 hover:bg-slate-50 rounded-lg cursor-pointer">Exportar Backup</button>
                     </div>
                 </div>
                 <div class="overflow-x-auto">
@@ -151,14 +203,15 @@
                         <thead>
                             <tr class="bg-slate-50 text-slate-400 text-[10px] font-bold uppercase tracking-wider border-b border-slate-100">
                                 <th class="p-4">Data</th>
-                                <th class="p-4">Tipo</th>
+                                <th class="p-4">Fluxo</th>
+                                <th class="p-4">Origem / Destino</th>
                                 <th class="p-4">Descrição</th>
                                 <th class="p-4 text-right">Valor</th>
                                 <th class="p-4 text-center">Ações</th>
                             </tr>
                         </thead>
                         <tbody id="table-body" class="text-sm divide-y divide-slate-100">
-                            <!-- Rows injected dynamically -->
+                            <!-- Injected dynamically -->
                         </tbody>
                     </table>
                 </div>
@@ -168,19 +221,19 @@
         <!-- TAB: CONFIGURACOES -->
         <div id="tab-config" class="tab-content hidden max-w-xl mx-auto">
             <div class="bg-white p-6 rounded-xl shadow-xs border border-slate-100">
-                <h2 class="text-lg font-bold text-slate-700 mb-2">Premissas Operacionais</h2>
-                <p class="text-xs text-slate-400 mb-6">Defina a capacidade das salas e o preço médio para calibrar os indicadores automáticos.</p>
+                <h2 class="text-md font-bold text-slate-700 mb-2">Parâmetros Operacionais</h2>
+                <p class="text-xs text-slate-400 mb-6">Ajuste os parâmetros para recalibrar o ponto de equilíbrio.</p>
                 
                 <div class="space-y-4">
                     <div>
-                        <label class="block text-xs font-bold uppercase text-slate-500 mb-1">Capacidade Máxima Mensal (Total de Horas das 2 salas)</label>
-                        <input type="number" id="cfg-capacidade" value="320" class="w-full p-2.5 border border-slate-200 rounded-lg text-sm bg-slate-50 focus:bg-white focus:outline-none">
+                        <label class="block text-xs font-bold uppercase text-slate-500 mb-1">Capacidade Total Mensal (Horas Combinadas das 2 salas)</label>
+                        <input type="number" id="cfg-capacidade" value="320" class="w-full p-2.5 border border-slate-200 rounded-lg text-sm bg-slate-50 focus:bg-white focus:outline-hidden">
                     </div>
                     <div>
-                        <label class="block text-xs font-bold uppercase text-slate-500 mb-1">Preço Médio Cobrado por Hora (R$)</label>
-                        <input type="number" id="cfg-preco" value="60" class="w-full p-2.5 border border-slate-200 rounded-lg text-sm bg-slate-50 focus:bg-white focus:outline-none">
+                        <label class="block text-xs font-bold uppercase text-slate-500 mb-1">Preço Médio Estimado da Hora de Locação (R$)</label>
+                        <input type="number" id="cfg-preco" value="60" class="w-full p-2.5 border border-slate-200 rounded-lg text-sm bg-slate-50 focus:bg-white focus:outline-hidden">
                     </div>
-                    <button onclick="saveConfig()" class="w-full bg-indigo-600 hover:bg-indigo-700 text-white font-medium py-3 rounded-lg text-sm shadow transition-all mt-4 cursor-pointer">Atualizar Premissas</button>
+                    <button onclick="saveConfig()" class="w-full bg-indigo-600 hover:bg-indigo-700 text-white font-medium py-3 rounded-lg text-sm shadow transition-all mt-4 cursor-pointer">Salvar Configurações</button>
                 </div>
             </div>
         </div>
@@ -189,21 +242,23 @@
 
     <!-- Footer -->
     <footer class="bg-slate-100 border-t border-slate-200 py-4 text-center text-xs text-slate-400 mt-12">
-        Sistema de Monitoramento Estratégico &bull; Desenvolvido sem Custos de Servidor.
+        Simulador Financeiro &bull; Gestão Descentralizada e Inteligente para Clínicas.
     </footer>
 
-    <!-- Core App Logic Script -->
     <script>
-        let lancamentos = JSON.parse(localStorage.getItem('salas_lancamentos')) || [
-            { id: 1, data: '2026-01-01', tipo: 'investimento', desc: 'Reforma Estrutural e Equipamentos', valor: 45000 },
-            { id: 2, data: '2026-01-05', tipo: 'despesa', desc: 'Aluguel e Condomínio Fixo', valor: 3500 },
-            { id: 3, data: '2026-01-10', tipo: 'receita', desc: 'Dr. Silva - Pacote Turno', valor: 1200 },
-            { id: 4, data: '2026-01-15', tipo: 'receita', desc: 'Dra. Maria - Locação Horas', valor: 450 },
-            { id: 5, data: '2026-02-05', tipo: 'despesa', desc: 'Aluguel e Condomínio Fixo', valor: 3500 },
-            { id: 6, data: '2026-02-12', tipo: 'receita', desc: 'Dr. Silva - Pacote Turno', valor: 2400 }
+        let selectedType = 'receita';
+        let selectedSala = 'sala1';
+
+        let lancamentos = JSON.parse(localStorage.getItem('simulador_lancamentos')) || [
+            { id: 1, data: '2026-01-01', tipo: 'investimento', sala: '-', desc: 'Reforma Estrutural Inicial', valor: 45000 },
+            { id: 2, data: '2026-01-05', tipo: 'despesa', sala: '-', desc: 'Custos Fixos de Aluguel/Condomínio', valor: 3500 },
+            { id: 3, data: '2026-01-10', tipo: 'receita', sala: 'sala1', desc: 'Atendimentos Dr. Silva', valor: 2500 },
+            { id: 4, data: '2026-01-12', tipo: 'receita', sala: 'sala2', desc: 'Consultas Dra. Marina', valor: 1800 },
+            { id: 5, data: '2026-02-05', tipo: 'despesa', sala: '-', desc: 'Custos Fixos de Aluguel/Condomínio', valor: 3500 },
+            { id: 6, data: '2026-02-15', tipo: 'receita', sala: 'sala1', desc: 'Locação Turnos Acumulados', valor: 3200 }
         ];
 
-        let config = JSON.parse(localStorage.getItem('salas_config')) || {
+        let config = JSON.parse(localStorage.getItem('simulador_config')) || {
             capacidade: 320,
             preco: 60
         };
@@ -234,15 +289,48 @@
             }
         }
 
+        function setFormType(type) {
+            selectedType = type;
+            document.querySelectorAll('.type-btn').forEach(el => {
+                el.classList.remove('bg-emerald-50', 'border-emerald-500', 'text-emerald-800', 'bg-rose-50', 'border-rose-500', 'text-rose-800', 'bg-indigo-50', 'border-indigo-500', 'text-indigo-800');
+                el.classList.add('border-slate-200', 'text-slate-600', 'hover:bg-slate-50');
+            });
+
+            const btn = document.getElementById(`btn-type-${type}`);
+            btn.classList.remove('border-slate-200', 'text-slate-600', 'hover:bg-slate-50');
+            
+            if(type === 'receita') {
+                btn.classList.add('bg-emerald-50', 'border-emerald-500', 'text-emerald-800');
+                document.getElementById('sala-selector-block').classList.remove('hidden');
+            } else if(type === 'despesa') {
+                btn.classList.add('bg-rose-50', 'border-rose-500', 'text-rose-800');
+                document.getElementById('sala-selector-block').classList.add('hidden');
+            } else {
+                btn.classList.add('bg-indigo-50', 'border-indigo-500', 'text-indigo-800');
+                document.getElementById('sala-selector-block').classList.add('hidden');
+            }
+        }
+
+        function setFormSala(sala) {
+            selectedSala = sala;
+            document.querySelectorAll('.sala-btn').forEach(el => {
+                el.classList.remove('bg-indigo-50', 'border-indigo-500', 'text-indigo-800');
+                el.classList.add('border-slate-200', 'text-slate-600', 'hover:bg-slate-50');
+            });
+            const btn = document.getElementById(`btn-${sala}`);
+            btn.classList.remove('border-slate-200', 'text-slate-600', 'hover:bg-slate-50');
+            btn.classList.add('bg-indigo-50', 'border-indigo-500', 'text-indigo-800');
+        }
+
         function saveLancamento(e) {
             e.preventDefault();
             const data = document.getElementById('lanc-data').value;
-            const tipo = document.getElementById('lanc-tipo').value;
             const desc = document.getElementById('lanc-desc').value;
             const valor = parseFloat(document.getElementById('lanc-valor').value);
+            const sala = selectedType === 'receita' ? selectedSala : '-';
 
-            lancamentos.push({ id: Date.now(), data, tipo, desc, valor });
-            localStorage.setItem('salas_lancamentos', JSON.stringify(lancamentos));
+            lancamentos.push({ id: Date.now(), data, tipo: selectedType, sala, desc, valor });
+            localStorage.setItem('simulador_lancamentos', JSON.stringify(lancamentos));
 
             document.getElementById('lanc-desc').value = '';
             document.getElementById('lanc-valor').value = '';
@@ -253,24 +341,52 @@
 
         function deleteLancamento(id) {
             lancamentos = lancamentos.filter(item => item.id !== id);
-            localStorage.setItem('salas_lancamentos', JSON.stringify(lancamentos));
+            localStorage.setItem('simulador_lancamentos', JSON.stringify(lancamentos));
             renderApp();
         }
 
-        function saveConfig() {
-            config.capacidade = parseInt(document.getElementById('cfg-capacidade').value) || 320;
-            config.preco = parseFloat(document.getElementById('cfg-preco').value) || 60;
-            localStorage.setItem('salas_config', JSON.stringify(config));
-            renderApp();
-            switchTab('dash');
-        }
+        function importCSV(input) {
+            const file = input.files[0];
+            if (!file) return;
 
-        function clearData() {
-            if(confirm("Tem certeza que deseja apagar permanentemente todos os registros atuais?")) {
-                lancamentos = [];
-                localStorage.setItem('salas_lancamentos', JSON.stringify(lancamentos));
-                renderApp();
-            }
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                const text = e.target.result;
+                const lines = text.split('\n');
+                
+                let count = 0;
+                for(let i = 1; i < lines.length; i++) {
+                    const cols = lines[i].split(',');
+                    if(cols.length >= 5) {
+                        const data = cols[0].trim();
+                        const tipo = cols[1].trim().toLowerCase(); 
+                        const sala = cols[2].trim().toLowerCase(); 
+                        const desc = cols[3].trim();
+                        const valor = parseFloat(cols[4].trim());
+
+                        if(data && tipo && !isNaN(valor)) {
+                            lancamentos.push({
+                                id: Date.now() + i,
+                                data,
+                                tipo,
+                                sala: tipo === 'receita' ? sala : '-',
+                                desc,
+                                valor
+                            });
+                            count++;
+                        }
+                    }
+                }
+                if(count > 0) {
+                    localStorage.setItem('simulador_lancamentos', JSON.stringify(lancamentos));
+                    alert(count + " registros importados com sucesso!");
+                    renderApp();
+                    switchTab('dash');
+                } else {
+                    alert("Erro: Certifique-se de salvar sua planilha como arquivo .CSV separado por vírgulas.");
+                }
+            };
+            reader.readAsText(file);
         }
 
         function formatCurrency(val) {
@@ -280,69 +396,64 @@
         function renderApp() {
             const tbody = document.getElementById('table-body');
             tbody.innerHTML = '';
-            
             const sorted = [...lancamentos].sort((a,b) => new Date(b.data) - new Date(a.data));
             
+            let sala1Tot = 0;
+            let sala2Tot = 0;
+            let totalDespesas = 0;
+            let totalInvestido = 0;
+
             sorted.forEach(item => {
+                if(item.tipo === 'receita' && item.sala === 'sala1') sala1Tot += item.valor;
+                if(item.tipo === 'receita' && item.sala === 'sala2') sala2Tot += item.valor;
+                if(item.tipo === 'despesa') totalDespesas += item.valor;
+                if(item.tipo === 'investimento') totalInvestido += item.valor;
+
                 const tr = document.createElement('tr');
-                
                 let badge = '';
-                if(item.tipo === 'receita') badge = '<span class="px-2 py-0.5 text-[10px] font-medium rounded-sm bg-emerald-50 text-emerald-700">Entrada</span>';
-                if(item.tipo === 'despesa') badge = '<span class="px-2 py-0.5 text-[10px] font-medium rounded-sm bg-rose-50 text-rose-700">Saída</span>';
-                if(item.tipo === 'investimento') badge = '<span class="px-2 py-0.5 text-[10px] font-medium rounded-sm bg-indigo-50 text-indigo-700">Investimento</span>';
+                if(item.tipo === 'receita') badge = '<span class="px-2 py-0.5 text-[10px] font-semibold rounded-sm bg-emerald-50 text-emerald-700">Entrada</span>';
+                if(item.tipo === 'despesa') badge = '<span class="px-2 py-0.5 text-[10px] font-semibold rounded-sm bg-rose-50 text-rose-700">Saída</span>';
+                if(item.tipo === 'investimento') badge = '<span class="px-2 py-0.5 text-[10px] font-semibold rounded-sm bg-indigo-50 text-indigo-700">Investimento</span>';
+
+                let orig = item.tipo === 'receita' ? (item.sala === 'sala1' ? 'Sala 01' : 'Sala 02') : 'Geral';
 
                 tr.innerHTML = `
                     <td class="p-4 text-slate-500">${item.data.split('-').reverse().join('/')}</td>
                     <td class="p-4">${badge}</td>
-                    <td class="p-4 font-medium text-slate-700">${item.desc}</td>
+                    <td class="p-4 font-medium text-slate-600">${orig}</td>
+                    <td class="p-4 text-slate-700">${item.desc}</td>
                     <td class="p-4 text-right font-semibold ${item.tipo==='receita'?'text-emerald-600':(item.tipo==='despesa'?'text-rose-600':'text-indigo-600')}">${formatCurrency(item.valor)}</td>
                     <td class="p-4 text-center">
-                        <button onclick="deleteLancamento(${item.id})" class="text-slate-400 hover:text-rose-600 transition-colors cursor-pointer">&times; Remover</button>
+                        <button onclick="deleteLancamento(${item.id})" class="text-xs text-slate-400 hover:text-rose-600 transition-colors cursor-pointer">&times; Remover</button>
                     </td>
                 `;
                 tbody.appendChild(tr);
             });
 
-            let totalReceitas = 0;
-            let totalDespesas = 0;
-            let totalInvestido = 0;
-            let despesasFixasMensaisArr = [];
-
-            lancamentos.forEach(item => {
-                if(item.tipo === 'receita') totalReceitas += item.valor;
-                if(item.tipo === 'despesa') {
-                    totalDespesas += item.valor;
-                    despesasFixasMensaisArr.push(item.valor);
-                }
-                if(item.tipo === 'investimento') totalInvestido += item.valor;
-            });
-
-            let custoFixoMedio = despesasFixasMensaisArr.length > 0 ? (totalDespesas / 2 || 3500) : 3500;
-            if(custoFixoMedio === 0) custoFixoMedio = 3500;
-
-            document.getElementById('sum-receitas').innerText = formatCurrency(totalReceitas);
-            document.getElementById('sum-despesas').innerText = formatCurrency(totalDespesas);
-            document.getElementById('sum-investido').innerText = formatCurrency(totalInvestido);
+            document.getElementById('faturamento-sala1').innerText = formatCurrency(sala1Tot);
+            document.getElementById('faturamento-sala2').innerText = formatCurrency(sala2Tot);
+            
+            let totalReceitas = sala1Tot + sala2Tot;
             document.getElementById('sum-liquido').innerText = formatCurrency(totalReceitas - totalDespesas - totalInvestido);
 
-            const breakEvenFaturamento = custoFixoMedio;
-            document.getElementById('kpi-break-even').innerText = formatCurrency(breakEvenFaturamento);
+            let custoFixoBase = totalDespesas > 0 ? (totalDespesas / 2 || 3500) : 3500;
+            document.getElementById('kpi-break-even').innerText = formatCurrency(custoFixoBase);
 
-            const horasNecessarias = breakEvenFaturamento / config.preco;
-            const ocuMinimaPct = config.capacidade > 0 ? (horasNecessarias / config.capacidade) * 100 : 0;
-            document.getElementById('kpi-ponto-eq').innerText = ocuMinimaPct.toFixed(1) + '%';
+            const horasReq = custoFixoBase / config.preco;
+            const ocuPct = config.capacidade > 0 ? (horasReq / config.capacidade) * 100 : 0;
+            document.getElementById('kpi-ponto-eq').innerText = ocuPct.toFixed(1) + '%';
 
-            let lucroMensalMedio = (totalReceitas - totalDespesas) / 2; 
-            if(lucroMensalMedio <= 0) lucroMensalMedio = 1500;
+            let lucroMensalMedio = (totalReceitas - totalDespesas) / 2;
+            if(lucroMensalMedio <= 0) lucroMensalMedio = 1600;
 
-            const paybackMeses = totalInvestido > 0 ? (totalInvestido / lucroMensalMedio) : 0;
-            document.getElementById('kpi-payback').innerText = paybackMeses > 0 ? paybackMeses.toFixed(1) + ' meses' : '0 meses';
+            const payback = totalInvestido > 0 ? (totalInvestido / lucroMensalMedio) : 0;
+            document.getElementById('kpi-payback').innerText = payback > 0 ? payback.toFixed(1) + ' meses' : '0 meses';
 
-            const roiAnualPct = totalInvestido > 0 ? ((lucroMensalMedio * 12) / totalInvestido) * 100 : 0;
-            document.getElementById('kpi-roi').innerText = roiAnualPct.toFixed(1) + '%';
+            const roi = totalInvestido > 0 ? ((lucroMensalMedio * 12) / totalInvestido) * 100 : 0;
+            document.getElementById('kpi-roi').innerText = roi.toFixed(1) + '%';
 
-            let tirMensal = totalInvestido > 0 ? (lucroMensalMedio / totalInvestido) * 100 : 0;
-            document.getElementById('kpi-tir').innerText = tirMensal.toFixed(1) + '%';
+            let tir = totalInvestido > 0 ? (lucroMensalMedio / totalInvestido) * 100 : 0;
+            document.getElementById('kpi-tir').innerText = tir.toFixed(1) + '%';
 
             renderCharts();
         }
@@ -352,24 +463,24 @@
             if(!ctx) return;
 
             const mesesLabels = ['Jan', 'Fev', 'Mar', 'Abr', 'Mai', 'Jun'];
-            let receitasData = [1200, 2400, 0, 0, 0, 0];
+            let receitasData = [4300, 3200, 0, 0, 0, 0];
             let despesasData = [3500, 3500, 0, 0, 0, 0];
 
-            let janRec = 0, janDes = 0, fevRec = 0, fevDes = 0;
+            let jRec = 0, jDes = 0, fRec = 0, fDes = 0;
             lancamentos.forEach(item => {
                 let m = new Date(item.data).getMonth();
                 if(m === 0) {
-                    if(item.tipo === 'receita') janRec += item.valor;
-                    if(item.tipo === 'despesa') janDes += item.valor;
+                    if(item.tipo === 'receita') jRec += item.valor;
+                    if(item.tipo === 'despesa') jDes += item.valor;
                 }
                 if(m === 1) {
-                    if(item.tipo === 'receita') fevRec += item.valor;
-                    if(item.tipo === 'despesa') fevDes += item.valor;
+                    if(item.tipo === 'receita') fRec += item.valor;
+                    if(item.tipo === 'despesa') fDes += item.valor;
                 }
             });
             if(lancamentos.length > 0) {
-                receitasData[0] = janRec; despesasData[0] = janDes;
-                receitasData[1] = fevRec; despesasData[1] = fevDes;
+                receitasData[0] = jRec; despesasData[0] = jDes;
+                receitasData[1] = fRec; despesasData[1] = fDes;
             }
 
             if(chartInstance) chartInstance.destroy();
@@ -382,13 +493,13 @@
                         {
                             label: 'Receitas (R$)',
                             data: receitasData,
-                            backgroundColor: 'rgba(16, 185, 129, 0.85)',
+                            backgroundColor: '#4f46e5',
                             borderRadius: 6
                         },
                         {
                             label: 'Despesas (R$)',
                             data: despesasData,
-                            backgroundColor: 'rgba(239, 68, 68, 0.85)',
+                            backgroundColor: '#ef4444',
                             borderRadius: 6
                         }
                     ]
@@ -402,11 +513,27 @@
             });
         }
 
+        function saveConfig() {
+            config.capacidade = parseInt(document.getElementById('cfg-capacidade').value) || 320;
+            config.preco = parseFloat(document.getElementById('cfg-preco').value) || 60;
+            localStorage.setItem('simulador_config', JSON.stringify(config));
+            renderApp();
+            switchTab('dash');
+        }
+
+        function clearData() {
+            if(confirm("Deseja apagar os dados?")) {
+                lancamentos = [];
+                localStorage.setItem('simulador_lancamentos', JSON.stringify(lancamentos));
+                renderApp();
+            }
+        }
+
         function exportJSON() {
             const dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(lancamentos));
             const downloadAnchor = document.createElement('a');
             downloadAnchor.setAttribute("href", dataStr);
-            downloadAnchor.setAttribute("download", "backup_salas_saude.json");
+            downloadAnchor.setAttribute("download", "backup_simulador.json");
             document.body.appendChild(downloadAnchor);
             downloadAnchor.click();
             downloadAnchor.remove();
