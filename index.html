@@ -32,28 +32,26 @@
         
         <div id="tab-dash" class="tab-content space-y-6">
             
-            <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4 bg-white p-4 rounded-xl shadow-xs border border-slate-100">
-                <div>
-                    <h2 class="text-sm font-bold text-slate-700 uppercase tracking-wider">Visualização de Dados</h2>
-                    <p class="text-xs text-slate-400">Escolha o período para filtrar os KPIs e gráficos</p>
+            <div class="bg-white p-6 rounded-xl shadow-xs border border-slate-100 space-y-4">
+                <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-slate-100 pb-3">
+                    <div>
+                        <h2 class="text-sm font-bold text-slate-700 uppercase tracking-wider">Filtro de Período Inteligente</h2>
+                        <p class="text-xs text-slate-400">Selecione o ano e clique nos meses para combinar e comparar resultados</p>
+                    </div>
+                    <div class="flex items-center gap-2">
+                        <label class="text-xs font-bold uppercase text-slate-400">Ano:</label>
+                        <select id="dash-filtro-ano" onchange="renderApp()" class="p-2 border border-slate-200 rounded-lg text-sm bg-slate-50 font-semibold text-slate-700 focus:bg-white focus:outline-hidden">
+                            <option value="2026">2026</option>
+                            <option value="2027">2027</option>
+                            <option value="2028">2028</option>
+                        </select>
+                        <button onclick="selecionarTodosMeses(true)" class="ml-2 px-3 py-2 text-xs font-medium text-indigo-600 bg-indigo-50 hover:bg-indigo-100 rounded-lg transition-colors cursor-pointer">Todo o Ano</button>
+                        <button onclick="selecionarTodosMeses(false)" class="px-3 py-2 text-xs font-medium text-slate-500 bg-slate-100 hover:bg-slate-200 rounded-lg transition-colors cursor-pointer">Limpar</button>
+                    </div>
                 </div>
-                <div class="w-full sm:w-64">
-                    <select id="dash-filtro-mes" onchange="renderApp()" class="w-full p-2.5 border border-slate-200 rounded-lg text-sm bg-slate-50 font-medium text-slate-700 focus:bg-white focus:outline-hidden">
-                        <option value="todos">Módulos Consolidados (Todos)</option>
-                        <option value="0">Janeiro</option>
-                        <option value="1">Fevereiro</option>
-                        <option value="2">Março</option>
-                        <option value="3">Abril</option>
-                        <option value="4">Maio</option>
-                        <option value="5">Junho</option>
-                        <option value="6">Julho</option>
-                        <option value="7">Agosto</option>
-                        <option value="8">Setembro</option>
-                        <option value="9">Outubro</option>
-                        <option value="10">Novembro</option>
-                        <option value="11">Dezembro</option>
-                    </select>
-                </div>
+                
+                <div class="grid grid-cols-3 sm:grid-cols-4 md:grid-cols-6 lg:grid-cols-12 gap-2" id="grid-meses-filtro">
+                    </div>
             </div>
 
             <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-4">
@@ -65,7 +63,7 @@
                 <div class="bg-white p-5 rounded-xl shadow-xs border border-slate-100">
                     <span class="text-xs font-semibold text-slate-400 uppercase tracking-wider block">Faturamento Mínimo</span>
                     <span id="kpi-break-even" class="text-2xl font-bold text-slate-800 block mt-2">R$ 0,00</span>
-                    <span class="text-xs text-slate-400 block mt-1">Break-Even Mensal</span>
+                    <span class="text-xs text-slate-400 block mt-1">Break-Even Período</span>
                 </div>
                 <div class="bg-white p-5 rounded-xl shadow-xs border border-slate-100">
                     <span class="text-xs font-semibold text-slate-400 uppercase tracking-wider block">Payback Estimado</span>
@@ -108,7 +106,7 @@
                     </div>
                     <div class="bg-indigo-50 p-4 rounded-xl mt-4">
                         <div class="flex justify-between items-center">
-                            <span class="text-xs font-bold text-indigo-700 uppercase">Resultado Filtrado:</span>
+                            <span class="text-xs font-bold text-indigo-700 uppercase">Resultado do Filtro:</span>
                             <span id="sum-liquido" class="text-lg font-bold text-indigo-900">R$ 0,00</span>
                         </div>
                     </div>
@@ -257,6 +255,10 @@
     <script>
         let selectedType = 'receita';
         let selectedSala = 'sala1';
+        
+        // Estado global dos meses selecionados (0 = Jan, 1 = Fev, etc)
+        let mesesAtivos = [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11]; 
+        const nomesMeses = ['Jan', 'Fev', 'Mar', 'Abr', 'Mai', 'Jun', 'Jul', 'Ago', 'Set', 'Out', 'Nov', 'Dez'];
 
         let lancamentos = JSON.parse(localStorage.getItem('simulador_lancamentos')) || [
             { id: 1, data: '2026-01-01', tipo: 'investimento', sala: '-', desc: 'Reforma Estrutural Inicial', valor: 45000 },
@@ -277,9 +279,53 @@
 
         document.addEventListener("DOMContentLoaded", () => {
             document.getElementById('lanc-data').valueAsDate = new Date();
+            renderFiltroMeses();
             updateMetricaUI();
             renderApp();
         });
+
+        function renderFiltroMeses() {
+            const container = document.getElementById('grid-meses-filtro');
+            container.innerHTML = '';
+            
+            nomesMeses.forEach((mes, idx) => {
+                const btn = document.createElement('button');
+                btn.type = 'button';
+                btn.innerText = mes;
+                btn.onclick = () => toggleMesFiltro(idx);
+                btn.id = `btn-filtro-mes-${idx}`;
+                container.appendChild(btn);
+            });
+            atualizarEstiloFiltros();
+        }
+
+        function toggleMesFiltro(idx) {
+            if (mesesAtivos.includes(idx)) {
+                mesesAtivos = mesesAtivos.filter(m => m !== idx);
+            } else {
+                mesesAtivos.push(idx);
+            }
+            atualizarEstiloFiltros();
+            renderApp();
+        }
+
+        function selecionarTodosMeses(status) {
+            mesesAtivos = status ? [0,1,2,3,4,5,6,7,8,9,10,11] : [];
+            atualizarEstiloFiltros();
+            renderApp();
+        }
+
+        function atualizarEstiloFiltros() {
+            nomesMeses.forEach((_, idx) => {
+                const btn = document.getElementById(`btn-filtro-mes-${idx}`);
+                if (!btn) return;
+                if (mesesAtivos.includes(idx)) {
+                    btn.className = "p-2 text-xs font-semibold rounded-lg text-center bg-indigo-600 text-white shadow-xs cursor-pointer border border-transparent transition-all";
+                } else {
+                    btn.className = "p-2 text-xs font-medium rounded-lg text-center bg-slate-50 text-slate-600 border border-slate-200 hover:bg-slate-100 cursor-pointer transition-all";
+                }
+            });
+        }
 
         function setMetrica(m) {
             config.metrica = m;
@@ -433,7 +479,7 @@
             const tbody = document.getElementById('table-body');
             tbody.innerHTML = '';
             
-            const filtroMes = document.getElementById('dash-filtro-mes').value;
+            const filtroAno = document.getElementById('dash-filtro-ano').value;
             const sorted = [...lancamentos].sort((a,b) => new Date(b.data) - new Date(a.data));
             
             let sala1Tot = 0;
@@ -443,9 +489,10 @@
 
             sorted.forEach(item => {
                 const itemDate = new Date(item.data + 'T00:00:00');
-                const itemMes = itemDate.getMonth().toString();
+                const itemMes = itemDate.getMonth();
+                const itemAno = itemDate.getFullYear().toString();
 
-                // Renderiza a tabela do histórico normalmente
+                // Monta a listagem estática do histórico sempre com tudo
                 const tr = document.createElement('tr');
                 let badge = '';
                 if(item.tipo === 'receita') badge = '<span class="px-2 py-0.5 text-[10px] font-semibold rounded-sm bg-emerald-50 text-emerald-700">Entrada</span>';
@@ -465,8 +512,8 @@
                 `;
                 tbody.appendChild(tr);
 
-                // Aplica filtros específicos para a composição do Dashboard
-                if (filtroMes === 'todos' || filtroMes === itemMes) {
+                // Processa apenas o cruzamento correto de múltiplos meses + o ano selecionado no Dashboard
+                if (itemAno === filtroAno && mesesAtivos.includes(itemMes)) {
                     if(item.tipo === 'receita' && item.sala === 'sala1') sala1Tot += item.valor;
                     if(item.tipo === 'receita' && item.sala === 'sala2') sala2Tot += item.valor;
                     if(item.tipo === 'despesa') totalDespesas += item.valor;
@@ -474,41 +521,27 @@
                 }
             });
 
-            // Atualiza Dashboard com dados filtrados
             document.getElementById('faturamento-sala1').innerText = formatCurrency(sala1Tot);
             document.getElementById('faturamento-sala2').innerText = formatCurrency(sala2Tot);
             
             let totalReceitas = sala1Tot + sala2Tot;
             document.getElementById('sum-liquido').innerText = formatCurrency(totalReceitas - totalDespesas - totalInvestido);
 
-            // Ajusta proporcionalmente o Custo Fixo se for visão mensal única vs consolidada
-            let custoFixoBase = 3500; 
-            if (filtroMes === 'todos') {
-                // Conta quantos meses únicos existem nos lançamentos para multiplicar o custo fixo
-                const mesesUnicos = [...new Set(lancamentos.map(i => new Date(i.data + 'T00:00:00').getMonth()))].length;
-                custoFixoBase = 3500 * (mesesUnicos || 1);
-            }
+            // Custo fixo escala linearmente com a quantidade de meses ativos selecionados
+            const qtdMesesSelecionados = mesesAtivos.length || 1;
+            let custoFixoBase = 3500 * qtdMesesSelecionados;
             document.getElementById('kpi-break-even').innerText = formatCurrency(custoFixoBase);
 
             const unidadesReq = custoFixoBase / (config.preco || 1);
-            // Ajusta capacidade se for consolidada (multiplica pelo número de meses operados)
-            let capacidadeAjustada = config.capacidade;
-            if (filtroMes === 'todos') {
-                const mesesUnicos = [...new Set(lancamentos.map(i => new Date(i.data + 'T00:00:00').getMonth()))].length;
-                capacidadeAjustada = config.capacidade * (mesesUnicos || 1);
-            }
+            let capacidadeAjustada = config.capacidade * qtdMesesSelecionados;
             
             const ocuPct = capacidadeAjustada > 0 ? (unidadesReq / capacidadeAjustada) * 100 : 0;
             document.getElementById('kpi-ponto-eq').innerText = ocuPct.toFixed(1) + '%';
             document.getElementById('lbl-metrica-eq').innerText = `Eq. em ${config.metrica === 'turnos' ? 'Turnos' : 'Horas'}`;
 
-            // Payback, ROI e TIR mantêm cálculos estruturais baseados no investimento total cadastrado
+            // Métricas estruturais de payback & ROI ponderadas
             let totalInvestidoGeral = lancamentos.filter(i => i.tipo === 'investimento').reduce((acc, i) => acc + i.valor, 0);
-            let lucroMensalMedio = (totalReceitas - totalDespesas);
-            if (filtroMes === 'todos') {
-                const mesesUnicos = [...new Set(lancamentos.map(i => new Date(i.data + 'T00:00:00').getMonth()))].length;
-                lucroMensalMedio = lucroMensalMedio / (mesesUnicos || 1);
-            }
+            let lucroMensalMedio = (totalReceitas - totalDespesas) / qtdMesesSelecionados;
             if(lucroMensalMedio <= 0) lucroMensalMedio = 1600;
 
             const payback = totalInvestidoGeral > 0 ? (totalInvestidoGeral / lucroMensalMedio) : 0;
@@ -527,36 +560,37 @@
             const ctx = document.getElementById('mainChart');
             if(!ctx) return;
 
-            const filtroMes = document.getElementById('dash-filtro-mes').value;
-            let mesesLabels = ['Jan', 'Fev', 'Mar', 'Abr', 'Mai', 'Jun', 'Jul', 'Ago', 'Set', 'Out', 'Nov', 'Dez'];
-            let receitasData = Array(12).fill(0);
-            let despesasData = Array(12).fill(0);
+            const filtroAno = document.getElementById('dash-filtro-ano').value;
+            
+            // Monta o gráfico refletindo apenas o escopo do que está ativado na barra de filtros
+            let labelsFiltradas = [];
+            let receitasData = [];
+            let despesasData = [];
 
-            lancamentos.forEach(item => {
-                let m = new Date(item.data + 'T00:00:00').getMonth();
-                if(item.tipo === 'receita') receitasData[m] += item.valor;
-                if(item.tipo === 'despesa') despesasData[m] += item.valor;
+            nomesMeses.forEach((mes, idx) => {
+                if (mesesAtivos.includes(idx)) {
+                    labelsFiltradas.push(mes);
+                    
+                    // Soma valores para este respectivo mês e ano
+                    let rMes = 0, dMes = 0;
+                    lancamentos.forEach(item => {
+                        const itemDate = new Date(item.data + 'T00:00:00');
+                        if(itemDate.getFullYear().toString() === filtroAno && itemDate.getMonth() === idx) {
+                            if(item.tipo === 'receita') rMes += item.valor;
+                            if(item.tipo === 'despesa') dMes += item.valor;
+                        }
+                    });
+                    receitasData.push(rMes);
+                    despesasData.push(dMes);
+                }
             });
-
-            // Se um mês específico for selecionado, filtra os dados do gráfico para focar apenas nele
-            if (filtroMes !== 'todos') {
-                const mIdx = parseInt(filtroMes);
-                mesesLabels = [mesesLabels[mIdx]];
-                receitasData = [receitasData[mIdx]];
-                despesasData = [despesasData[mIdx]];
-            } else {
-                // Reduz para os primeiros 6 meses para melhor visualização padrão se for consolidado
-                mesesLabels = mesesLabels.slice(0, 6);
-                receitasData = receitasData.slice(0, 6);
-                despesasData = despesasData.slice(0, 6);
-            }
 
             if(chartInstance) chartInstance.destroy();
 
             chartInstance = new Chart(ctx, {
                 type: 'bar',
                 data: {
-                    labels: mesesLabels,
+                    labels: labelsFiltradas,
                     datasets: [
                         {
                             label: 'Receitas (R$)',
