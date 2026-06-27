@@ -4,23 +4,20 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Simulador Financeiro - Salas de Saúde</title>
-    <!-- Tailwind CSS -->
     <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
-    <!-- Chart.js -->
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <style>
-        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght=300;400;500;600;700&display=swap');
         body { font-family: 'Inter', sans-serif; }
     </style>
 </head>
 <body class="bg-slate-50 text-slate-800 min-h-screen flex flex-col">
 
-    <!-- Header -->
     <header class="bg-indigo-900 text-white shadow-md">
         <div class="max-w-7xl mx-auto px-4 py-5 flex flex-col sm:flex-row justify-between items-center gap-4">
             <div>
                 <h1 class="text-xl font-bold tracking-tight">Simulador Financeiro</h1>
-                <p class="text-xs text-indigo-200 mt-0.5">Gestão Estratégica & Viabilidade de Salas de Saúde</p>
+                <p class="text-xs text-indigo-200 mt-0.5">Gestão Estratégica Salas</p>
             </div>
             <nav class="flex gap-2 bg-indigo-950 p-1 rounded-lg">
                 <button onclick="switchTab('dash')" id="btn-dash" class="tab-btn px-4 py-2 text-sm font-medium rounded-md bg-indigo-600 text-white shadow">Dashboard</button>
@@ -31,17 +28,14 @@
         </div>
     </header>
 
-    <!-- Main Content -->
     <main class="flex-1 max-w-7xl w-full mx-auto px-4 py-8">
         
-        <!-- TAB: DASHBOARD -->
         <div id="tab-dash" class="tab-content space-y-8">
-            <!-- KPI Grid -->
             <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-4">
                 <div class="bg-white p-5 rounded-xl shadow-xs border border-slate-100">
                     <span class="text-xs font-semibold text-slate-400 uppercase tracking-wider block">Ocupação Mínima</span>
                     <span id="kpi-ponto-eq" class="text-2xl font-bold text-slate-800 block mt-2">0.0%</span>
-                    <span class="text-xs text-slate-400 block mt-1">Ponto de Equilíbrio</span>
+                    <span id="lbl-metrica-eq" class="text-xs text-slate-400 block mt-1">Ponto de Equilíbrio</span>
                 </div>
                 <div class="bg-white p-5 rounded-xl shadow-xs border border-slate-100">
                     <span class="text-xs font-semibold text-slate-400 uppercase tracking-wider block">Faturamento Mínimo</span>
@@ -65,7 +59,6 @@
                 </div>
             </div>
 
-            <!-- Chart and Room Breakdown -->
             <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
                 <div class="bg-white p-6 rounded-xl shadow-xs border border-slate-100 lg:col-span-2">
                     <h3 class="text-md font-semibold text-slate-700 mb-4">Evolução Mensal (Receitas vs. Despesas)</h3>
@@ -98,10 +91,8 @@
             </div>
         </div>
 
-        <!-- TAB: LANÇAMENTOS & IMPORTAÇÃO -->
         <div id="tab-lanc" class="tab-content hidden max-w-4xl mx-auto space-y-8">
             
-            <!-- Import Section -->
             <div class="bg-white p-6 rounded-xl shadow-xs border border-slate-100">
                 <h2 class="text-md font-bold text-slate-700 mb-2">📥 Importar Dados de Planilha</h2>
                 <p class="text-xs text-slate-400 mb-4">Selecione um arquivo CSV com os dados formatados para atualizar tudo instantaneamente.</p>
@@ -118,12 +109,10 @@
                 </div>
             </div>
 
-            <!-- Highly Visual Custom Input Grid -->
             <div class="bg-white p-6 rounded-xl shadow-xs border border-slate-100">
                 <h2 class="text-md font-bold text-slate-700 mb-4">✍️ Novo Lançamento Manual</h2>
                 
                 <form id="form-lancamento" onsubmit="saveLancamento(event)" class="space-y-6">
-                    <!-- Step 1: Select Type -->
                     <div>
                         <label class="block text-xs font-bold uppercase text-slate-400 mb-2">1. Tipo de Movimentação</label>
                         <div class="grid grid-cols-1 sm:grid-cols-3 gap-3">
@@ -151,7 +140,6 @@
                         </div>
                     </div>
 
-                    <!-- Step 2: Contextual Room Selector -->
                     <div id="sala-selector-block">
                         <label class="block text-xs font-bold uppercase text-slate-400 mb-2">2. Destinação da Receita (Selecione a Sala)</label>
                         <div class="grid grid-cols-2 gap-3">
@@ -164,7 +152,6 @@
                         </div>
                     </div>
 
-                    <!-- Step 3: Core Data Row -->
                     <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
                         <div>
                             <label class="block text-xs font-bold uppercase text-slate-400 mb-1">Data</label>
@@ -185,7 +172,6 @@
             </div>
         </div>
 
-        <!-- TAB: HISTORICO / EXTRATO -->
         <div id="tab-extrato" class="tab-content hidden">
             <div class="bg-white rounded-xl shadow-xs border border-slate-100 overflow-hidden">
                 <div class="p-6 border-b border-slate-100 flex flex-col sm:flex-row justify-between items-center gap-4">
@@ -211,36 +197,42 @@
                             </tr>
                         </thead>
                         <tbody id="table-body" class="text-sm divide-y divide-slate-100">
-                            <!-- Injected dynamically -->
-                        </tbody>
+                            </tbody>
                     </table>
                 </div>
             </div>
         </div>
 
-        <!-- TAB: CONFIGURACOES -->
         <div id="tab-config" class="tab-content hidden max-w-xl mx-auto">
             <div class="bg-white p-6 rounded-xl shadow-xs border border-slate-100">
                 <h2 class="text-md font-bold text-slate-700 mb-2">Parâmetros Operacionais</h2>
-                <p class="text-xs text-slate-400 mb-6">Ajuste os parâmetros para recalibrar o ponto de equilíbrio.</p>
+                <p class="text-xs text-slate-400 mb-6">Defina a métrica de cálculo e cobrança do ponto de equilíbrio.</p>
                 
-                <div class="space-y-4">
+                <div class="space-y-6">
                     <div>
-                        <label class="block text-xs font-bold uppercase text-slate-500 mb-1">Capacidade Total Mensal (Horas Combinadas das 2 salas)</label>
-                        <input type="number" id="cfg-capacidade" value="320" class="w-full p-2.5 border border-slate-200 rounded-lg text-sm bg-slate-50 focus:bg-white focus:outline-hidden">
+                        <label class="block text-xs font-bold uppercase text-slate-400 mb-2">Métrica de Precificação</label>
+                        <div class="grid grid-cols-2 gap-2 bg-slate-100 p-1 rounded-lg">
+                            <button onclick="setMetrica('horas')" id="btn-m-horas" class="py-2 text-sm font-medium rounded-md transition-all text-center cursor-pointer">Por Horas</button>
+                            <button onclick="setMetrica('turnos')" id="btn-m-turnos" class="py-2 text-sm font-medium rounded-md transition-all text-center cursor-pointer">Por Turnos</button>
+                        </div>
+                    </div>
+
+                    <div>
+                        <label id="lbl-cfg-capacidade" class="block text-xs font-bold uppercase text-slate-500 mb-1">Capacidade Total Mensal</label>
+                        <input type="number" id="cfg-capacidade" class="w-full p-2.5 border border-slate-200 rounded-lg text-sm bg-slate-50 focus:bg-white focus:outline-hidden">
                     </div>
                     <div>
-                        <label class="block text-xs font-bold uppercase text-slate-500 mb-1">Preço Médio Estimado da Hora de Locação (R$)</label>
-                        <input type="number" id="cfg-preco" value="60" class="w-full p-2.5 border border-slate-200 rounded-lg text-sm bg-slate-50 focus:bg-white focus:outline-hidden">
+                        <label id="lbl-cfg-preco" class="block text-xs font-bold uppercase text-slate-500 mb-1">Preço Estimado</label>
+                        <input type="number" id="cfg-preco" class="w-full p-2.5 border border-slate-200 rounded-lg text-sm bg-slate-50 focus:bg-white focus:outline-hidden">
                     </div>
-                    <button onclick="saveConfig()" class="w-full bg-indigo-600 hover:bg-indigo-700 text-white font-medium py-3 rounded-lg text-sm shadow transition-all mt-4 cursor-pointer">Salvar Configurações</button>
+                    
+                    <button onclick="saveConfig()" class="w-full bg-indigo-600 hover:bg-indigo-700 text-white font-medium py-3 rounded-lg text-sm shadow transition-all mt-4 cursor-pointer">Salvar Parâmetros</button>
                 </div>
             </div>
         </div>
 
     </main>
 
-    <!-- Footer -->
     <footer class="bg-slate-100 border-t border-slate-200 py-4 text-center text-xs text-slate-400 mt-12">
         Simulador Financeiro &bull; Gestão Descentralizada e Inteligente para Clínicas.
     </footer>
@@ -259,6 +251,7 @@
         ];
 
         let config = JSON.parse(localStorage.getItem('simulador_config')) || {
+            metrica: 'horas',
             capacidade: 320,
             preco: 60
         };
@@ -267,10 +260,36 @@
 
         document.addEventListener("DOMContentLoaded", () => {
             document.getElementById('lanc-data').valueAsDate = new Date();
-            document.getElementById('cfg-capacidade').value = config.capacidade;
-            document.getElementById('cfg-preco').value = config.preco;
+            updateMetricaUI();
             renderApp();
         });
+
+        function setMetrica(m) {
+            config.metrica = m;
+            updateMetricaUI();
+        }
+
+        function updateMetricaUI() {
+            const btnHoras = document.getElementById('btn-m-horas');
+            const btnTurnos = document.getElementById('btn-m-turnos');
+            const lblCap = document.getElementById('lbl-cfg-capacidade');
+            const lblPreco = document.getElementById('lbl-cfg-preco');
+
+            if(config.metrica === 'turnos') {
+                btnTurnos.className = "py-2 text-sm font-medium rounded-md text-center bg-white text-indigo-900 shadow-xs cursor-pointer w-full";
+                btnHoras.className = "py-2 text-sm font-medium rounded-md text-center text-slate-500 hover:text-slate-700 cursor-pointer w-full";
+                lblCap.innerText = "Capacidade Total Mensal (Qtd. de Turnos Combinados)";
+                lblPreco.innerText = "Preço Médio por Turno de Locação (R$)";
+            } else {
+                btnHoras.className = "py-2 text-sm font-medium rounded-md text-center bg-white text-indigo-900 shadow-xs cursor-pointer w-full";
+                btnTurnos.className = "py-2 text-sm font-medium rounded-md text-center text-slate-500 hover:text-slate-700 cursor-pointer w-full";
+                lblCap.innerText = "Capacidade Total Mensal (Qtd. de Horas Combinadas)";
+                lblPreco.innerText = "Preço Médio por Hora de Locação (R$)";
+            }
+
+            document.getElementById('cfg-capacidade').value = config.capacidade;
+            document.getElementById('cfg-preco').value = config.preco;
+        }
 
         function switchTab(tabId) {
             document.querySelectorAll('.tab-content').forEach(el => el.classList.add('hidden'));
@@ -290,7 +309,6 @@
         }
 
         function setFormType(type) {
-            selectedType = type;
             document.querySelectorAll('.type-btn').forEach(el => {
                 el.classList.remove('bg-emerald-50', 'border-emerald-500', 'text-emerald-800', 'bg-rose-50', 'border-rose-500', 'text-rose-800', 'bg-indigo-50', 'border-indigo-500', 'text-indigo-800');
                 el.classList.add('border-slate-200', 'text-slate-600', 'hover:bg-slate-50');
@@ -379,11 +397,11 @@
                 }
                 if(count > 0) {
                     localStorage.setItem('simulador_lancamentos', JSON.stringify(lancamentos));
-                    alert(count + " registros importados com sucesso!");
+                    alert(count + " registros importados!");
                     renderApp();
                     switchTab('dash');
                 } else {
-                    alert("Erro: Certifique-se de salvar sua planilha como arquivo .CSV separado por vírgulas.");
+                    alert("Erro no formato do arquivo CSV.");
                 }
             };
             reader.readAsText(file);
@@ -439,9 +457,10 @@
             let custoFixoBase = totalDespesas > 0 ? (totalDespesas / 2 || 3500) : 3500;
             document.getElementById('kpi-break-even').innerText = formatCurrency(custoFixoBase);
 
-            const horasReq = custoFixoBase / config.preco;
-            const ocuPct = config.capacidade > 0 ? (horasReq / config.capacidade) * 100 : 0;
+            const unidadesReq = custoFixoBase / (config.preco || 1);
+            const ocuPct = config.capacidade > 0 ? (unidadesReq / config.capacidade) * 100 : 0;
             document.getElementById('kpi-ponto-eq').innerText = ocuPct.toFixed(1) + '%';
+            document.getElementById('lbl-metrica-eq').innerText = `Eq. em ${config.metrica === 'turnos' ? 'Turnos' : 'Horas'}`;
 
             let lucroMensalMedio = (totalReceitas - totalDespesas) / 2;
             if(lucroMensalMedio <= 0) lucroMensalMedio = 1600;
