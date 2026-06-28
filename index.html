@@ -15,7 +15,6 @@
 </head>
 <body class="bg-slate-50 text-slate-800 min-h-screen flex flex-col antialiased">
 
-    <!-- Sistema Dinâmico de Notificação (Toast) -->
     <div id="toast-notification" class="hidden fixed bottom-5 right-5 bg-slate-900 text-white text-xs font-semibold px-4 py-3 rounded-xl shadow-xl z-50 transition-all duration-300 flex items-center gap-2 border border-slate-700">
         <span id="toast-icon">ℹ️</span>
         <span id="toast-message">Notificação</span>
@@ -38,7 +37,6 @@
 
     <main class="flex-1 max-w-7xl w-full mx-auto px-4 py-6">
         
-        <!-- DASHBOARD TAB -->
         <div id="tab-dash" class="tab-content space-y-6">
             
             <div class="bg-white p-5 rounded-2xl shadow-xs border border-slate-100 flex flex-col md:flex-row md:items-end justify-between gap-4">
@@ -78,7 +76,6 @@
                 </div>
             </div>
 
-            <!-- KPIs -->
             <div class="grid grid-cols-2 lg:grid-cols-5 gap-3">
                 <div class="bg-white p-4 rounded-2xl shadow-xs border border-slate-100 col-span-1">
                     <span class="text-[10px] font-bold text-slate-400 uppercase tracking-wider block">Ocupação Mínima</span>
@@ -107,7 +104,6 @@
                 </div>
             </div>
 
-            <!-- Gráfico e Visão de Salas -->
             <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
                 <div class="bg-white p-5 rounded-2xl shadow-xs border border-slate-100 lg:col-span-2">
                     <h3 class="text-sm font-bold text-slate-700 mb-3">Evolução Mensal (Receitas vs. Despesas)</h3>
@@ -145,7 +141,6 @@
             </div>
         </div>
 
-        <!-- LANÇAMENTOS TAB -->
         <div id="tab-lanc" class="tab-content hidden max-w-3xl mx-auto space-y-6">
             <div class="bg-white p-5 rounded-2xl shadow-xs border border-slate-100">
                 <h2 class="text-sm font-bold text-slate-700 mb-1">📥 Importar Dados via Planilha</h2>
@@ -205,7 +200,6 @@
             </div>
         </div>
 
-        <!-- EXTRATO TAB -->
         <div id="tab-extrato" class="tab-content hidden">
             <div class="bg-white rounded-2xl shadow-xs border border-slate-100 overflow-hidden">
                 <div class="p-5 border-b border-slate-100 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
@@ -245,7 +239,6 @@
             </div>
         </div>
 
-        <!-- CONFIG TAB -->
         <div id="tab-config" class="tab-content hidden max-w-md mx-auto">
             <div class="bg-white p-5 rounded-2xl shadow-xs border border-slate-100">
                 <h2 class="text-sm font-bold text-slate-700 mb-1">Parâmetros Operacionais Estratégicos</h2>
@@ -298,64 +291,64 @@
         const nomesMeses = ['Janeiro', 'Fevereiro', 'Março', 'Abril', 'Maio', 'Junho', 'Julho', 'Agosto', 'Setembro', 'Outubro', 'Novembro', 'Dezembro'];
         const nomesCurtos = ['Jan', 'Fev', 'Mar', 'Abr', 'Mai', 'Jun', 'Jul', 'Ago', 'Set', 'Out', 'Nov', 'Dez'];
 
-        // ATUALIZAÇÃO CONCEITUAL: Versão v3 das chaves de banco para forçar o recarregamento limpo no navegador do cliente
-        let lancamentos = JSON.parse(localStorage.getItem('simulador_lancamentos_v3')) || [
+        // ATUALIZAÇÃO REQUISITADA: Histórico 100% focado em Locações e Sublocações para Psicologia Clínica (Chave v4)
+        let lancamentos = JSON.parse(localStorage.getItem('simulador_lancamentos_v4')) || [
             // Janeiro
-            { id: 101, data: '2026-01-02', tipo: 'investimento', sala: '-', desc: 'Reforma de Infraestrutura e Cadeiras Clínicas', valor: 45000 },
+            { id: 101, data: '2026-01-02', tipo: 'investimento', sala: '-', desc: 'Reforma Estrutural, Divãs e Poltronas de Recepção', valor: 45000 },
             { id: 102, data: '2026-01-05', tipo: 'despesa', sala: '-', desc: 'Aluguel + Condomínio Comercial Fixos', valor: 3500 },
-            { id: 103, data: '2026-01-15', tipo: 'receita', sala: 'sala1', desc: 'Locação Dr. Silva Turno Manhã', valor: 2800 },
-            { id: 104, data: '2026-01-20', tipo: 'receita', sala: 'sala2', desc: 'Atendimentos Psicologia Dra. Sandra', valor: 2200 },
+            { id: 103, data: '2026-01-15', tipo: 'receita', sala: 'sala1', desc: 'Locação Turno Manhã - Psicoterapia Adulto', valor: 2800 },
+            { id: 104, data: '2026-01-20', tipo: 'receita', sala: 'sala2', desc: 'Locação Turno Tarde - TCC e Casal', valor: 2200 },
             // Fevereiro
             { id: 201, data: '2026-02-05', tipo: 'despesa', sala: '-', desc: 'Aluguel + Condomínio Comercial Fixos', valor: 3500 },
-            { id: 202, data: '2026-02-12', tipo: 'despesa', sala: '-', desc: 'Insumos Variáveis e Limpeza salas', valor: 220 },
-            { id: 203, data: '2026-02-18', tipo: 'receita', sala: 'sala1', desc: 'Faturamento Mensal Concluido Sala 1', valor: 3500 },
-            { id: 204, data: '2026-02-25', tipo: 'receita', sala: 'sala2', desc: 'Faturamento Mensal Concluido Sala 2', valor: 3100 },
+            { id: 202, data: '2026-02-12', tipo: 'despesa', sala: '-', desc: 'Insumos de Higiene e Cafeteria Clínicos', valor: 220 },
+            { id: 203, data: '2026-02-18', tipo: 'receita', sala: 'sala1', desc: 'Sublocação por Hora - Psicologia Clínica', valor: 3500 },
+            { id: 204, data: '2026-02-25', tipo: 'receita', sala: 'sala2', desc: 'Sublocação por Hora - Avaliação Neuropsicológica', valor: 3100 },
             // Março
             { id: 301, data: '2026-03-05', tipo: 'despesa', sala: '-', desc: 'Aluguel + Condomínio Comercial Fixos', valor: 3500 },
-            { id: 302, data: '2026-03-20', tipo: 'receita', sala: 'sala1', desc: 'Locação Comercializada Período', valor: 4200 },
-            { id: 303, data: '2026-03-25', tipo: 'receita', sala: 'sala2', desc: 'Contratos Fechados Odontologia', valor: 3800 },
+            { id: 302, data: '2026-03-20', tipo: 'receita', sala: 'sala1', desc: 'Pacotes Mensais Fechados - Sala 1 Psicanálise', valor: 4200 },
+            { id: 303, data: '2026-03-25', tipo: 'receita', sala: 'sala2', desc: 'Pacotes Mensais Fechados - Sala 2 Abordagem Humanista', valor: 3800 },
             // Abril
             { id: 401, data: '2026-04-05', tipo: 'despesa', sala: '-', desc: 'Aluguel + Condomínio Comercial Fixos', valor: 3500 },
-            { id: 402, data: '2026-04-18', tipo: 'receita', sala: 'sala1', desc: 'Fechamento de Pacotes de Horas', valor: 4900 },
-            { id: 403, data: '2026-04-22', tipo: 'receita', sala: 'sala2', desc: 'Procedimentos Estéticos Agendados', valor: 4400 },
+            { id: 402, data: '2026-04-18', tipo: 'receita', sala: 'sala1', desc: 'Locação Turnos - Psicologia Infantil e Ludoterapia', valor: 4900 },
+            { id: 403, data: '2026-04-22', tipo: 'receita', sala: 'sala2', desc: 'Locação Turnos - Psicoterapia de Casal', valor: 4400 },
             // Maio
             { id: 501, data: '2026-05-05', tipo: 'despesa', sala: '-', desc: 'Aluguel + Condomínio Comercial Fixos', valor: 3500 },
-            { id: 502, data: '2026-05-15', tipo: 'receita', sala: 'sala1', desc: 'Fechamento de Turnos Avançados', valor: 5400 },
-            { id: 503, data: '2026-05-20', tipo: 'receita', sala: 'sala2', desc: 'Atendimentos Nutrição Mensais', valor: 4600 },
+            { id: 502, data: '2026-05-15', tipo: 'receita', sala: 'sala1', desc: 'Contratos Mensalistas - Sublocação de Horas', valor: 5400 },
+            { id: 503, data: '2026-05-20', tipo: 'receita', sala: 'sala2', desc: 'Contratos Mensalistas - Sublocação de Horas', valor: 4600 },
             // Junho
             { id: 601, data: '2026-06-05', tipo: 'despesa', sala: '-', desc: 'Aluguel + Condomínio Comercial Fixos', valor: 3500 },
-            { id: 602, data: '2026-06-15', tipo: 'despesa', sala: '-', desc: 'Manutenção de Ar Condicionado Sala 1', valor: 450 },
-            { id: 603, data: '2026-06-24', tipo: 'receita', sala: 'sala1', desc: 'Locação Quinzenal Acumulada', valor: 5100 },
-            { id: 604, data: '2026-06-28', tipo: 'receita', sala: 'sala2', desc: 'Atendimentos de Especialidades', valor: 4900 },
+            { id: 602, data: '2026-06-15', tipo: 'despesa', sala: '-', desc: 'Manutenção Preventiva de Filtro de Ar e Ar-Condicionado', valor: 450 },
+            { id: 603, data: '2026-06-24', tipo: 'receita', sala: 'sala1', desc: 'Repasse Semanal - Psicoterapeutas Associados', valor: 5100 },
+            { id: 604, data: '2026-06-28', tipo: 'receita', sala: 'sala2', desc: 'Repasse Semanal - Psicoterapeutas Associados', valor: 4900 },
             // Julho
-            { id: 701, data: '2026-07-02', tipo: 'investimento', sala: '-', desc: 'Aquisição de Autoclave e Compressor novos', valor: 6500 },
+            { id: 701, data: '2026-07-02', tipo: 'investimento', sala: '-', desc: 'Compra de Softwares de Triagem e Testes Psicológicos Padronizados', valor: 6500 },
             { id: 702, data: '2026-07-05', tipo: 'despesa', sala: '-', desc: 'Aluguel + Condomínio Comercial Fixos', valor: 3500 },
-            { id: 703, data: '2026-07-18', tipo: 'receita', sala: 'sala1', desc: 'Entrada de Receita Aluguel Sala 1', valor: 5800 },
-            { id: 704, data: '2026-07-22', tipo: 'receita', sala: 'sala2', desc: 'Entrada de Receita Aluguel Sala 2', valor: 5200 },
+            { id: 703, data: '2026-07-18', tipo: 'receita', sala: 'sala1', desc: 'Locações Expandidas - Período de Alta Ocupação', valor: 5800 },
+            { id: 704, data: '2026-07-22', tipo: 'receita', sala: 'sala2', desc: 'Locações Expandidas - Período de Alta Ocupação', valor: 5200 },
             // Agosto
             { id: 801, data: '2026-08-05', tipo: 'despesa', sala: '-', desc: 'Aluguel + Condomínio Comercial Fixos', valor: 3500 },
-            { id: 802, data: '2026-08-19', tipo: 'receita', sala: 'sala1', desc: 'Ganhos Operacionais Espaço 1', valor: 6100 },
-            { id: 803, data: '2026-08-25', tipo: 'receita', sala: 'sala2', desc: 'Ganhos Operacionais Espaço 2', valor: 5500 },
+            { id: 802, data: '2026-08-19', tipo: 'receita', sala: 'sala1', desc: 'Fechamento Mensal Sublocação Psicologia', valor: 6100 },
+            { id: 803, data: '2026-08-25', tipo: 'receita', sala: 'sala2', desc: 'Fechamento Mensal Sublocação Psicologia', valor: 5500 },
             // Setembro
             { id: 901, data: '2026-09-05', tipo: 'despesa', sala: '-', desc: 'Aluguel + Condomínio Comercial Fixos', valor: 3500 },
-            { id: 902, data: '2026-09-20', tipo: 'receita', sala: 'sala1', desc: 'Turnos Médicos Consolidados', valor: 6400 },
-            { id: 903, data: '2026-09-26', tipo: 'receita', sala: 'sala2', desc: 'Fisioterapia Pacotes Fechados', valor: 5900 },
+            { id: 902, data: '2026-09-20', tipo: 'receita', sala: 'sala1', desc: 'Sublocação por Turno - Psicanálise e Fenomenologia', valor: 6400 },
+            { id: 903, data: '2026-09-26', tipo: 'receita', sala: 'sala2', desc: 'Sublocação por Turno - Neuropsicologia', valor: 5900 },
             // Outubro
             { id: 1001, data: '2026-10-05', tipo: 'despesa', sala: '-', desc: 'Aluguel + Condomínio Comercial Fixos', valor: 3500 },
-            { id: 1002, data: '2026-10-15', tipo: 'receita', sala: 'sala1', desc: 'Receita Bruta Mensal Sala 1', valor: 6900 },
-            { id: 1003, data: '2026-10-22', tipo: 'receita', sala: 'sala2', desc: 'Receita Bruta Mensal Sala 2', valor: 6200 },
+            { id: 1002, data: '2026-10-15', tipo: 'receita', sala: 'sala1', desc: 'Contratos Mensais - Psicologia Ocupacional', valor: 6900 },
+            { id: 1003, data: '2026-10-22', tipo: 'receita', sala: 'sala2', desc: 'Contratos Mensais - Psicologia Organizacional', valor: 6200 },
             // Novembro
             { id: 1101, data: '2026-11-05', tipo: 'despesa', sala: '-', desc: 'Aluguel + Condomínio Comercial Fixos', valor: 3500 },
-            { id: 1102, data: '2026-11-18', tipo: 'receita', sala: 'sala1', desc: 'Locações de Alta Ocupação', valor: 7200 },
-            { id: 1103, data: '2026-11-25', tipo: 'receita', sala: 'sala2', desc: 'Atendimentos Diversificados Especialistas', valor: 6600 },
+            { id: 1102, data: '2026-11-18', tipo: 'receita', sala: 'sala1', desc: 'Faturamento Bruto - Sala 1 Psicologia', valor: 7200 },
+            { id: 1103, data: '2026-11-25', tipo: 'receita', sala: 'sala2', desc: 'Faturamento Bruto - Sala 2 Psicologia', valor: 6600 },
             // Dezembro
             { id: 1201, data: '2026-12-05', tipo: 'despesa', sala: '-', desc: 'Aluguel + Condomínio Comercial Fixos', valor: 3500 },
-            { id: 1202, data: '2026-12-10', tipo: 'despesa', sala: '-', desc: 'Insumos Médicos Fim de Ano', valor: 400 },
-            { id: 1203, data: '2026-12-20', tipo: 'receita', sala: 'sala1', desc: 'Fechamento Recorde de Ocupação', valor: 8200 },
-            { id: 1204, data: '2026-12-23', tipo: 'receita', sala: 'sala2', desc: 'Fechamento Recorde de Ocupação', valor: 7500 }
+            { id: 1202, data: '2026-12-10', tipo: 'despesa', sala: '-', desc: 'Materiais Gráficos de Escritório e Agenda', valor: 400 },
+            { id: 1203, data: '2026-12-20', tipo: 'receita', sala: 'sala1', desc: 'Fechamento Anual - Ocupação Máxima', valor: 8200 },
+            { id: 1204, data: '2026-12-23', tipo: 'receita', sala: 'sala2', desc: 'Fechamento Anual - Ocupação Máxima', valor: 7500 }
         ];
 
-        let config = JSON.parse(localStorage.getItem('simulador_config_v3')) || {
+        let config = JSON.parse(localStorage.getItem('simulador_config_v4')) || {
             metrica: 'horas',
             capacidade: 320,
             preco: 60,
@@ -527,7 +520,7 @@
 
             if(valor <= 0) { alert("Insira um valor acima de R$ 0,00"); return; }
             lancamentos.push({ id: Date.now(), data, tipo: selectedType, sala, desc, valor });
-            localStorage.setItem('simulador_lancamentos_v3', JSON.stringify(lancamentos));
+            localStorage.setItem('simulador_lancamentos_v4', JSON.stringify(lancamentos));
 
             document.getElementById('lanc-desc').value = '';
             document.getElementById('lanc-valor').value = '';
@@ -538,7 +531,7 @@
 
         function deleteLancamento(id) {
             lancamentos = lancamentos.filter(item => item.id !== id);
-            localStorage.setItem('simulador_lancamentos_v3', JSON.stringify(lancamentos));
+            localStorage.setItem('simulador_lancamentos_v4', JSON.stringify(lancamentos));
             triggerToast("Registro removido.", "🔴");
             renderApp();
         }
@@ -561,7 +554,7 @@
                     }
                 }
                 if(count > 0) {
-                    localStorage.setItem('simulador_lancamentos_v3', JSON.stringify(lancamentos));
+                    localStorage.setItem('simulador_lancamentos_v4', JSON.stringify(lancamentos));
                     triggerToast(`${count} registros importados!`, "📥");
                     renderApp(); switchTab('dash');
                 } else { alert("Formato incompatível de arquivo."); }
@@ -735,19 +728,18 @@
             config.preco = parseFloat(document.getElementById('cfg-preco').value) || 60;
             config.custoFixo = parseFloat(document.getElementById('cfg-custofixo').value) || 0;
             config.custoVariavel = parseFloat(document.getElementById('cfg-custovariavel').value) || 0;
-            localStorage.setItem('simulador_config_v3', JSON.stringify(config));
+            localStorage.setItem('simulador_config_v4', JSON.stringify(config));
             triggerToast("Parâmetros operacionais salvos!", "⚙️");
             renderApp(); switchTab('dash');
         }
 
         function clearData() {
             if(confirm("Deseja apagar todos os dados locais?")) {
-                lancamentos = []; localStorage.setItem('simulador_lancamentos_v3', JSON.stringify(lancamentos));
+                lancamentos = []; localStorage.setItem('simulador_lancamentos_v4', JSON.stringify(lancamentos));
                 triggerToast("Banco de dados resetado.", "🧹"); renderApp();
             }
         }
 
-        // Correção de exportação para apontar para a tabela correta
         function exportJSON() {
             const dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(lancamentos));
             const downloadAnchor = document.createElement('a'); downloadAnchor.setAttribute("href", dataStr);
