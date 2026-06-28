@@ -2,85 +2,659 @@
 <html lang="pt-BR">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Simulador Financeiro Completo</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Simulador Financeiro - Salas de Saúde</title>
     <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght=300;400;500;600;700&display=swap');
+        body { font-family: 'Inter', sans-serif; -webkit-tap-highlight-color: transparent; }
+    </style>
 </head>
-<body class="bg-slate-50 text-slate-800">
-    <div class="max-w-6xl mx-auto p-6">
-        <div class="grid grid-cols-1 md:grid-cols-4 gap-4 mb-8">
-            <div class="bg-white p-5 rounded-2xl border shadow-sm">
-                <p class="text-[10px] uppercase font-bold text-slate-400">Resultado do Período</p>
-                <p id="kpi-resultado" class="text-xl font-bold text-indigo-700">R$ 0,00</p>
+<body class="bg-slate-50 text-slate-800 min-h-screen flex flex-col antialiased">
+
+    <header class="bg-indigo-900 text-white shadow-md sticky top-0 z-30">
+        <div class="max-w-7xl mx-auto px-4 py-4 flex flex-col lg:flex-row justify-between items-center gap-4">
+            <div class="text-center lg:text-left w-full lg:w-auto">
+                <h1 class="text-lg lg:text-xl font-bold tracking-tight">Simulador Financeiro</h1>
+                <p class="text-[11px] text-indigo-200 mt-0.5">Gestão Estratégica Salas</p>
             </div>
-            <div class="bg-white p-5 rounded-2xl border shadow-sm">
-                <p class="text-[10px] uppercase font-bold text-slate-400">Payback Acumulado</p>
-                <p id="kpi-payback" class="text-xl font-bold text-slate-800">0 meses</p>
+            <nav class="flex gap-1 bg-indigo-950 p-1 rounded-xl w-full lg:w-auto overflow-x-auto no-scrollbar scroll-smooth whitespace-nowrap snap-x">
+                <button onclick="switchTab('dash')" id="btn-dash" class="tab-btn snap-center px-4 py-2.5 text-xs lg:text-sm font-semibold rounded-lg bg-indigo-600 text-white shadow-xs cursor-pointer">Dashboard</button>
+                <button onclick="switchTab('lanc')" id="btn-lanc" class="tab-btn snap-center px-4 py-2.5 text-xs lg:text-sm font-semibold rounded-lg text-indigo-200 hover:text-white cursor-pointer">Lançamentos</button>
+                <button onclick="switchTab('extrato')" id="btn-extrato" class="tab-btn snap-center px-4 py-2.5 text-xs lg:text-sm font-semibold rounded-lg text-indigo-200 hover:text-white cursor-pointer">Histórico</button>
+                <button onclick="switchTab('config')" id="btn-config" class="tab-btn snap-center px-4 py-2.5 text-xs lg:text-sm font-semibold rounded-lg text-indigo-200 hover:text-white cursor-pointer">Configurações</button>
+            </nav>
+        </div>
+    </header>
+
+    <main class="flex-1 max-w-7xl w-full mx-auto px-4 py-6">
+        
+        <div id="tab-dash" class="tab-content space-y-6">
+            
+            <div class="bg-white p-5 rounded-2xl shadow-xs border border-slate-100 flex flex-col md:flex-row md:items-end justify-between gap-4">
+                <div class="space-y-1">
+                    <h2 class="text-xs font-bold text-slate-400 uppercase tracking-wider">Filtro de Período</h2>
+                    <p class="text-sm font-bold text-slate-700">Combine múltiplos meses e anos</p>
+                </div>
+                
+                <div class="grid grid-cols-1 sm:grid-cols-2 gap-3 w-full md:w-auto">
+                    <div class="flex flex-col gap-1">
+                        <label class="text-[10px] font-bold uppercase text-slate-400">Ano de Análise</label>
+                        <select id="dash-filtro-ano" onchange="renderApp()" class="w-full h-11 px-3 border border-slate-200 rounded-xl text-sm bg-slate-50 font-semibold text-slate-700 focus:bg-white focus:outline-hidden cursor-pointer">
+                            <option value="2026">2026</option>
+                            <option value="2027">2027</option>
+                            <option value="2028">2028</option>
+                        </select>
+                    </div>
+
+                    <div class="relative flex flex-col gap-1">
+                        <label class="text-[10px] font-bold uppercase text-slate-400">Múltiplos Meses</label>
+                        <button type="button" onclick="toggleDropdown()" id="dropdown-btn" class="w-full h-11 flex justify-between items-center rounded-xl border border-slate-200 bg-slate-50 px-3 text-sm font-semibold text-slate-700 shadow-xs hover:bg-slate-100 focus:outline-hidden cursor-pointer">
+                            <span id="dropdown-label" class="truncate">Todos os meses</span>
+                            <svg class="h-4 w-4 text-slate-400 shrink-0 ml-2" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M5.23 7.21a.75.75 0 011.06.02L10 11.168l3.71-3.938a.75.75 0 111.08 1.04l-4.25 4.5a.75.75 0 01-1.08 0l-4.25-4.5a.75.75 0 01.02-1.06z" clip-rule="evenodd" /></svg>
+                        </button>
+
+                        <div id="dropdown-menu" class="hidden absolute left-0 md:right-0 top-18 md:top-16 z-20 w-full md:w-64 max-h-72 overflow-y-auto rounded-2xl bg-white shadow-xl ring-1 ring-black/5 focus:outline-hidden border border-slate-100 p-2 space-y-0.5">
+                            <div class="flex items-center justify-between border-b border-slate-100 pb-2 pt-1 mb-1 px-2">
+                                <button onclick="selecionarTodosMeses(true); event.stopPropagation();" class="text-xs font-bold text-indigo-600 hover:underline cursor-pointer">Marcar todos</button>
+                                <button onclick="selecionarTodosMeses(false); event.stopPropagation();" class="text-xs font-bold text-slate-400 hover:underline cursor-pointer">Limpar</button>
+                            </div>
+                            <div id="dropdown-checkboxes-container" class="space-y-0.5">
+                                </div>
+                        </div>
+                    </div>
+                </div>
             </div>
-            <div class="bg-white p-5 rounded-2xl border shadow-sm">
-                <p class="text-[10px] uppercase font-bold text-slate-400">ROI Histórico</p>
-                <p id="kpi-roi" class="text-xl font-bold text-slate-800">0%</p>
+
+            <div class="grid grid-cols-2 lg:grid-cols-5 gap-3">
+                <div class="bg-white p-4 rounded-2xl shadow-xs border border-slate-100 col-span-1">
+                    <span class="text-[10px] font-bold text-slate-400 uppercase tracking-wider block">Ocupação Mínima</span>
+                    <span id="kpi-ponto-eq" class="text-xl lg:text-2xl font-bold text-slate-800 block mt-1.5">0.0%</span>
+                    <span id="lbl-metrica-eq" class="text-[10px] text-slate-400 block mt-0.5">Ponto de Equilíbrio</span>
+                </div>
+                <div class="bg-white p-4 rounded-2xl shadow-xs border border-slate-100 col-span-1">
+                    <span class="text-[10px] font-bold text-slate-400 uppercase tracking-wider block">Faturamento Mínimo</span>
+                    <span id="kpi-break-even" class="text-xl lg:text-2xl font-bold text-slate-800 block mt-1.5 truncate">R$ 0,00</span>
+                    <span class="text-[10px] text-slate-400 block mt-0.5">Break-Even Período</span>
+                </div>
+                <div class="bg-white p-4 rounded-2xl shadow-xs border border-slate-100 col-span-1">
+                    <span class="text-[10px] font-bold text-slate-400 uppercase tracking-wider block">Payback Estimado</span>
+                    <span id="kpi-payback" class="text-xl lg:text-2xl font-bold text-slate-800 block mt-1.5">0 meses</span>
+                    <span class="text-[10px] text-slate-400 block mt-0.5">Retorno Investimento</span>
+                </div>
+                <div class="bg-white p-4 rounded-2xl shadow-xs border border-slate-100 col-span-1">
+                    <span class="text-[10px] font-bold text-slate-400 uppercase tracking-wider block">ROI Anual</span>
+                    <span id="kpi-roi" class="text-xl lg:text-2xl font-bold text-slate-800 block mt-1.5">0.0%</span>
+                    <span class="text-[10px] text-slate-400 block mt-0.5">Retorno s/ Invest.</span>
+                </div>
+                <div class="bg-white p-4 rounded-2xl shadow-xs border border-slate-100 col-span-2 lg:col-span-1">
+                    <span class="text-[10px] font-bold text-slate-400 uppercase tracking-wider block">TIR Mensal</span>
+                    <span id="kpi-tir" class="text-xl lg:text-2xl font-bold text-emerald-600 block mt-1.5">0.0%</span>
+                    <span class="text-[10px] text-slate-400 block mt-0.5">Taxa Interna Retorno</span>
+                </div>
             </div>
-            <div class="bg-white p-5 rounded-2xl border shadow-sm">
-                <p class="text-[10px] uppercase font-bold text-slate-400">TIR Estimada</p>
-                <p id="kpi-tir" class="text-xl font-bold text-emerald-600">0%</p>
+
+            <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+                <div class="bg-white p-5 rounded-2xl shadow-xs border border-slate-100 lg:col-span-2">
+                    <h3 class="text-sm font-bold text-slate-700 mb-3">Evolução Mensal (Receitas vs. Despesas)</h3>
+                    <div class="h-60 sm:h-64 relative">
+                        <canvas id="mainChart"></canvas>
+                    </div>
+                </div>
+                
+                <div class="bg-white p-5 rounded-2xl shadow-xs border border-slate-100 flex flex-col justify-between gap-4">
+                    <div class="space-y-3">
+                        <h3 class="text-sm font-bold text-slate-700">Desempenho por Sala</h3>
+                        <div class="grid grid-cols-2 lg:grid-cols-1 gap-3">
+                            <div class="p-3 bg-slate-50 rounded-xl">
+                                <span class="text-[10px] font-bold text-slate-400 block uppercase">Sala 01</span>
+                                <span id="faturamento-sala1" class="text-lg font-bold text-indigo-600 mt-0.5 block">R$ 0,00</span>
+                            </div>
+                            <div class="p-3 bg-slate-50 rounded-xl">
+                                <span class="text-[10px] font-bold text-slate-400 block uppercase">Sala 02</span>
+                                <span id="faturamento-sala2" class="text-lg font-bold text-purple-600 mt-0.5 block">R$ 0,00</span>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="bg-indigo-50 p-4 rounded-xl">
+                        <div class="flex justify-between items-center gap-2">
+                            <span class="text-[11px] font-bold text-indigo-700 uppercase">Resultado do Período:</span>
+                            <span id="sum-liquido" class="text-base lg:text-lg font-bold text-indigo-900 truncate">R$ 0,00</span>
+                        </div>
+                    </div>
+                </div>
             </div>
         </div>
 
-        <section class="bg-white p-6 rounded-2xl border shadow-sm">
-            <select id="filtro-ano" onchange="renderApp()" class="mb-4 bg-slate-50 border p-2 rounded-lg text-sm">
-                <option value="2026">2026</option>
-                <option value="2027">2027</option>
-            </select>
-            <div class="h-64">
-                <canvas id="mainChart"></canvas>
+        <div id="tab-lanc" class="tab-content hidden max-w-3xl mx-auto space-y-6">
+            <div class="bg-white p-5 rounded-2xl shadow-xs border border-slate-100">
+                <h2 class="text-sm font-bold text-slate-700 mb-1">📥 Importar Dados</h2>
+                <p class="text-xs text-slate-400 mb-4">Selecione um arquivo CSV com os dados formatados para atualizar.</p>
+                <div class="w-full">
+                    <label class="flex flex-col items-center justify-center w-full h-28 border-2 border-slate-200 border-dashed rounded-xl cursor-pointer bg-slate-50 hover:bg-slate-100 transition-all p-4 text-center">
+                        <svg class="w-6 h-6 mb-2 text-slate-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12"></path></svg>
+                        <p class="text-xs text-slate-500 font-semibold">Toque para selecionar o arquivo CSV</p>
+                        <input type="file" id="file-uploader" accept=".csv" class="hidden" onchange="importCSV(this)" />
+                    </label>
+                </div>
             </div>
-        </section>
-    </div>
+
+            <div class="bg-white p-5 rounded-2xl shadow-xs border border-slate-100">
+                <h2 class="text-sm font-bold text-slate-700 mb-4">✍️ Novo Lançamento Manual</h2>
+                <form id="form-lancamento" onsubmit="saveLancamento(event)" class="space-y-5">
+                    <div>
+                        <label class="block text-[10px] font-bold uppercase text-slate-400 mb-1.5">1. Tipo de Movimentação</label>
+                        <div class="grid grid-cols-1 sm:grid-cols-3 gap-2">
+                            <button type="button" onclick="setFormType('receita')" id="btn-type-receita" class="type-btn h-14 border rounded-xl flex items-center px-4 gap-3 font-semibold text-sm transition-all bg-emerald-50 border-emerald-500 text-emerald-800 cursor-pointer">
+                                <span class="text-lg">🟢</span> <span>Receita</span>
+                            </button>
+                            <button type="button" onclick="setFormType('despesa')" id="btn-type-despesa" class="type-btn h-14 border border-slate-200 rounded-xl flex items-center px-4 gap-3 font-semibold text-sm transition-all text-slate-600 hover:bg-slate-50 cursor-pointer">
+                                <span class="text-lg">🔴</span> <span>Despesa</span>
+                            </button>
+                            <button type="button" onclick="setFormType('investimento')" id="btn-type-investimento" class="type-btn h-14 border border-slate-200 rounded-xl flex items-center px-4 gap-3 font-semibold text-sm transition-all text-slate-600 hover:bg-slate-50 cursor-pointer">
+                                <span class="text-lg">🔵</span> <span>Investimento</span>
+                            </button>
+                        </div>
+                    </div>
+
+                    <div id="sala-selector-block">
+                        <label class="block text-[10px] font-bold uppercase text-slate-400 mb-1.5">2. Destinação da Receita</label>
+                        <div class="grid grid-cols-2 gap-2">
+                            <button type="button" onclick="setFormSala('sala1')" id="btn-sala1" class="sala-btn h-11 border rounded-xl font-semibold text-sm transition-all bg-indigo-50 border-indigo-500 text-indigo-800 cursor-pointer text-center">Sala 01</button>
+                            <button type="button" onclick="setFormSala('sala2')" id="btn-sala2" class="sala-btn h-11 border border-slate-200 rounded-xl font-semibold text-sm transition-all text-slate-600 hover:bg-slate-50 cursor-pointer text-center">Sala 02</button>
+                        </div>
+                    </div>
+
+                    <div class="grid grid-cols-1 sm:grid-cols-3 gap-3">
+                        <div class="flex flex-col gap-1">
+                            <label class="text-[10px] font-bold uppercase text-slate-400">Data</label>
+                            <input type="date" id="lanc-data" required class="h-11 px-3 border border-slate-200 rounded-xl text-sm bg-slate-50 focus:bg-white focus:outline-hidden w-full">
+                        </div>
+                        <div class="flex flex-col gap-1">
+                            <label class="text-[10px] font-bold uppercase text-slate-400">Descrição / Notas</label>
+                            <input type="text" id="lanc-desc" required placeholder="Ex: Turno Dr. Silva" class="h-11 px-3 border border-slate-200 rounded-xl text-sm bg-slate-50 focus:bg-white focus:outline-hidden w-full">
+                        </div>
+                        <div class="flex flex-col gap-1">
+                            <label class="text-[10px] font-bold uppercase text-slate-400">Valor (R$)</label>
+                            <input type="number" step="0.01" id="lanc-valor" required placeholder="0,00" class="h-11 px-3 border border-slate-200 rounded-xl text-sm bg-slate-50 focus:bg-white focus:outline-hidden w-full">
+                        </div>
+                    </div>
+
+                    <button type="submit" class="w-full h-12 bg-indigo-600 hover:bg-indigo-700 text-white font-semibold rounded-xl text-sm shadow-xs transition-all cursor-pointer mt-2">Salvar Lançamento</button>
+                </form>
+            </div>
+        </div>
+
+        <div id="tab-extrato" class="tab-content hidden">
+            <div class="bg-white rounded-2xl shadow-xs border border-slate-100 overflow-hidden">
+                <div class="p-5 border-b border-slate-100 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
+                    <div>
+                        <h2 class="text-sm font-bold text-slate-700">Histórico Completo</h2>
+                        <p class="text-xs text-slate-400">Todos os registros inseridos ou importados.</p>
+                    </div>
+                    <div class="flex gap-2 w-full sm:w-auto">
+                        <button onclick="clearData()" class="flex-1 sm:flex-none h-9 px-3 text-xs font-bold text-rose-600 border border-rose-200 hover:bg-rose-50 rounded-xl cursor-pointer">Limpar Banco</button>
+                        <button onclick="exportJSON()" class="flex-1 sm:flex-none h-9 px-3 text-xs font-bold text-slate-600 border border-slate-200 hover:bg-slate-50 rounded-xl cursor-pointer">Exportar Backup</button>
+                    </div>
+                </div>
+                <div class="overflow-x-auto w-full touch-pan-x">
+                    <table class="w-full text-left border-collapse min-w-[600px]">
+                        <thead>
+                            <tr class="bg-slate-50 text-slate-400 text-[10px] font-bold uppercase tracking-wider border-b border-slate-100">
+                                <th class="p-4">Data</th>
+                                <th class="p-4">Fluxo</th>
+                                <th class="p-4">Origem / Destino</th>
+                                <th class="p-4">Descrição</th>
+                                <th class="p-4 text-right">Valor</th>
+                                <th class="p-4 text-center">Ações</th>
+                            </tr>
+                        </thead>
+                        <tbody id="table-body" class="text-xs lg:text-sm divide-y divide-slate-100"></tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+
+        <div id="tab-config" class="tab-content hidden max-w-md mx-auto">
+            <div class="bg-white p-5 rounded-2xl shadow-xs border border-slate-100">
+                <h2 class="text-sm font-bold text-slate-700 mb-1">Parâmetros Operacionais</h2>
+                <p class="text-xs text-slate-400 mb-5">Configure as métricas do ponto de equilíbrio.</p>
+                
+                <div class="space-y-5">
+                    <div>
+                        <label class="block text-[10px] font-bold uppercase text-slate-400 mb-1.5">Métrica de Precificação</label>
+                        <div class="grid grid-cols-2 gap-1 bg-slate-100 p-1 rounded-xl">
+                            <button onclick="setMetrica('horas')" id="btn-m-horas" class="h-9 text-xs font-semibold rounded-lg transition-all text-center cursor-pointer">Por Horas</button>
+                            <button onclick="setMetrica('turnos')" id="btn-m-turnos" class="h-9 text-xs font-semibold rounded-lg transition-all text-center cursor-pointer">Por Turnos</button>
+                        </div>
+                    </div>
+
+                    <div class="flex flex-col gap-1">
+                        <label id="lbl-cfg-capacidade" class="text-[10px] font-bold uppercase text-slate-500">Capacidade Total Mensal</label>
+                        <input type="number" id="cfg-capacidade" class="h-11 px-3 border border-slate-200 rounded-xl text-sm bg-slate-50 focus:bg-white focus:outline-hidden w-full">
+                    </div>
+                    <div class="flex flex-col gap-1">
+                        <label id="lbl-cfg-preco" class="text-[10px] font-bold uppercase text-slate-500">Preço Estimado</label>
+                        <input type="number" id="cfg-preco" class="h-11 px-3 border border-slate-200 rounded-xl text-sm bg-slate-50 focus:bg-white focus:outline-hidden w-full">
+                    </div>
+                    
+                    <button onclick="saveConfig()" class="w-full h-12 bg-indigo-600 hover:bg-indigo-700 text-white font-semibold rounded-xl text-sm shadow-xs transition-all mt-2 cursor-pointer">Salvar Parâmetros</button>
+                </div>
+            </div>
+        </div>
+
+    </main>
+
+    <footer class="bg-slate-100 border-t border-slate-200 py-4 text-center text-[10px] lg:text-xs text-slate-400 mt-auto">
+        Simulador Financeiro &bull; Gestão Descentralizada de Clínicas.
+    </footer>
 
     <script>
-        // Dados iniciais e estado
-        let lancamentos = JSON.parse(localStorage.getItem('simulador_lancamentos')) || [];
+        let selectedType = 'receita';
+        let selectedSala = 'sala1';
+        
+        let mesesAtivos = [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11]; 
+        const nomesMeses = ['Janeiro', 'Fevereiro', 'Março', 'Abril', 'Maio', 'Junho', 'Julho', 'Agosto', 'Setembro', 'Outubro', 'Novembro', 'Dezembro'];
+        const nomesCurtos = ['Jan', 'Fev', 'Mar', 'Abr', 'Mai', 'Jun', 'Jul', 'Ago', 'Set', 'Out', 'Nov', 'Dez'];
+
+        let lancamentos = JSON.parse(localStorage.getItem('simulador_lancamentos')) || [
+            { id: 1, data: '2026-01-01', tipo: 'investimento', sala: '-', desc: 'Reforma Estrutural Inicial', valor: 45000 },
+            { id: 2, data: '2026-01-05', tipo: 'despesa', sala: '-', desc: 'Custos Fixos de Aluguel/Condomínio', valor: 3500 },
+            { id: 3, data: '2026-01-10', tipo: 'receita', sala: 'sala1', desc: 'Atendimentos Dr. Silva', valor: 2500 },
+            { id: 4, data: '2026-01-12', tipo: 'receita', sala: 'sala2', desc: 'Consultas Dra. Marina', valor: 1800 },
+            { id: 5, data: '2026-02-05', tipo: 'despesa', sala: '-', desc: 'Custos Fixos de Aluguel/Condomínio', valor: 3500 },
+            { id: 6, data: '2026-02-15', tipo: 'receita', sala: 'sala1', desc: 'Locação Turnos Acumulados', valor: 3200 }
+        ];
+
+        let config = JSON.parse(localStorage.getItem('simulador_config')) || {
+            metrica: 'horas',
+            capacidade: 320,
+            preco: 60
+        };
+
         let chartInstance = null;
 
-        const formatCurrency = (v) => v.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' });
+        document.addEventListener("DOMContentLoaded", () => {
+            document.getElementById('lanc-data').valueAsDate = new Date();
+            renderDropdownCheckboxes();
+            updateMetricaUI();
+            renderApp();
+
+            document.addEventListener('click', (e) => {
+                const menu = document.getElementById('dropdown-menu');
+                const btn = document.getElementById('dropdown-btn');
+                if (menu && btn && !menu.contains(e.target) && !btn.contains(e.target)) {
+                    menu.classList.add('hidden');
+                }
+            });
+        });
+
+        function toggleDropdown() {
+            document.getElementById('dropdown-menu').classList.toggle('hidden');
+        }
+
+        function renderDropdownCheckboxes() {
+            const container = document.getElementById('dropdown-checkboxes-container');
+            container.innerHTML = '';
+            
+            nomesMeses.forEach((mes, idx) => {
+                const label = document.createElement('label');
+                label.className = "flex items-center gap-3 px-3 py-2.5 rounded-lg hover:bg-slate-50 text-sm font-semibold text-slate-700 cursor-pointer w-full select-none";
+                label.onclick = (e) => e.stopPropagation();
+
+                label.innerHTML = `
+                    <input type="checkbox" id="chk-mes-${idx}" checked onchange="onCheckboxChange(${idx})" class="h-5 w-5 rounded-md border-slate-300 text-indigo-600 focus:ring-indigo-500 cursor-pointer">
+                    <span>${mes}</span>
+                `;
+                container.appendChild(label);
+            });
+        }
+
+        function onCheckboxChange(idx) {
+            const chk = document.getElementById(`chk-mes-${idx}`);
+            if (chk.checked) {
+                if (!mesesAtivos.includes(idx)) mesesAtivos.push(idx);
+            } else {
+                mesesAtivos = mesesAtivos.filter(m => m !== idx);
+            }
+            mesesAtivos.sort((a, b) => a - b);
+            updateDropdownLabel();
+            renderApp();
+        }
+
+        function selecionarTodosMeses(status) {
+            mesesAtivos = status ? [0,1,2,3,4,5,6,7,8,9,10,11] : [];
+            nomesMeses.forEach((_, idx) => {
+                const chk = document.getElementById(`chk-mes-${idx}`);
+                if (chk) chk.checked = status;
+            });
+            updateDropdownLabel();
+            renderApp();
+        }
+
+        function updateDropdownLabel() {
+            const labelEl = document.getElementById('dropdown-label');
+            if (mesesAtivos.length === 12) {
+                labelEl.innerText = "Todos os meses";
+            } else if (mesesAtivos.length === 0) {
+                labelEl.innerText = "Nenhum selecionado";
+            } else if (mesesAtivos.length <= 2) {
+                labelEl.innerText = mesesAtivos.map(m => nomesCurtos[m]).join(', ');
+            } else {
+                labelEl.innerText = `${mesesAtivos.length} meses ativos`;
+            }
+        }
+
+        function setMetrica(m) {
+            config.metrica = m;
+            updateMetricaUI();
+        }
+
+        function updateMetricaUI() {
+            const btnHoras = document.getElementById('btn-m-horas');
+            const btnTurnos = document.getElementById('btn-m-turnos');
+            const lblCap = document.getElementById('lbl-cfg-capacidade');
+            const lblPreco = document.getElementById('lbl-cfg-preco');
+
+            if(config.metrica === 'turnos') {
+                btnTurnos.className = "h-9 text-xs font-semibold rounded-lg text-center bg-white text-indigo-900 shadow-xs cursor-pointer w-full";
+                btnHoras.className = "h-9 text-xs font-semibold rounded-lg text-center text-slate-500 hover:text-slate-700 cursor-pointer w-full";
+                lblCap.innerText = "Capacidade Mensal (Qtd. Turnos)";
+                lblPreco.innerText = "Preço Médio por Turno (R$)";
+            } else {
+                btnHoras.className = "h-9 text-xs font-semibold rounded-lg text-center bg-white text-indigo-900 shadow-xs cursor-pointer w-full";
+                btnTurnos.className = "h-9 text-xs font-semibold rounded-lg text-center text-slate-500 hover:text-slate-700 cursor-pointer w-full";
+                lblCap.innerText = "Capacidade Mensal (Qtd. Horas)";
+                lblPreco.innerText = "Preço Médio por Hora (R$)";
+            }
+
+            document.getElementById('cfg-capacidade').value = config.capacidade;
+            document.getElementById('cfg-preco').value = config.preco;
+        }
+
+        function switchTab(tabId) {
+            document.querySelectorAll('.tab-content').forEach(el => el.classList.add('hidden'));
+            document.querySelectorAll('.tab-btn').forEach(el => {
+                el.classList.remove('bg-indigo-600', 'text-white', 'shadow-xs');
+                el.classList.add('text-indigo-200');
+            });
+
+            document.getElementById(`tab-${tabId}`).classList.remove('hidden');
+            const activeBtn = document.getElementById(`btn-${tabId}`);
+            activeBtn.classList.add('bg-indigo-600', 'text-white', 'shadow-xs');
+            activeBtn.classList.remove('text-indigo-200');
+
+            if (tabId === 'dash') {
+                setTimeout(renderCharts, 50);
+            }
+        }
+
+        function setFormType(type) {
+            selectedType = type;
+            document.querySelectorAll('.type-btn').forEach(el => {
+                el.classList.remove('bg-emerald-50', 'border-emerald-500', 'text-emerald-800', 'bg-rose-50', 'border-rose-500', 'text-rose-800', 'bg-indigo-50', 'border-indigo-500', 'text-indigo-800');
+                el.classList.add('border-slate-200', 'text-slate-600', 'hover:bg-slate-50');
+            });
+
+            const btn = document.getElementById(`btn-type-${type}`);
+            btn.classList.remove('border-slate-200', 'text-slate-600', 'hover:bg-slate-50');
+            
+            if(type === 'receita') {
+                btn.classList.add('bg-emerald-50', 'border-emerald-500', 'text-emerald-800');
+                document.getElementById('sala-selector-block').classList.remove('hidden');
+            } else if(type === 'despesa') {
+                btn.classList.add('bg-rose-50', 'border-rose-500', 'text-rose-800');
+                document.getElementById('sala-selector-block').classList.add('hidden');
+            } else {
+                btn.classList.add('bg-indigo-50', 'border-indigo-500', 'text-indigo-800');
+                document.getElementById('sala-selector-block').classList.add('hidden');
+            }
+        }
+
+        function setFormSala(sala) {
+            selectedSala = sala;
+            document.querySelectorAll('.sala-btn').forEach(el => {
+                el.classList.remove('bg-indigo-50', 'border-indigo-500', 'text-indigo-800');
+                el.classList.add('border-slate-200', 'text-slate-600', 'hover:bg-slate-50');
+            });
+            const btn = document.getElementById(`btn-${sala}`);
+            btn.classList.remove('border-slate-200', 'text-slate-600', 'hover:bg-slate-50');
+            btn.classList.add('bg-indigo-50', 'border-indigo-500', 'text-indigo-800');
+        }
+
+        function saveLancamento(e) {
+            e.preventDefault();
+            const data = document.getElementById('lanc-data').value;
+            const desc = document.getElementById('lanc-desc').value;
+            const valor = parseFloat(document.getElementById('lanc-valor').value);
+            const sala = selectedType === 'receita' ? selectedSala : '-';
+
+            lancamentos.push({ id: Date.now(), data, tipo: selectedType, sala, desc, valor });
+            localStorage.setItem('simulador_lancamentos', JSON.stringify(lancamentos));
+
+            document.getElementById('lanc-desc').value = '';
+            document.getElementById('lanc-valor').value = '';
+            
+            renderApp();
+            switchTab('dash');
+        }
+
+        function deleteLancamento(id) {
+            lancamentos = lancamentos.filter(item => item.id !== id);
+            localStorage.setItem('simulador_lancamentos', JSON.stringify(lancamentos));
+            renderApp();
+        }
+
+        function importCSV(input) {
+            const file = input.files[0];
+            if (!file) return;
+
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                const text = e.target.result;
+                const lines = text.split('\n');
+                
+                let count = 0;
+                for(let i = 1; i < lines.length; i++) {
+                    const cols = lines[i].split(',');
+                    if(cols.length >= 5) {
+                        const data = cols[0].trim();
+                        const tipo = cols[1].trim().toLowerCase(); 
+                        const sala = cols[2].trim().toLowerCase(); 
+                        const desc = cols[3].trim();
+                        const valor = parseFloat(cols[4].trim());
+
+                        if(data && tipo && !isNaN(valor)) {
+                            lancamentos.push({
+                                id: Date.now() + i,
+                                data,
+                                tipo,
+                                sala: tipo === 'receita' ? sala : '-',
+                                desc,
+                                valor
+                            });
+                            count++;
+                        }
+                    }
+                }
+                if(count > 0) {
+                    localStorage.setItem('simulador_lancamentos', JSON.stringify(lancamentos));
+                    alert(count + " registros importados!");
+                    renderApp();
+                    switchTab('dash');
+                } else {
+                    alert("Erro no formato do arquivo CSV.");
+                }
+            };
+            reader.readAsText(file);
+        }
+
+        function formatCurrency(val) {
+            return val.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' });
+        }
 
         function renderApp() {
-            const filtroAno = document.getElementById('filtro-ano').value;
+            const tbody = document.getElementById('table-body');
+            if (tbody) tbody.innerHTML = '';
             
-            // Variáveis de Cálculo Histórico (para Payback, ROI e TIR)
+            const filtroAno = document.getElementById('dash-filtro-ano').value;
+            const sorted = [...lancamentos].sort((a,b) => new Date(b.data) - new Date(a.data));
+            
+            let sala1Tot = 0;
+            let sala2Tot = 0;
+            let totalDespesas = 0;
             let totalInvestido = 0;
-            let totalLucro = 0;
-            
-            // Variáveis de Cálculo do Período (para Resultado)
-            let resultadoPeriodo = 0;
 
-            lancamentos.forEach(item => {
-                const itemDate = new Date(item.data);
-                
-                // Histórico Total
-                if(item.tipo === 'investimento') totalInvestido += item.valor;
-                if(item.tipo === 'receita') totalLucro += item.valor;
-                if(item.tipo === 'despesa') totalLucro -= item.valor;
+            sorted.forEach(item => {
+                const itemDate = new Date(item.data + 'T00:00:00');
+                const itemMes = itemDate.getMonth();
+                const itemAno = itemDate.getFullYear().toString();
 
-                // Período Filtrado
-                if(itemDate.getFullYear() == filtroAno) {
-                    resultadoPeriodo += (item.tipo === 'receita' ? item.valor : (item.tipo === 'despesa' ? -item.valor : 0));
+                if (tbody) {
+                    const tr = document.createElement('tr');
+                    let badge = '';
+                    if(item.tipo === 'receita') badge = '<span class="px-2 py-0.5 text-[10px] font-semibold rounded-sm bg-emerald-50 text-emerald-700">Entrada</span>';
+                    if(item.tipo === 'despesa') badge = '<span class="px-2 py-0.5 text-[10px] font-semibold rounded-sm bg-rose-50 text-rose-700">Saída</span>';
+                    if(item.tipo === 'investimento') badge = '<span class="px-2 py-0.5 text-[10px] font-semibold rounded-sm bg-indigo-50 text-indigo-700">Invest.</span>';
+                    let orig = item.tipo === 'receita' ? (item.sala === 'sala1' ? 'Sala 01' : 'Sala 02') : 'Geral';
+
+                    tr.innerHTML = `
+                        <td class="p-4 text-slate-500 whitespace-nowrap">${item.data.split('-').reverse().join('/')}</td>
+                        <td class="p-4">${badge}</td>
+                        <td class="p-4 font-semibold text-slate-600 whitespace-nowrap">${orig}</td>
+                        <td class="p-4 text-slate-700 min-w-[150px]">${item.desc}</td>
+                        <td class="p-4 text-right font-bold whitespace-nowrap ${item.tipo==='receita'?'text-emerald-600':(item.tipo==='despesa'?'text-rose-600':'text-indigo-600')}">${formatCurrency(item.valor)}</td>
+                        <td class="p-4 text-center whitespace-nowrap">
+                            <button onclick="deleteLancamento(${item.id})" class="text-xs text-rose-500 font-semibold hover:text-rose-700 cursor-pointer">Remover</button>
+                        </td>
+                    `;
+                    tbody.appendChild(tr);
+                }
+
+                if (itemAno === filtroAno && mesesAtivos.includes(itemMes)) {
+                    if(item.tipo === 'receita' && item.sala === 'sala1') sala1Tot += item.valor;
+                    if(item.tipo === 'receita' && item.sala === 'sala2') sala2Tot += item.valor;
+                    if(item.tipo === 'despesa') totalDespesas += item.valor;
+                    if(item.tipo === 'investimento') totalInvestido += item.valor;
                 }
             });
 
-            // Lógica financeira: Payback e ROI baseados no histórico
-            const mesesDeVida = 6; // Exemplo: estimativa de meses de operação
-            const lucroMensal = totalLucro / mesesDeVida;
+            document.getElementById('faturamento-sala1').innerText = formatCurrency(sala1Tot);
+            document.getElementById('faturamento-sala2').innerText = formatCurrency(sala2Tot);
+            
+            let totalReceitas = sala1Tot + sala2Tot;
+            document.getElementById('sum-liquido').innerText = formatCurrency(totalReceitas - totalDespesas - totalInvestido);
 
-            document.getElementById('kpi-resultado').innerText = formatCurrency(resultadoPeriodo);
-            document.getElementById('kpi-payback').innerText = totalInvestido > 0 ? (totalInvestido / Math.max(1, lucroMensal)).toFixed(1) + ' meses' : '-';
-            document.getElementById('kpi-roi').innerText = totalInvestido > 0 ? ((totalLucro / totalInvestido) * 100).toFixed(1) + '%' : '-';
-            document.getElementById('kpi-tir').innerText = totalInvestido > 0 ? ((lucroMensal / totalInvestido) * 100).toFixed(1) + '%' : '-';
+            const qtdMesesSelecionados = mesesAtivos.length || 1;
+            let custoFixoBase = 3500 * qtdMesesSelecionados;
+            document.getElementById('kpi-break-even').innerText = formatCurrency(custoFixoBase);
+
+            const unidadesReq = custoFixoBase / (config.preco || 1);
+            let capacidadeAjustada = config.capacidade * qtdMesesSelecionados;
+            
+            const ocuPct = capacidadeAjustada > 0 ? (unidadesReq / capacidadeAjustada) * 100 : 0;
+            document.getElementById('kpi-ponto-eq').innerText = ocuPct.toFixed(1) + '%';
+            document.getElementById('lbl-metrica-eq').innerText = `Eq. em ${config.metrica === 'turnos' ? 'Turnos' : 'Horas'}`;
+
+            let totalInvestidoGeral = lancamentos.filter(i => i.tipo === 'investimento').reduce((acc, i) => acc + i.valor, 0);
+            let lucroMensalMedio = (totalReceitas - totalDespesas) / qtdMesesSelecionados;
+            if(lucroMensalMedio <= 0) lucroMensalMedio = 1600;
+
+            const payback = totalInvestidoGeral > 0 ? (totalInvestidoGeral / lucroMensalMedio) : 0;
+            document.getElementById('kpi-payback').innerText = payback > 0 ? payback.toFixed(1) + ' mes(es)' : '0 meses';
+
+            const roi = totalInvestidoGeral > 0 ? ((lucroMensalMedio * 12) / totalInvestidoGeral) * 100 : 0;
+            document.getElementById('kpi-roi').innerText = roi.toFixed(1) + '%';
+
+            let tir = totalInvestidoGeral > 0 ? (lucroMensalMedio / totalInvestidoGeral) * 100 : 0;
+            document.getElementById('kpi-tir').innerText = tir.toFixed(1) + '%';
+
+            renderCharts();
         }
 
-        renderApp();
+        function renderCharts() {
+            const ctx = document.getElementById('mainChart');
+            if(!ctx) return;
+
+            const filtroAno = document.getElementById('dash-filtro-ano').value;
+            
+            let labelsFiltradas = [];
+            let receitasData = [];
+            let despesasData = [];
+
+            nomesCurtos.forEach((mes, idx) => {
+                if (mesesAtivos.includes(idx)) {
+                    labelsFiltradas.push(mes);
+                    
+                    let rMes = 0, dMes = 0;
+                    lancamentos.forEach(item => {
+                        const itemDate = new Date(item.data + 'T00:00:00');
+                        if(itemDate.getFullYear().toString() === filtroAno && itemDate.getMonth() === idx) {
+                            if(item.tipo === 'receita') rMes += item.valor;
+                            if(item.tipo === 'despesa') dMes += item.valor;
+                        }
+                    });
+                    receitasData.push(rMes);
+                    despesasData.push(dMes);
+                }
+            });
+
+            if(chartInstance) chartInstance.destroy();
+
+            chartInstance = new Chart(ctx, {
+                type: 'bar',
+                data: {
+                    labels: labelsFiltradas,
+                    datasets: [
+                        {
+                            label: 'Receitas',
+                            data: receitasData,
+                            backgroundColor: '#4f46e5',
+                            borderRadius: 4
+                        },
+                        {
+                            label: 'Despesas',
+                            data: despesasData,
+                            backgroundColor: '#ef4444',
+                            borderRadius: 4
+                        }
+                    ]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: { legend: { position: 'bottom', labels: { boxWidth: 12, font: { size: 11 } } } },
+                    scales: { y: { beginAtZero: true, ticks: { font: { size: 10 } } }, x: { ticks: { font: { size: 10 } } } }
+                }
+            });
+        }
+
+        function saveConfig() {
+            config.capacidade = parseInt(document.getElementById('cfg-capacidade').value) || 320;
+            config.preco = parseFloat(document.getElementById('cfg-preco').value) || 60;
+            localStorage.setItem('simulador_config', JSON.stringify(config));
+            renderApp();
+            switchTab('dash');
+        }
+
+        function clearData() {
+            if(confirm("Deseja apagar os dados?")) {
+                lancamentos = [];
+                localStorage.setItem('simulador_lancamentos', JSON.stringify(lancamentos));
+                renderApp();
+            }
+        }
+
+        function exportJSON() {
+            const dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(lancamentos));
+            const downloadAnchor = document.createElement('a');
+            downloadAnchor.setAttribute("href", dataStr);
+            downloadAnchor.setAttribute("download", "backup_simulador.json");
+            document.body.appendChild(downloadAnchor);
+            downloadAnchor.click();
+            downloadAnchor.remove();
+        }
     </script>
 </body>
 </html>
