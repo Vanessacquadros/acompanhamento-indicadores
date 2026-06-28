@@ -9,15 +9,23 @@
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Inter:wght=300;400;500;600;700&display=swap');
         body { font-family: 'Inter', sans-serif; -webkit-tap-highlight-color: transparent; }
+        .no-scrollbar::-webkit-scrollbar { display: none; }
+        .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
     </style>
 </head>
 <body class="bg-slate-50 text-slate-800 min-h-screen flex flex-col antialiased">
+
+    <!-- Sistema Dinâmico de Notificação (Toast) -->
+    <div id="toast-notification" class="hidden fixed bottom-5 right-5 bg-slate-900 text-white text-xs font-semibold px-4 py-3 rounded-xl shadow-xl z-50 transition-all duration-300 flex items-center gap-2 border border-slate-700">
+        <span id="toast-icon">ℹ️</span>
+        <span id="toast-message">Notificação</span>
+    </div>
 
     <header class="bg-indigo-900 text-white shadow-md sticky top-0 z-30">
         <div class="max-w-7xl mx-auto px-4 py-4 flex flex-col lg:flex-row justify-between items-center gap-4">
             <div class="text-center lg:text-left w-full lg:w-auto">
                 <h1 class="text-lg lg:text-xl font-bold tracking-tight">Simulador Financeiro</h1>
-                <p class="text-[11px] text-indigo-200 mt-0.5">Gestão Estratégica Salas</p>
+                <p class="text-[11px] text-indigo-200 mt-0.5">Gestão Estratégica Salas de Saúde</p>
             </div>
             <nav class="flex gap-1 bg-indigo-950 p-1 rounded-xl w-full lg:w-auto overflow-x-auto no-scrollbar scroll-smooth whitespace-nowrap snap-x">
                 <button onclick="switchTab('dash')" id="btn-dash" class="tab-btn snap-center px-4 py-2.5 text-xs lg:text-sm font-semibold rounded-lg bg-indigo-600 text-white shadow-xs cursor-pointer">Dashboard</button>
@@ -30,17 +38,18 @@
 
     <main class="flex-1 max-w-7xl w-full mx-auto px-4 py-6">
         
+        <!-- DASHBOARD TAB -->
         <div id="tab-dash" class="tab-content space-y-6">
             
             <div class="bg-white p-5 rounded-2xl shadow-xs border border-slate-100 flex flex-col md:flex-row md:items-end justify-between gap-4">
                 <div class="space-y-1">
                     <h2 class="text-xs font-bold text-slate-400 uppercase tracking-wider">Filtro de Período</h2>
-                    <p class="text-sm font-bold text-slate-700">Combine múltiplos meses e anos</p>
+                    <p class="text-sm font-bold text-slate-700">Selecione múltiplos meses e anos para análise</p>
                 </div>
                 
                 <div class="grid grid-cols-1 sm:grid-cols-2 gap-3 w-full md:w-auto">
                     <div class="flex flex-col gap-1">
-                        <label class="text-[10px] font-bold uppercase text-slate-400">Ano de Análise</label>
+                        <label for="dash-filtro-ano" class="text-[10px] font-bold uppercase text-slate-400 cursor-pointer">Ano de Análise</label>
                         <select id="dash-filtro-ano" onchange="renderApp()" class="w-full h-11 px-3 border border-slate-200 rounded-xl text-sm bg-slate-50 font-semibold text-slate-700 focus:bg-white focus:outline-hidden cursor-pointer">
                             <option value="2026">2026</option>
                             <option value="2027">2027</option>
@@ -49,24 +58,24 @@
                     </div>
 
                     <div class="relative flex flex-col gap-1">
-                        <label class="text-[10px] font-bold uppercase text-slate-400">Múltiplos Meses</label>
-                        <button type="button" onclick="toggleDropdown()" id="dropdown-btn" class="w-full h-11 flex justify-between items-center rounded-xl border border-slate-200 bg-slate-50 px-3 text-sm font-semibold text-slate-700 shadow-xs hover:bg-slate-100 focus:outline-hidden cursor-pointer">
+                        <label for="dropdown-btn" class="text-[10px] font-bold uppercase text-slate-400 cursor-pointer">Múltiplos Meses</label>
+                        <button type="button" id="dropdown-btn" onclick="toggleDropdown()" class="w-full h-11 flex justify-between items-center rounded-xl border border-slate-200 bg-slate-50 px-3 text-sm font-semibold text-slate-700 shadow-xs hover:bg-slate-100 focus:outline-hidden cursor-pointer">
                             <span id="dropdown-label" class="truncate">Todos os meses</span>
                             <svg class="h-4 w-4 text-slate-400 shrink-0 ml-2" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M5.23 7.21a.75.75 0 011.06.02L10 11.168l3.71-3.938a.75.75 0 111.08 1.04l-4.25 4.5a.75.75 0 01-1.08 0l-4.25-4.5a.75.75 0 01.02-1.06z" clip-rule="evenodd" /></svg>
                         </button>
 
-                        <div id="dropdown-menu" class="hidden absolute left-0 md:right-0 top-18 md:top-16 z-20 w-full md:w-64 max-h-72 overflow-y-auto rounded-2xl bg-white shadow-xl ring-1 ring-black/5 focus:outline-hidden border border-slate-100 p-2 space-y-0.5">
+                        <div id="dropdown-menu" class="hidden absolute left-0 md:right-0 top-18 md:top-16 z-20 w-full md:w-64 max-h-72 overflow-y-auto rounded-2xl bg-white shadow-xl border border-slate-100 p-2 space-y-0.5">
                             <div class="flex items-center justify-between border-b border-slate-100 pb-2 pt-1 mb-1 px-2">
                                 <button onclick="selecionarTodosMeses(true); event.stopPropagation();" class="text-xs font-bold text-indigo-600 hover:underline cursor-pointer">Marcar todos</button>
                                 <button onclick="selecionarTodosMeses(false); event.stopPropagation();" class="text-xs font-bold text-slate-400 hover:underline cursor-pointer">Limpar</button>
                             </div>
-                            <div id="dropdown-checkboxes-container" class="space-y-0.5">
-                                </div>
+                            <div id="dropdown-checkboxes-container" class="space-y-0.5"></div>
                         </div>
                     </div>
                 </div>
             </div>
 
+            <!-- KPIs com Engenharia Financeira de Margem de Contribuição -->
             <div class="grid grid-cols-2 lg:grid-cols-5 gap-3">
                 <div class="bg-white p-4 rounded-2xl shadow-xs border border-slate-100 col-span-1">
                     <span class="text-[10px] font-bold text-slate-400 uppercase tracking-wider block">Ocupação Mínima</span>
@@ -84,21 +93,22 @@
                     <span class="text-[10px] text-slate-400 block mt-0.5">Retorno Investimento</span>
                 </div>
                 <div class="bg-white p-4 rounded-2xl shadow-xs border border-slate-100 col-span-1">
-                    <span class="text-[10px] font-bold text-slate-400 uppercase tracking-wider block">ROI Anual</span>
+                    <span class="text-[10px] font-bold text-slate-400 uppercase tracking-wider block">ROI Anual Real</span>
                     <span id="kpi-roi" class="text-xl lg:text-2xl font-bold text-slate-800 block mt-1.5">0.0%</span>
-                    <span class="text-[10px] text-slate-400 block mt-0.5">Retorno s/ Invest.</span>
+                    <span class="text-[10px] text-slate-400 block mt-0.5">Rentabilidade Líquida</span>
                 </div>
                 <div class="bg-white p-4 rounded-2xl shadow-xs border border-slate-100 col-span-2 lg:col-span-1">
-                    <span class="text-[10px] font-bold text-slate-400 uppercase tracking-wider block">TIR Mensal</span>
+                    <span class="text-[10px] font-bold text-slate-400 uppercase tracking-wider block">TIR Mensal Real</span>
                     <span id="kpi-tir" class="text-xl lg:text-2xl font-bold text-emerald-600 block mt-1.5">0.0%</span>
                     <span class="text-[10px] text-slate-400 block mt-0.5">Taxa Interna Retorno</span>
                 </div>
             </div>
 
+            <!-- Gráfico e Visão de Salas -->
             <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
                 <div class="bg-white p-5 rounded-2xl shadow-xs border border-slate-100 lg:col-span-2">
                     <h3 class="text-sm font-bold text-slate-700 mb-3">Evolução Mensal (Receitas vs. Despesas)</h3>
-                    <div class="h-60 sm:h-64 relative">
+                    <div class="h-60 sm:h-64 relative" id="chart-wrapper">
                         <canvas id="mainChart"></canvas>
                     </div>
                 </div>
@@ -119,7 +129,7 @@
                     </div>
                     <div class="bg-indigo-50 p-4 rounded-xl">
                         <div class="flex justify-between items-center gap-2">
-                            <span class="text-[11px] font-bold text-indigo-700 uppercase">Resultado do Período:</span>
+                            <span class="text-[11px] font-bold text-indigo-700 uppercase">Resultado Líquido do Período:</span>
                             <span id="sum-liquido" class="text-base lg:text-lg font-bold text-indigo-900 truncate">R$ 0,00</span>
                         </div>
                     </div>
@@ -127,12 +137,13 @@
             </div>
         </div>
 
+        <!-- LANÇAMENTOS TAB -->
         <div id="tab-lanc" class="tab-content hidden max-w-3xl mx-auto space-y-6">
             <div class="bg-white p-5 rounded-2xl shadow-xs border border-slate-100">
-                <h2 class="text-sm font-bold text-slate-700 mb-1">📥 Importar Dados</h2>
-                <p class="text-xs text-slate-400 mb-4">Selecione um arquivo CSV com os dados formatados para atualizar.</p>
+                <h2 class="text-sm font-bold text-slate-700 mb-1">📥 Importar Dados via Planilha</h2>
+                <p class="text-xs text-slate-400 mb-4">Selecione um arquivo CSV com os dados formatados para atualização rápida.</p>
                 <div class="w-full">
-                    <label class="flex flex-col items-center justify-center w-full h-28 border-2 border-slate-200 border-dashed rounded-xl cursor-pointer bg-slate-50 hover:bg-slate-100 transition-all p-4 text-center">
+                    <label for="file-uploader" class="flex flex-col items-center justify-center w-full h-28 border-2 border-slate-200 border-dashed rounded-xl cursor-pointer bg-slate-50 hover:bg-slate-100 transition-all p-4 text-center">
                         <svg class="w-6 h-6 mb-2 text-slate-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12"></path></svg>
                         <p class="text-xs text-slate-500 font-semibold">Toque para selecionar o arquivo CSV</p>
                         <input type="file" id="file-uploader" accept=".csv" class="hidden" onchange="importCSV(this)" />
@@ -168,16 +179,16 @@
 
                     <div class="grid grid-cols-1 sm:grid-cols-3 gap-3">
                         <div class="flex flex-col gap-1">
-                            <label class="text-[10px] font-bold uppercase text-slate-400">Data</label>
+                            <label for="lanc-data" class="text-[10px] font-bold uppercase text-slate-400 cursor-pointer">Data</label>
                             <input type="date" id="lanc-data" required class="h-11 px-3 border border-slate-200 rounded-xl text-sm bg-slate-50 focus:bg-white focus:outline-hidden w-full">
                         </div>
                         <div class="flex flex-col gap-1">
-                            <label class="text-[10px] font-bold uppercase text-slate-400">Descrição / Notas</label>
+                            <label for="lanc-desc" class="text-[10px] font-bold uppercase text-slate-400 cursor-pointer">Descrição / Notas</label>
                             <input type="text" id="lanc-desc" required placeholder="Ex: Turno Dr. Silva" class="h-11 px-3 border border-slate-200 rounded-xl text-sm bg-slate-50 focus:bg-white focus:outline-hidden w-full">
                         </div>
                         <div class="flex flex-col gap-1">
-                            <label class="text-[10px] font-bold uppercase text-slate-400">Valor (R$)</label>
-                            <input type="number" step="0.01" id="lanc-valor" required placeholder="0,00" class="h-11 px-3 border border-slate-200 rounded-xl text-sm bg-slate-50 focus:bg-white focus:outline-hidden w-full">
+                            <label for="lanc-valor" class="text-[10px] font-bold uppercase text-slate-400 cursor-pointer">Valor (R$)</label>
+                            <input type="text" id="lanc-valor" required placeholder="R$ 0,00" oninput="handleCurrencyInput(this)" class="h-11 px-3 border border-slate-200 rounded-xl text-sm bg-slate-50 focus:bg-white focus:outline-hidden w-full font-bold text-slate-700">
                         </div>
                     </div>
 
@@ -186,19 +197,29 @@
             </div>
         </div>
 
+        <!-- EXTRATO TAB (HÍBRIDO: TABELA NO DESKTOP, CARDS NO MOBILE) -->
         <div id="tab-extrato" class="tab-content hidden">
             <div class="bg-white rounded-2xl shadow-xs border border-slate-100 overflow-hidden">
                 <div class="p-5 border-b border-slate-100 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
                     <div>
                         <h2 class="text-sm font-bold text-slate-700">Histórico Completo</h2>
-                        <p class="text-xs text-slate-400">Todos os registros inseridos ou importados.</p>
+                        <p class="text-xs text-slate-400">Registros filtrados de acordo com o ano e meses ativos selecionados.</p>
                     </div>
                     <div class="flex gap-2 w-full sm:w-auto">
                         <button onclick="clearData()" class="flex-1 sm:flex-none h-9 px-3 text-xs font-bold text-rose-600 border border-rose-200 hover:bg-rose-50 rounded-xl cursor-pointer">Limpar Banco</button>
                         <button onclick="exportJSON()" class="flex-1 sm:flex-none h-9 px-3 text-xs font-bold text-slate-600 border border-slate-200 hover:bg-slate-50 rounded-xl cursor-pointer">Exportar Backup</button>
                     </div>
                 </div>
-                <div class="overflow-x-auto w-full touch-pan-x">
+
+                <!-- Estado Vazio (Empty State) -->
+                <div id="empty-state" class="hidden p-12 text-center space-y-3">
+                    <span class="text-3xl block">📁</span>
+                    <h3 class="text-sm font-bold text-slate-700">Nenhum registro encontrado</h3>
+                    <p class="text-xs text-slate-400 max-w-xs mx-auto">Não existem movimentações salvas para os meses ou ano ativos selecionados no momento.</p>
+                </div>
+
+                <!-- Exibição Desktop: Tabela -->
+                <div id="desktop-table-container" class="hidden md:block overflow-x-auto w-full">
                     <table class="w-full text-left border-collapse min-w-[600px]">
                         <thead>
                             <tr class="bg-slate-50 text-slate-400 text-[10px] font-bold uppercase tracking-wider border-b border-slate-100">
@@ -213,13 +234,17 @@
                         <tbody id="table-body" class="text-xs lg:text-sm divide-y divide-slate-100"></tbody>
                     </table>
                 </div>
+
+                <!-- Exibição Mobile: Lista de Cards Responsivos -->
+                <div id="mobile-cards-container" class="block md:hidden divide-y divide-slate-100 bg-white"></div>
             </div>
         </div>
 
+        <!-- CONFIG TAB -->
         <div id="tab-config" class="tab-content hidden max-w-md mx-auto">
             <div class="bg-white p-5 rounded-2xl shadow-xs border border-slate-100">
-                <h2 class="text-sm font-bold text-slate-700 mb-1">Parâmetros Operacionais</h2>
-                <p class="text-xs text-slate-400 mb-5">Configure as métricas do ponto de equilíbrio.</p>
+                <h2 class="text-sm font-bold text-slate-700 mb-1">Parâmetros Operacionais Estratégicos</h2>
+                <p class="text-xs text-slate-400 mb-5">Configure as métricas financeiras essenciais da sua clínica.</p>
                 
                 <div class="space-y-5">
                     <div>
@@ -231,12 +256,23 @@
                     </div>
 
                     <div class="flex flex-col gap-1">
-                        <label id="lbl-cfg-capacidade" class="text-[10px] font-bold uppercase text-slate-500">Capacidade Total Mensal</label>
+                        <label id="lbl-cfg-capacidade" for="cfg-capacidade" class="text-[10px] font-bold uppercase text-slate-500 cursor-pointer">Capacidade Total Mensal</label>
                         <input type="number" id="cfg-capacidade" class="h-11 px-3 border border-slate-200 rounded-xl text-sm bg-slate-50 focus:bg-white focus:outline-hidden w-full">
                     </div>
+                    
                     <div class="flex flex-col gap-1">
-                        <label id="lbl-cfg-preco" class="text-[10px] font-bold uppercase text-slate-500">Preço Estimado</label>
-                        <input type="number" id="cfg-preco" class="h-11 px-3 border border-slate-200 rounded-xl text-sm bg-slate-50 focus:bg-white focus:outline-hidden w-full">
+                        <label id="lbl-cfg-preco" for="cfg-preco" class="text-[10px] font-bold uppercase text-slate-500 cursor-pointer">Preço de Venda Estimado (R$)</label>
+                        <input type="number" step="0.01" id="cfg-preco" class="h-11 px-3 border border-slate-200 rounded-xl text-sm bg-slate-50 focus:bg-white focus:outline-hidden w-full">
+                    </div>
+
+                    <div class="flex flex-col gap-1">
+                        <label for="cfg-custofixo" class="text-[10px] font-bold uppercase text-slate-500 cursor-pointer">Estrutura de Custo Fixo Base Mensal (R$)</label>
+                        <input type="number" step="0.01" id="cfg-custofixo" class="h-11 px-3 border border-slate-200 rounded-xl text-sm bg-slate-50 focus:bg-white focus:outline-hidden w-full">
+                    </div>
+
+                    <div class="flex flex-col gap-1">
+                        <label id="lbl-cfg-custovariavel" for="cfg-custovariavel" class="text-[10px] font-bold uppercase text-slate-500 cursor-pointer">Custo Variável Operacional Médio (R$)</label>
+                        <input type="number" step="0.01" id="cfg-custovariavel" class="h-11 px-3 border border-slate-200 rounded-xl text-sm bg-slate-50 focus:bg-white focus:outline-hidden w-full">
                     </div>
                     
                     <button onclick="saveConfig()" class="w-full h-12 bg-indigo-600 hover:bg-indigo-700 text-white font-semibold rounded-xl text-sm shadow-xs transition-all mt-2 cursor-pointer">Salvar Parâmetros</button>
@@ -253,7 +289,6 @@
     <script>
         let selectedType = 'receita';
         let selectedSala = 'sala1';
-        
         let mesesAtivos = [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11]; 
         const nomesMeses = ['Janeiro', 'Fevereiro', 'Março', 'Abril', 'Maio', 'Junho', 'Julho', 'Agosto', 'Setembro', 'Outubro', 'Novembro', 'Dezembro'];
         const nomesCurtos = ['Jan', 'Fev', 'Mar', 'Abr', 'Mai', 'Jun', 'Jul', 'Ago', 'Set', 'Out', 'Nov', 'Dez'];
@@ -270,7 +305,9 @@
         let config = JSON.parse(localStorage.getItem('simulador_config')) || {
             metrica: 'horas',
             capacidade: 320,
-            preco: 60
+            preco: 60,
+            custoFixo: 3500,
+            custoVariavel: 10
         };
 
         let chartInstance = null;
@@ -289,6 +326,34 @@
                 }
             });
         });
+
+        // Feedback visual - Toast System
+        function triggerToast(msg, icon = "ℹ️") {
+            const toast = document.getElementById('toast-notification');
+            document.getElementById('toast-icon').innerText = icon;
+            document.getElementById('toast-message').innerText = msg;
+            toast.classList.remove('hidden');
+            setTimeout(() => toast.classList.add('hidden'), 3500);
+        }
+
+        // Sistema de Máscara Monetária Real-Time (UX)
+        function handleCurrencyInput(input) {
+            let value = input.value.replace(/\D/g, '');
+            if(value === '') {
+                input.value = '';
+                return;
+            }
+            value = (value / 100).toFixed(2) + '';
+            value = value.replace(".", ",");
+            value = value.replace(/(\d)(?=(\d{3})+(?!\d))/g, "$1.");
+            input.value = 'R$ ' + value;
+        }
+
+        function parseCurrencyToFloat(stringVal) {
+            if(!stringVal) return 0;
+            let cleanVal = stringVal.replace(/[^\d,]/g, '').replace(',', '.');
+            return parseFloat(cleanVal) || 0;
+        }
 
         function toggleDropdown() {
             document.getElementById('dropdown-menu').classList.toggle('hidden');
@@ -356,34 +421,37 @@
             const btnTurnos = document.getElementById('btn-m-turnos');
             const lblCap = document.getElementById('lbl-cfg-capacidade');
             const lblPreco = document.getElementById('lbl-cfg-preco');
+            const lblVar = document.getElementById('lbl-cfg-custovariavel');
 
             if(config.metrica === 'turnos') {
                 btnTurnos.className = "h-9 text-xs font-semibold rounded-lg text-center bg-white text-indigo-900 shadow-xs cursor-pointer w-full";
                 btnHoras.className = "h-9 text-xs font-semibold rounded-lg text-center text-slate-500 hover:text-slate-700 cursor-pointer w-full";
                 lblCap.innerText = "Capacidade Mensal (Qtd. Turnos)";
-                lblPreco.innerText = "Preço Médio por Turno (R$)";
+                lblPreco.innerText = "Preço de Venda Médio por Turno (R$)";
+                lblVar.innerText = "Custo Variável Médio por Turno (R$)";
             } else {
                 btnHoras.className = "h-9 text-xs font-semibold rounded-lg text-center bg-white text-indigo-900 shadow-xs cursor-pointer w-full";
                 btnTurnos.className = "h-9 text-xs font-semibold rounded-lg text-center text-slate-500 hover:text-slate-700 cursor-pointer w-full";
                 lblCap.innerText = "Capacidade Mensal (Qtd. Horas)";
-                lblPreco.innerText = "Preço Médio por Hora (R$)";
+                lblPreco.innerText = "Preço de Venda Médio por Hora (R$)";
+                lblVar.innerText = "Custo Variável Médio por Hora (R$)";
             }
 
             document.getElementById('cfg-capacidade').value = config.capacidade;
             document.getElementById('cfg-preco').value = config.preco;
+            document.getElementById('cfg-custofixo').value = config.custoFixo;
+            document.getElementById('cfg-custovariavel').value = config.custoVariavel;
         }
 
         function switchTab(tabId) {
             document.querySelectorAll('.tab-content').forEach(el => el.classList.add('hidden'));
             document.querySelectorAll('.tab-btn').forEach(el => {
-                el.classList.remove('bg-indigo-600', 'text-white', 'shadow-xs');
-                el.classList.add('text-indigo-200');
+                el.className = "tab-btn snap-center px-4 py-2.5 text-xs lg:text-sm font-semibold rounded-lg text-indigo-200 hover:text-white cursor-pointer";
             });
 
             document.getElementById(`tab-${tabId}`).classList.remove('hidden');
             const activeBtn = document.getElementById(`btn-${tabId}`);
-            activeBtn.classList.add('bg-indigo-600', 'text-white', 'shadow-xs');
-            activeBtn.classList.remove('text-indigo-200');
+            activeBtn.className = "tab-btn snap-center px-4 py-2.5 text-xs lg:text-sm font-semibold rounded-lg bg-indigo-600 text-white shadow-xs cursor-pointer";
 
             if (tabId === 'dash') {
                 setTimeout(renderCharts, 50);
@@ -393,42 +461,45 @@
         function setFormType(type) {
             selectedType = type;
             document.querySelectorAll('.type-btn').forEach(el => {
-                el.classList.remove('bg-emerald-50', 'border-emerald-500', 'text-emerald-800', 'bg-rose-50', 'border-rose-500', 'text-rose-800', 'bg-indigo-50', 'border-indigo-500', 'text-indigo-800');
-                el.classList.add('border-slate-200', 'text-slate-600', 'hover:bg-slate-50');
+                el.className = "type-btn h-14 border border-slate-200 rounded-xl flex items-center px-4 gap-3 font-semibold text-sm transition-all text-slate-600 hover:bg-slate-50 cursor-pointer";
             });
 
             const btn = document.getElementById(`btn-type-${type}`);
-            btn.classList.remove('border-slate-200', 'text-slate-600', 'hover:bg-slate-50');
             
             if(type === 'receita') {
-                btn.classList.add('bg-emerald-50', 'border-emerald-500', 'text-emerald-800');
+                btn.className = "type-btn h-14 border rounded-xl flex items-center px-4 gap-3 font-semibold text-sm transition-all bg-emerald-50 border-emerald-500 text-emerald-800 cursor-pointer";
                 document.getElementById('sala-selector-block').classList.remove('hidden');
             } else if(type === 'despesa') {
-                btn.classList.add('bg-rose-50', 'border-rose-500', 'text-rose-800');
+                btn.className = "type-btn h-14 border rounded-xl flex items-center px-4 gap-3 font-semibold text-sm transition-all bg-rose-50 border-rose-500 text-rose-800 cursor-pointer";
                 document.getElementById('sala-selector-block').classList.add('hidden');
+                selectedSala = '-'; // Limpeza de resíduo lógico
             } else {
-                btn.classList.add('bg-indigo-50', 'border-indigo-500', 'text-indigo-800');
+                btn.className = "type-btn h-14 border rounded-xl flex items-center px-4 gap-3 font-semibold text-sm transition-all bg-indigo-50 border-indigo-500 text-indigo-800 cursor-pointer";
                 document.getElementById('sala-selector-block').classList.add('hidden');
+                selectedSala = '-';
             }
         }
 
         function setFormSala(sala) {
             selectedSala = sala;
             document.querySelectorAll('.sala-btn').forEach(el => {
-                el.classList.remove('bg-indigo-50', 'border-indigo-500', 'text-indigo-800');
-                el.classList.add('border-slate-200', 'text-slate-600', 'hover:bg-slate-50');
+                el.className = "sala-btn h-11 border border-slate-200 rounded-xl font-semibold text-sm transition-all text-slate-600 hover:bg-slate-50 cursor-pointer text-centerw-full text-center";
             });
             const btn = document.getElementById(`btn-${sala}`);
-            btn.classList.remove('border-slate-200', 'text-slate-600', 'hover:bg-slate-50');
-            btn.classList.add('bg-indigo-50', 'border-indigo-500', 'text-indigo-800');
+            btn.className = "sala-btn h-11 border rounded-xl font-semibold text-sm transition-all bg-indigo-50 border-indigo-500 text-indigo-800 cursor-pointer text-center w-full";
         }
 
         function saveLancamento(e) {
             e.preventDefault();
             const data = document.getElementById('lanc-data').value;
             const desc = document.getElementById('lanc-desc').value;
-            const valor = parseFloat(document.getElementById('lanc-valor').value);
+            const valor = parseCurrencyToFloat(document.getElementById('lanc-valor').value);
             const sala = selectedType === 'receita' ? selectedSala : '-';
+
+            if(valor <= 0) {
+                alert("Insira um valor válido acima de R$ 0,00");
+                return;
+            }
 
             lancamentos.push({ id: Date.now(), data, tipo: selectedType, sala, desc, valor });
             localStorage.setItem('simulador_lancamentos', JSON.stringify(lancamentos));
@@ -436,6 +507,7 @@
             document.getElementById('lanc-desc').value = '';
             document.getElementById('lanc-valor').value = '';
             
+            triggerToast("Lançamento adicionado com sucesso!", "🟢");
             renderApp();
             switchTab('dash');
         }
@@ -443,6 +515,7 @@
         function deleteLancamento(id) {
             lancamentos = lancamentos.filter(item => item.id !== id);
             localStorage.setItem('simulador_lancamentos', JSON.stringify(lancamentos));
+            triggerToast("Registro removido.", "🔴");
             renderApp();
         }
 
@@ -480,11 +553,11 @@
                 }
                 if(count > 0) {
                     localStorage.setItem('simulador_lancamentos', JSON.stringify(lancamentos));
-                    alert(count + " registros importados!");
+                    triggerToast(`${count} registros importados!`, "📥");
                     renderApp();
                     switchTab('dash');
                 } else {
-                    alert("Erro no formato do arquivo CSV.");
+                    alert("Formato incompatível detectado no arquivo CSV.");
                 }
             };
             reader.readAsText(file);
@@ -494,9 +567,37 @@
             return val.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' });
         }
 
+        // Método de Newton-Raphson para cálculo real e matematicamente correto da TIR do projeto
+        function calcularTIRReal(investimento, lucroMensal, meses) {
+            if (investimento <= 0 || lucroMensal <= 0) return 0;
+            let fluxos = [-investimento];
+            for (let i = 0; i < meses; i++) { fluxos.push(lucroMensal); }
+
+            let guess = 0.1;
+            let maxIter = 1000;
+            let precision = 1e-6;
+
+            for (let i = 0; i < maxIter; i++) {
+                let vpl = 0;
+                let derivadaVpl = 0;
+                for (let t = 0; t < fluxos.length; t++) {
+                    vpl += fluxos[t] / Math.pow(1 + guess, t);
+                    if (t > 0) derivadaVpl -= t * fluxos[t] / Math.pow(1 + guess, t + 1);
+                }
+                if (Math.abs(derivadaVpl) < 1e-10) break;
+                let nextGuess = guess - (vpl / derivadaVpl);
+                if (Math.abs(nextGuess - guess) < precision) return nextGuess * 100;
+                guess = nextGuess;
+            }
+            return 0;
+        }
+
         function renderApp() {
             const tbody = document.getElementById('table-body');
+            const mobileContainer = document.getElementById('mobile-cards-container');
+            
             if (tbody) tbody.innerHTML = '';
+            if (mobileContainer) mobileContainer.innerHTML = '';
             
             const filtroAno = document.getElementById('dash-filtro-ano').value;
             const sorted = [...lancamentos].sort((a,b) => new Date(b.data) - new Date(a.data));
@@ -505,40 +606,80 @@
             let sala2Tot = 0;
             let totalDespesas = 0;
             let totalInvestido = 0;
+            let totalRegistrosExibidos = 0;
 
             sorted.forEach(item => {
                 const itemDate = new Date(item.data + 'T00:00:00');
                 const itemMes = itemDate.getMonth();
                 const itemAno = itemDate.getFullYear().toString();
 
-                if (tbody) {
-                    const tr = document.createElement('tr');
-                    let badge = '';
-                    if(item.tipo === 'receita') badge = '<span class="px-2 py-0.5 text-[10px] font-semibold rounded-sm bg-emerald-50 text-emerald-700">Entrada</span>';
-                    if(item.tipo === 'despesa') badge = '<span class="px-2 py-0.5 text-[10px] font-semibold rounded-sm bg-rose-50 text-rose-700">Saída</span>';
-                    if(item.tipo === 'investimento') badge = '<span class="px-2 py-0.5 text-[10px] font-semibold rounded-sm bg-indigo-50 text-indigo-700">Invest.</span>';
-                    let orig = item.tipo === 'receita' ? (item.sala === 'sala1' ? 'Sala 01' : 'Sala 02') : 'Geral';
-
-                    tr.innerHTML = `
-                        <td class="p-4 text-slate-500 whitespace-nowrap">${item.data.split('-').reverse().join('/')}</td>
-                        <td class="p-4">${badge}</td>
-                        <td class="p-4 font-semibold text-slate-600 whitespace-nowrap">${orig}</td>
-                        <td class="p-4 text-slate-700 min-w-[150px]">${item.desc}</td>
-                        <td class="p-4 text-right font-bold whitespace-nowrap ${item.tipo==='receita'?'text-emerald-600':(item.tipo==='despesa'?'text-rose-600':'text-indigo-600')}">${formatCurrency(item.valor)}</td>
-                        <td class="p-4 text-center whitespace-nowrap">
-                            <button onclick="deleteLancamento(${item.id})" class="text-xs text-rose-500 font-semibold hover:text-rose-700 cursor-pointer">Remover</button>
-                        </td>
-                    `;
-                    tbody.appendChild(tr);
-                }
-
                 if (itemAno === filtroAno && mesesAtivos.includes(itemMes)) {
+                    totalRegistrosExibidos++;
+                    
+                    // Acumuladores de cálculos
                     if(item.tipo === 'receita' && item.sala === 'sala1') sala1Tot += item.valor;
                     if(item.tipo === 'receita' && item.sala === 'sala2') sala2Tot += item.valor;
                     if(item.tipo === 'despesa') totalDespesas += item.valor;
                     if(item.tipo === 'investimento') totalInvestido += item.valor;
+
+                    // 1. Alimentação da Tabela Desktop
+                    if (tbody) {
+                        const tr = document.createElement('tr');
+                        let badge = '';
+                        if(item.tipo === 'receita') badge = '<span class="px-2 py-0.5 text-[10px] font-semibold rounded-sm bg-emerald-50 text-emerald-700">Entrada</span>';
+                        if(item.tipo === 'despesa') badge = '<span class="px-2 py-0.5 text-[10px] font-semibold rounded-sm bg-rose-50 text-rose-700">Saída</span>';
+                        if(item.tipo === 'investimento') badge = '<span class="px-2 py-0.5 text-[10px] font-semibold rounded-sm bg-indigo-50 text-indigo-700">Invest.</span>';
+                        let orig = item.tipo === 'receita' ? (item.sala === 'sala1' ? 'Sala 01' : 'Sala 02') : 'Geral';
+
+                        tr.innerHTML = `
+                            <td class="p-4 text-slate-500 whitespace-nowrap">${item.data.split('-').reverse().join('/')}</td>
+                            <td class="p-4">${badge}</td>
+                            <td class="p-4 font-semibold text-slate-600 whitespace-nowrap">${orig}</td>
+                            <td class="p-4 text-slate-700 min-w-[150px]">${item.desc}</td>
+                            <td class="p-4 text-right font-bold whitespace-nowrap ${item.tipo==='receita'?'text-emerald-600':(item.tipo==='despesa'?'text-rose-600':'text-indigo-600')}">${formatCurrency(item.valor)}</td>
+                            <td class="p-4 text-center whitespace-nowrap">
+                                <button onclick="deleteLancamento(${item.id})" class="text-xs text-rose-500 font-semibold hover:text-rose-700 cursor-pointer">Remover</button>
+                            </td>
+                        `;
+                        tbody.appendChild(tr);
+                    }
+
+                    // 2. Alimentação dos Cards Mobile (UX Aprimorada)
+                    if (mobileContainer) {
+                        const card = document.createElement('div');
+                        card.className = "p-4 flex flex-col gap-2 bg-white";
+                        let borderKind = item.tipo === 'receita' ? 'border-emerald-500' : (item.tipo === 'despesa' ? 'border-rose-500' : 'border-indigo-500');
+                        let orig = item.tipo === 'receita' ? (item.sala === 'sala1' ? 'Sala 01' : 'Sala 02') : 'Geral';
+                        
+                        card.innerHTML = `
+                            <div class="flex justify-between items-center">
+                                <span class="text-xs font-bold text-slate-400">${item.data.split('-').reverse().join('/')}</span>
+                                <span class="text-[10px] font-bold uppercase px-2 py-0.5 rounded-sm ${item.tipo === 'receita' ? 'bg-emerald-50 text-emerald-700' : (item.tipo === 'despesa' ? 'bg-rose-50 text-rose-700' : 'bg-indigo-50 text-indigo-700')}">${item.tipo}</span>
+                            </div>
+                            <div class="text-sm font-semibold text-slate-800">${item.desc}</div>
+                            <div class="text-xs text-slate-500">Origem: <span class="font-semibold text-slate-700">${orig}</span></div>
+                            <div class="flex justify-between items-center mt-1 pt-2 border-t border-slate-50">
+                                <span class="text-base font-black ${item.tipo === 'receita' ? 'text-emerald-600' : (item.tipo==='despesa'?'text-rose-600':'text-indigo-600')}">${formatCurrency(item.valor)}</span>
+                                <button onclick="deleteLancamento(${item.id})" class="text-xs font-bold text-rose-500 hover:underline">Remover</button>
+                            </div>
+                        `;
+                        mobileContainer.appendChild(card);
+                    }
                 }
             });
+
+            // Gestão Dinâmica de Estados Vazios (Empty States)
+            const emptyStateEl = document.getElementById('empty-state');
+            const tableContainerEl = document.getElementById('desktop-table-container');
+            if (totalRegistrosExibidos === 0) {
+                emptyStateEl.classList.remove('hidden');
+                tableContainerEl.classList.add('hidden');
+                mobileContainer.classList.add('hidden');
+            } else {
+                emptyStateEl.classList.add('hidden');
+                tableContainerEl.classList.remove('hidden');
+                mobileContainer.classList.remove('hidden');
+            }
 
             document.getElementById('faturamento-sala1').innerText = formatCurrency(sala1Tot);
             document.getElementById('faturamento-sala2').innerText = formatCurrency(sala2Tot);
@@ -547,28 +688,46 @@
             document.getElementById('sum-liquido').innerText = formatCurrency(totalReceitas - totalDespesas - totalInvestido);
 
             const qtdMesesSelecionados = mesesAtivos.length || 1;
-            let custoFixoBase = 3500 * qtdMesesSelecionados;
-            document.getElementById('kpi-break-even').innerText = formatCurrency(custoFixoBase);
-
-            const unidadesReq = custoFixoBase / (config.preco || 1);
-            let capacidadeAjustada = config.capacidade * qtdMesesSelecionados;
             
-            const ocuPct = capacidadeAjustada > 0 ? (unidadesReq / capacidadeAjustada) * 100 : 0;
+            // --- ENGENHARIA FINANCEIRA: MARGEM DE CONTRIBUIÇÃO ---
+            let custoFixoAcumulado = config.custoFixo * qtdMesesSelecionados;
+            let margemContribuicaoUnitaria = config.preco - config.custoVariavel;
+            
+            if(margemContribuicaoUnitaria <= 0) {
+                margemContribuicaoUnitaria = config.preco || 1; 
+            }
+
+            // Unidades físicas mínimas para cobrir a estrutura fixa
+            const unidadesBreakEven = custoFixoAcumulado / margemContribuicaoUnitaria;
+            let faturamentoMinimoRequerido = unidadesBreakEven * config.preco;
+
+            document.getElementById('kpi-break-even').innerText = formatCurrency(faturamentoMinimoRequerido);
+
+            let capacidadeAjustadaPeriodo = config.capacidade * qtdMesesSelecionados;
+            const ocuPct = capacidadeAjustadaPeriodo > 0 ? (unidadesBreakEven / capacidadeAjustadaPeriodo) * 100 : 0;
+            
             document.getElementById('kpi-ponto-eq').innerText = ocuPct.toFixed(1) + '%';
             document.getElementById('lbl-metrica-eq').innerText = `Eq. em ${config.metrica === 'turnos' ? 'Turnos' : 'Horas'}`;
 
+            // Indicadores de Retorno Sobre Investimentos Portfólio (ROI, TIR, Payback)
             let totalInvestidoGeral = lancamentos.filter(i => i.tipo === 'investimento').reduce((acc, i) => acc + i.valor, 0);
-            let lucroMensalMedio = (totalReceitas - totalDespesas) / qtdMesesSelecionados;
-            if(lucroMensalMedio <= 0) lucroMensalMedio = 1600;
+            let lucroMensalMedioReal = (totalReceitas - totalDespesas) / qtdMesesSelecionados;
 
-            const payback = totalInvestidoGeral > 0 ? (totalInvestidoGeral / lucroMensalMedio) : 0;
-            document.getElementById('kpi-payback').innerText = payback > 0 ? payback.toFixed(1) + ' mes(es)' : '0 meses';
+            if (totalInvestidoGeral > 0 && lucroMensalMedioReal > 0) {
+                const payback = totalInvestidoGeral / lucroMensalMedioReal;
+                document.getElementById('kpi-payback').innerText = payback.toFixed(1) + ' meses';
+                
+                const receitaAnualProjetada = lucroMensalMedioReal * 12;
+                const roiReal = ((receitaAnualProjetada - totalInvestidoGeral) / totalInvestidoGeral) * 100;
+                document.getElementById('kpi-roi').innerText = roiReal.toFixed(1) + '%';
 
-            const roi = totalInvestidoGeral > 0 ? ((lucroMensalMedio * 12) / totalInvestidoGeral) * 100 : 0;
-            document.getElementById('kpi-roi').innerText = roi.toFixed(1) + '%';
-
-            let tir = totalInvestidoGeral > 0 ? (lucroMensalMedio / totalInvestidoGeral) * 100 : 0;
-            document.getElementById('kpi-tir').innerText = tir.toFixed(1) + '%';
+                let tirReal = calcularTIRReal(totalInvestidoGeral, lucroMensalMedioReal, 12);
+                document.getElementById('kpi-tir').innerText = tirReal.toFixed(1) + '%';
+            } else {
+                document.getElementById('kpi-payback').innerText = 'Inviável';
+                document.getElementById('kpi-roi').innerText = '0.0%';
+                document.getElementById('kpi-tir').innerText = '0.0%';
+            }
 
             renderCharts();
         }
@@ -578,7 +737,6 @@
             if(!ctx) return;
 
             const filtroAno = document.getElementById('dash-filtro-ano').value;
-            
             let labelsFiltradas = [];
             let receitasData = [];
             let despesasData = [];
@@ -586,8 +744,8 @@
             nomesCurtos.forEach((mes, idx) => {
                 if (mesesAtivos.includes(idx)) {
                     labelsFiltradas.push(mes);
-                    
                     let rMes = 0, dMes = 0;
+                    
                     lancamentos.forEach(item => {
                         const itemDate = new Date(item.data + 'T00:00:00');
                         if(itemDate.getFullYear().toString() === filtroAno && itemDate.getMonth() === idx) {
@@ -633,15 +791,20 @@
         function saveConfig() {
             config.capacidade = parseInt(document.getElementById('cfg-capacidade').value) || 320;
             config.preco = parseFloat(document.getElementById('cfg-preco').value) || 60;
+            config.custoFixo = parseFloat(document.getElementById('cfg-custofixo').value) || 0;
+            config.custoVariavel = parseFloat(document.getElementById('cfg-custovariavel').value) || 0;
+            
             localStorage.setItem('simulador_config', JSON.stringify(config));
+            triggerToast("Parâmetros operacionais salvos!", "⚙️");
             renderApp();
             switchTab('dash');
         }
 
         function clearData() {
-            if(confirm("Deseja apagar os dados?")) {
+            if(confirm("Tem certeza que deseja limpar todo o banco de dados local?")) {
                 lancamentos = [];
                 localStorage.setItem('simulador_lancamentos', JSON.stringify(lancamentos));
+                triggerToast("Banco de dados resetado.", "🧹");
                 renderApp();
             }
         }
