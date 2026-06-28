@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Simulador Financeiro Pro - Gestão Estratégica</title>
+    <title>Simulador Financeiro - Gestão Estratégica</title>
     <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <style>
@@ -291,14 +291,61 @@
         const nomesMeses = ['Janeiro', 'Fevereiro', 'Março', 'Abril', 'Maio', 'Junho', 'Julho', 'Agosto', 'Setembro', 'Outubro', 'Novembro', 'Dezembro'];
         const nomesCurtos = ['Jan', 'Fev', 'Mar', 'Abr', 'Mai', 'Jun', 'Jul', 'Ago', 'Set', 'Out', 'Nov', 'Dez'];
 
-        // Fallback e Inicialização Segura de dados para dar autonomia à usuária
+        // Histórico de Testes Abrangente de 12 Meses Completos para Autonomia da Empreendedora (Ano base 2026)
         let lancamentos = JSON.parse(localStorage.getItem('simulador_lancamentos')) || [
-            { id: 1, data: '2026-01-01', tipo: 'investimento', sala: '-', desc: 'Reforma Estrutural Inicial', valor: 45000 },
-            { id: 2, data: '2026-01-05', tipo: 'despesa', sala: '-', desc: 'Custos Fixos de Aluguel/Condomínio', valor: 3500 },
-            { id: 3, data: '2026-01-10', tipo: 'receita', sala: 'sala1', desc: 'Atendimentos Dr. Silva', valor: 2500 },
-            { id: 4, data: '2026-01-12', tipo: 'receita', sala: 'sala2', desc: 'Consultas Dra. Marina', valor: 1800 },
-            { id: 5, data: '2026-02-05', tipo: 'despesa', sala: '-', desc: 'Custos Fixos de Aluguel/Condomínio', valor: 3500 },
-            { id: 6, data: '2026-02-15', tipo: 'receita', sala: 'sala1', desc: 'Locação Turnos Acumulados', valor: 3200 }
+            // Janeiro
+            { id: 101, data: '2026-01-02', tipo: 'investimento', sala: '-', desc: 'Reforma de Infraestrutura e Cadeiras Clínicas', valor: 45000 },
+            { id: 102, data: '2026-01-05', tipo: 'despesa', sala: '-', desc: 'Aluguel + Condomínio Comercial Fixos', valor: 3500 },
+            { id: 103, data: '2026-01-15', tipo: 'receita', sala: 'sala1', desc: 'Locação Dr. Silva Turno Manhã', valor: 2800 },
+            { id: 104, data: '2026-01-20', tipo: 'receita', sala: 'sala2', desc: 'Atendimentos Psicologia Dra. Sandra', valor: 2200 },
+            // Fevereiro
+            { id: 201, data: '2026-02-05', tipo: 'despesa', sala: '-', desc: 'Aluguel + Condomínio Comercial Fixos', valor: 3500 },
+            { id: 202, data: '2026-02-12', tipo: 'despesa', sala: '-', desc: 'Insumos Variáveis e Limpeza salas', valor: 220 },
+            { id: 203, data: '2026-02-18', tipo: 'receita', sala: 'sala1', desc: 'Faturamento Mensal Concluido Sala 1', valor: 3500 },
+            { id: 204, data: '2026-02-25', tipo: 'receita', sala: 'sala2', desc: 'Faturamento Mensal Concluido Sala 2', valor: 3100 },
+            // Março
+            { id: 301, data: '2026-03-05', tipo: 'despesa', sala: '-', desc: 'Aluguel + Condomínio Comercial Fixos', valor: 3500 },
+            { id: 302, data: '2026-03-20', tipo: 'receita', sala: 'sala1', desc: 'Locação Comercializada Período', valor: 4200 },
+            { id: 303, data: '2026-03-25', tipo: 'receita', sala: 'sala2', desc: 'Contratos Fechados Odontologia', valor: 3800 },
+            // Abril
+            { id: 401, data: '2026-04-05', tipo: 'despesa', sala: '-', desc: 'Aluguel + Condomínio Comercial Fixos', valor: 3500 },
+            { id: 402, data: '2026-04-18', tipo: 'receita', sala: 'sala1', desc: 'Fechamento de Pacotes de Horas', valor: 4900 },
+            { id: 403, data: '2026-04-22', tipo: 'receita', sala: 'sala2', desc: 'Procedimentos Estéticos Agendados', valor: 4400 },
+            // Maio
+            { id: 501, data: '2026-05-05', tipo: 'despesa', sala: '-', desc: 'Aluguel + Condomínio Comercial Fixos', valor: 3500 },
+            { id: 502, data: '2026-05-15', tipo: 'receita', sala: 'sala1', desc: 'Fechamento de Turnos Avançados', valor: 5400 },
+            { id: 503, data: '2026-05-20', tipo: 'receita', sala: 'sala2', desc: 'Atendimentos Nutrição Mensais', valor: 4600 },
+            // Junho
+            { id: 601, data: '2026-06-05', tipo: 'despesa', sala: '-', desc: 'Aluguel + Condomínio Comercial Fixos', valor: 3500 },
+            { id: 602, data: '2026-06-15', tipo: 'despesa', sala: '-', desc: 'Manutenção de Ar Condicionado Sala 1', valor: 450 },
+            { id: 603, data: '2026-06-24', tipo: 'receita', sala: 'sala1', desc: 'Locação Quinzenal Acumulada', valor: 5100 },
+            { id: 604, data: '2026-06-28', tipo: 'receita', sala: 'sala2', desc: 'Atendimentos de Especialidades', valor: 4900 },
+            // Julho
+            { id: 701, data: '2026-07-02', tipo: 'investimento', sala: '-', desc: 'Aquisição de Autoclave e Compressor novos', valor: 6500 },
+            { id: 702, data: '2026-07-05', tipo: 'despesa', sala: '-', desc: 'Aluguel + Condomínio Comercial Fixos', valor: 3500 },
+            { id: 703, data: '2026-07-18', tipo: 'receita', sala: 'sala1', desc: 'Entrada de Receita Aluguel Sala 1', valor: 5800 },
+            { id: 704, data: '2026-07-22', tipo: 'receita', sala: 'sala2', desc: 'Entrada de Receita Aluguel Sala 2', valor: 5200 },
+            // Agosto
+            { id: 801, data: '2026-08-05', tipo: 'despesa', sala: '-', desc: 'Aluguel + Condomínio Comercial Fixos', valor: 3500 },
+            { id: 802, data: '2026-08-19', tipo: 'receita', sala: 'sala1', desc: 'Ganhos Operacionais Espaço 1', valor: 6100 },
+            { id: 803, data: '2026-08-25', tipo: 'receita', sala: 'sala2', desc: 'Ganhos Operacionais Espaço 2', valor: 5500 },
+            // Setembro
+            { id: 901, data: '2026-09-05', tipo: 'despesa', sala: '-', desc: 'Aluguel + Condomínio Comercial Fixos', valor: 3500 },
+            { id: 902, data: '2026-09-20', tipo: 'receita', sala: 'sala1', desc: 'Turnos Médicos Consolidados', valor: 6400 },
+            { id: 903, data: '2026-09-26', tipo: 'receita', sala: 'sala2', desc: 'Fisioterapia Pacotes Fechados', valor: 5900 },
+            // Outubro
+            { id: 1001, data: '2026-10-05', tipo: 'despesa', sala: '-', desc: 'Aluguel + Condomínio Comercial Fixos', valor: 3500 },
+            { id: 1002, data: '2026-10-15', tipo: 'receita', sala: 'sala1', desc: 'Receita Bruta Mensal Sala 1', valor: 6900 },
+            { id: 1003, data: '2026-10-22', tipo: 'receita', sala: 'sala2', desc: 'Receita Bruta Mensal Sala 2', valor: 6200 },
+            // Novembro
+            { id: 1101, data: '2026-11-05', tipo: 'despesa', sala: '-', desc: 'Aluguel + Condomínio Comercial Fixos', valor: 3500 },
+            { id: 1102, data: '2026-11-18', tipo: 'receita', sala: 'sala1', desc: 'Locações de Alta Ocupação', valor: 7200 },
+            { id: 1103, data: '2026-11-25', tipo: 'receita', sala: 'sala2', desc: 'Atendimentos Diversificados Especialistas', valor: 6600 },
+            // Dezembro
+            { id: 1201, data: '2026-12-05', tipo: 'despesa', sala: '-', desc: 'Aluguel + Condomínio Comercial Fixos', valor: 3500 },
+            { id: 1202, data: '2026-12-10', tipo: 'despesa', sala: '-', desc: 'Insumos Médicos Fim de Ano', valor: 400 },
+            { id: 1203, data: '2026-12-20', tipo: 'receita', sala: 'sala1', desc: 'Fechamento Recorde de Ocupação', valor: 8200 },
+            { id: 1204, data: '2026-12-23', tipo: 'receita', sala: 'sala2', desc: 'Fechamento Recorde de Ocupação', valor: 7500 }
         ];
 
         let config = JSON.parse(localStorage.getItem('simulador_config')) || {
@@ -317,7 +364,6 @@
             updateMetricaUI();
             renderApp();
 
-            // Fechamento inteligente de cliques externos do Dropdown
             document.addEventListener('click', (e) => {
                 const menu = document.getElementById('dropdown-menu');
                 const btn = document.getElementById('dropdown-btn');
@@ -355,15 +401,12 @@
             document.getElementById('dropdown-menu').classList.toggle('hidden');
         }
 
-        // Correção de UX: A linha inteira do mês ganha o comportamento de clique dinâmico
         function renderDropdownCheckboxes() {
             const container = document.getElementById('dropdown-checkboxes-container');
             container.innerHTML = '';
             nomesMeses.forEach((mes, idx) => {
                 const label = document.createElement('label');
                 label.className = "flex items-center gap-3 px-3 py-2.5 rounded-lg hover:bg-slate-50 text-sm font-semibold text-slate-700 cursor-pointer w-full select-none";
-                
-                // Força o clique no label a disparar a alteração do input interno sem engolir propagação interna
                 label.innerHTML = `
                     <input type="checkbox" id="chk-mes-${idx}" ${mesesAtivos.includes(idx) ? 'checked' : ''} onchange="onCheckboxChange(${idx})" class="h-5 w-5 rounded-md border-slate-300 text-indigo-600 focus:ring-indigo-500 cursor-pointer">
                     <span>${mes}</span>
@@ -609,6 +652,7 @@
             let totalReceitas = sala1Tot + sala2Tot;
             const qtdMesesSelecionados = mesesAtivos.length || 1;
             
+            // --- ENGENHARIA DO PONTO DE EQUILÍBRIO REAL ---
             let custoFixoAcumulado = config.custoFixo * qtdMesesSelecionados;
             let margemContribuicaoUnitaria = config.preco - config.custoVariavel;
             if(margemContribuicaoUnitaria <= 0) margemContribuicaoUnitaria = config.preco || 1; 
@@ -620,7 +664,9 @@
             let capacidadAjustadaPeriodo = config.capacidade * qtdMesesSelecionados;
             const ocuPct = capacidadAjustadaPeriodo > 0 ? (unidadesBreakEven / capacidadAjustadaPeriodo) * 100 : 0;
             document.getElementById('kpi-ponto-eq').innerText = ocuPct.toFixed(1) + '%';
+            document.getElementById('lbl-metrica-eq').innerText = `Eq. em ${config.metrica === 'turnos' ? 'Turnos' : 'Horas'}`;
 
+            // --- CÁLCULO DAS NOMENCLATURAS SOLICITADAS ---
             let resultadoOperacional = totalReceitas - totalDespesas;
             let fluxoCaixaLiquido = resultadoOperacional - totalInvestido;
 
