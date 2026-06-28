@@ -15,6 +15,7 @@
 </head>
 <body class="bg-slate-50 text-slate-800 min-h-screen flex flex-col antialiased">
 
+    <!-- Sistema Dinâmico de Notificação (Toast) -->
     <div id="toast-notification" class="hidden fixed bottom-5 right-5 bg-slate-900 text-white text-xs font-semibold px-4 py-3 rounded-xl shadow-xl z-50 transition-all duration-300 flex items-center gap-2 border border-slate-700">
         <span id="toast-icon">ℹ️</span>
         <span id="toast-message">Notificação</span>
@@ -24,7 +25,8 @@
         <div class="max-w-7xl mx-auto px-4 py-4 flex flex-col lg:flex-row justify-between items-center gap-4">
             <div class="text-center lg:text-left w-full lg:w-auto">
                 <h1 class="text-lg lg:text-xl font-bold tracking-tight">Simulador Financeiro</h1>
-                <p class="text-[11px] text-indigo-200 mt-0.5">Gestão Estratégica Salas de Saúde</p>
+                <!-- SUBTÍTULO ATUALIZADO CONFORME SOLICITADO -->
+                <p class="text-[11px] text-indigo-200 mt-0.5">Gestão Estratégica</p>
             </div>
             <nav class="flex gap-1 bg-indigo-950 p-1 rounded-xl w-full lg:w-auto overflow-x-auto no-scrollbar scroll-smooth whitespace-nowrap snap-x">
                 <button onclick="switchTab('dash')" id="btn-dash" class="tab-btn snap-center px-4 py-2.5 text-xs lg:text-sm font-semibold rounded-lg bg-indigo-600 text-white shadow-xs cursor-pointer">Dashboard</button>
@@ -37,6 +39,7 @@
 
     <main class="flex-1 max-w-7xl w-full mx-auto px-4 py-6">
         
+        <!-- DASHBOARD TAB -->
         <div id="tab-dash" class="tab-content space-y-6">
             
             <div class="bg-white p-5 rounded-2xl shadow-xs border border-slate-100 flex flex-col md:flex-row md:items-end justify-between gap-4">
@@ -73,6 +76,7 @@
                 </div>
             </div>
 
+            <!-- KPIs -->
             <div class="grid grid-cols-2 lg:grid-cols-5 gap-3">
                 <div class="bg-white p-4 rounded-2xl shadow-xs border border-slate-100 col-span-1">
                     <span class="text-[10px] font-bold text-slate-400 uppercase tracking-wider block">Ocupação Mínima</span>
@@ -101,6 +105,7 @@
                 </div>
             </div>
 
+            <!-- Gráfico e Visão de Salas -->
             <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
                 <div class="bg-white p-5 rounded-2xl shadow-xs border border-slate-100 lg:col-span-2">
                     <h3 class="text-sm font-bold text-slate-700 mb-3">Evolução Mensal (Receitas vs. Despesas)</h3>
@@ -111,28 +116,34 @@
                 
                 <div class="bg-white p-5 rounded-2xl shadow-xs border border-slate-100 flex flex-col justify-between gap-4">
                     <div class="space-y-3">
-                        <h3 class="text-sm font-bold text-slate-700">Desempenho por Sala (Visualização de Receita)</h3>
+                        <h3 class="text-sm font-bold text-slate-700">Desempenho por sala (Receita)</h3>
                         <div class="grid grid-cols-2 lg:grid-cols-1 gap-3">
                             <div class="p-3 bg-slate-50 rounded-xl">
-                                <span class="text-[10px] font-bold text-slate-400 block uppercase">Receita Bruta - Sala 01</span>
+                                <span class="text-[10px] font-bold text-slate-400 block uppercase">Sala 01</span>
                                 <span id="faturamento-sala1" class="text-lg font-bold text-indigo-600 mt-0.5 block">R$ 0,00</span>
                             </div>
                             <div class="p-3 bg-slate-50 rounded-xl">
-                                <span class="text-[10px] font-bold text-slate-400 block uppercase">Receita Bruta - Sala 02</span>
+                                <span class="text-[10px] font-bold text-slate-400 block uppercase">Sala 02</span>
                                 <span id="faturamento-sala2" class="text-lg font-bold text-purple-600 mt-0.5 block">R$ 0,00</span>
                             </div>
                         </div>
                     </div>
-                    <div class="bg-indigo-50 p-4 rounded-xl">
+                    
+                    <div class="bg-indigo-50 p-4 rounded-xl space-y-2">
                         <div class="flex justify-between items-center gap-2">
-                            <span class="text-[11px] font-bold text-indigo-700 uppercase">Resultado Líquido do Período:</span>
-                            <span id="sum-liquido" class="text-base lg:text-lg font-bold text-indigo-900 truncate">R$ 0,00</span>
+                            <span class="text-[11px] font-bold text-indigo-700 uppercase">Resultado Operacional:</span>
+                            <span id="sum-operacional" class="text-sm lg:text-base font-bold text-slate-800 truncate">R$ 0,00</span>
+                        </div>
+                        <div class="flex justify-between items-center gap-2 border-t border-indigo-100 pt-2">
+                            <span class="text-[11px] font-bold text-indigo-900 uppercase">Fluxo Líquido do Período:</span>
+                            <span id="sum-liquido" class="text-base lg:text-lg font-black text-indigo-900 truncate">R$ 0,00</span>
                         </div>
                     </div>
                 </div>
             </div>
         </div>
 
+        <!-- LANÇAMENTOS TAB -->
         <div id="tab-lanc" class="tab-content hidden max-w-3xl mx-auto space-y-6">
             <div class="bg-white p-5 rounded-2xl shadow-xs border border-slate-100">
                 <h2 class="text-sm font-bold text-slate-700 mb-1">📥 Importar Dados via Planilha</h2>
@@ -192,6 +203,7 @@
             </div>
         </div>
 
+        <!-- EXTRATO TAB -->
         <div id="tab-extrato" class="tab-content hidden">
             <div class="bg-white rounded-2xl shadow-xs border border-slate-100 overflow-hidden">
                 <div class="p-5 border-b border-slate-100 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
@@ -231,6 +243,7 @@
             </div>
         </div>
 
+        <!-- CONFIG TAB -->
         <div id="tab-config" class="tab-content hidden max-w-md mx-auto">
             <div class="bg-white p-5 rounded-2xl shadow-xs border border-slate-100">
                 <h2 class="text-sm font-bold text-slate-700 mb-1">Parâmetros Operacionais Estratégicos</h2>
@@ -302,21 +315,6 @@
 
         let chartInstance = null;
 
-        document.addEventListener("DOMContentLoaded", () => {
-            document.getElementById('lanc-data').valueAsDate = new Date();
-            renderDropdownCheckboxes();
-            updateMetricaUI();
-            renderApp();
-
-            document.addEventListener('click', (e) => {
-                const menu = document.getElementById('dropdown-menu');
-                const btn = document.getElementById('dropdown-btn');
-                if (menu && btn && !menu.contains(e.target) && !btn.contains(e.target)) {
-                    menu.classList.add('hidden');
-                }
-            });
-        });
-
         function triggerToast(msg, icon = "ℹ️") {
             const toast = document.getElementById('toast-notification');
             document.getElementById('toast-icon').innerText = icon;
@@ -343,19 +341,15 @@
             return parseFloat(cleanVal) || 0;
         }
 
-        function toggleDropdown() {
-            document.getElementById('dropdown-menu').classList.toggle('hidden');
-        }
+        function toggleDropdown() { document.getElementById('dropdown-menu').classList.toggle('hidden'); }
 
         function renderDropdownCheckboxes() {
             const container = document.getElementById('dropdown-checkboxes-container');
             container.innerHTML = '';
-            
             nomesMeses.forEach((mes, idx) => {
                 const label = document.createElement('label');
                 label.className = "flex items-center gap-3 px-3 py-2.5 rounded-lg hover:bg-slate-50 text-sm font-semibold text-slate-700 cursor-pointer w-full select-none";
                 label.onclick = (e) => e.stopPropagation();
-
                 label.innerHTML = `
                     <input type="checkbox" id="chk-mes-${idx}" checked onchange="onCheckboxChange(${idx})" class="h-5 w-5 rounded-md border-slate-300 text-indigo-600 focus:ring-indigo-500 cursor-pointer">
                     <span>${mes}</span>
@@ -366,11 +360,8 @@
 
         function onCheckboxChange(idx) {
             const chk = document.getElementById(`chk-mes-${idx}`);
-            if (chk.checked) {
-                if (!mesesAtivos.includes(idx)) mesesAtivos.push(idx);
-            } else {
-                mesesAtivos = mesesAtivos.filter(m => m !== idx);
-            }
+            if (chk.checked) { if (!mesesAtivos.includes(idx)) mesesAtivos.push(idx); } 
+            else { mesesAtivos = mesesAtivos.filter(m => m !== idx); }
             mesesAtivos.sort((a, b) => a - b);
             updateDropdownLabel();
             renderApp();
@@ -388,21 +379,13 @@
 
         function updateDropdownLabel() {
             const labelEl = document.getElementById('dropdown-label');
-            if (mesesAtivos.length === 12) {
-                labelEl.innerText = "Todos os meses";
-            } else if (mesesAtivos.length === 0) {
-                labelEl.innerText = "Nenhum selecionado";
-            } else if (mesesAtivos.length <= 2) {
-                labelEl.innerText = mesesAtivos.map(m => nomesCurtos[m]).join(', ');
-            } else {
-                labelEl.innerText = `${mesesAtivos.length} meses ativos`;
-            }
+            if (mesesAtivos.length === 12) labelEl.innerText = "Todos os meses";
+            else if (mesesAtivos.length === 0) labelEl.innerText = "Nenhum selecionado";
+            else if (mesesAtivos.length <= 2) labelEl.innerText = mesesAtivos.map(m => nomesCurtos[m]).join(', ');
+            else labelEl.innerText = `${mesesAtivos.length} meses ativos`;
         }
 
-        function setMetrica(m) {
-            config.metrica = m;
-            updateMetricaUI();
-        }
+        function setMetrica(m) { config.metrica = m; updateMetricaUI(); }
 
         function updateMetricaUI() {
             const btnHoras = document.getElementById('btn-m-horas');
@@ -424,7 +407,6 @@
                 lblPreco.innerText = "Preço de Venda Médio por Hora (R$)";
                 lblVar.innerText = "Custo Variável Médio por Hora (R$)";
             }
-
             document.getElementById('cfg-capacidade').value = config.capacidade;
             document.getElementById('cfg-preco').value = config.preco;
             document.getElementById('cfg-custofixo').value = config.custoFixo;
@@ -436,14 +418,9 @@
             document.querySelectorAll('.tab-btn').forEach(el => {
                 el.className = "tab-btn snap-center px-4 py-2.5 text-xs lg:text-sm font-semibold rounded-lg text-indigo-200 hover:text-white cursor-pointer";
             });
-
             document.getElementById(`tab-${tabId}`).classList.remove('hidden');
-            const activeBtn = document.getElementById(`btn-${tabId}`);
-            activeBtn.className = "tab-btn snap-center px-4 py-2.5 text-xs lg:text-sm font-semibold rounded-lg bg-indigo-600 text-white shadow-xs cursor-pointer";
-
-            if (tabId === 'dash') {
-                setTimeout(renderCharts, 50);
-            }
+            document.getElementById(`btn-${tabId}`).className = "tab-btn snap-center px-4 py-2.5 text-xs lg:text-sm font-semibold rounded-lg bg-indigo-600 text-white shadow-xs cursor-pointer";
+            if (tabId === 'dash') setTimeout(renderCharts, 50);
         }
 
         function setFormType(type) {
@@ -451,9 +428,7 @@
             document.querySelectorAll('.type-btn').forEach(el => {
                 el.className = "type-btn h-14 border border-slate-200 rounded-xl flex items-center px-4 gap-3 font-semibold text-sm transition-all text-slate-600 hover:bg-slate-50 cursor-pointer";
             });
-
             const btn = document.getElementById(`btn-type-${type}`);
-            
             if(type === 'receita') {
                 btn.className = "type-btn h-14 border rounded-xl flex items-center px-4 gap-3 font-semibold text-sm transition-all bg-emerald-50 border-emerald-500 text-emerald-800 cursor-pointer";
                 document.getElementById('sala-selector-block').classList.remove('hidden');
@@ -473,8 +448,7 @@
             document.querySelectorAll('.sala-btn').forEach(el => {
                 el.className = "sala-btn h-11 border border-slate-200 rounded-xl font-semibold text-sm transition-all text-slate-600 hover:bg-slate-50 cursor-pointer text-center w-full";
             });
-            const btn = document.getElementById(`btn-${sala}`);
-            btn.className = "sala-btn h-11 border rounded-xl font-semibold text-sm transition-all bg-indigo-50 border-indigo-500 text-indigo-800 cursor-pointer text-center w-full";
+            document.getElementById(`btn-${sala}`).className = "sala-btn h-11 border rounded-xl font-semibold text-sm transition-all bg-indigo-50 border-indigo-500 text-indigo-800 cursor-pointer text-center w-full";
         }
 
         function saveLancamento(e) {
@@ -484,17 +458,12 @@
             const valor = parseCurrencyToFloat(document.getElementById('lanc-valor').value);
             const sala = selectedType === 'receita' ? selectedSala : '-';
 
-            if(valor <= 0) {
-                alert("Insira um valor válido acima de R$ 0,00");
-                return;
-            }
-
+            if(valor <= 0) { alert("Insira um valor acima de R$ 0,00"); return; }
             lancamentos.push({ id: Date.now(), data, tipo: selectedType, sala, desc, valor });
             localStorage.setItem('simulador_lancamentos', JSON.stringify(lancamentos));
 
             document.getElementById('lanc-desc').value = '';
             document.getElementById('lanc-valor').value = '';
-            
             triggerToast("Lançamento adicionado com sucesso!", "🟢");
             renderApp();
             switchTab('dash');
@@ -508,33 +477,18 @@
         }
 
         function importCSV(input) {
-            const file = input.files[0];
-            if (!file) return;
-
+            const file = input.files[0]; if (!file) return;
             const reader = new FileReader();
             reader.onload = function(e) {
-                const text = e.target.result;
-                const lines = text.split('\n');
-                
-                let count = 0;
+                const text = e.target.result; const lines = text.split('\n'); let count = 0;
                 for(let i = 1; i < lines.length; i++) {
                     const cols = lines[i].split(',');
                     if(cols.length >= 5) {
-                        const data = cols[0].trim();
-                        const tipo = cols[1].trim().toLowerCase(); 
-                        const sala = cols[2].trim().toLowerCase(); 
-                        const desc = cols[3].trim();
+                        const data = cols[0].trim(); const tipo = cols[1].trim().toLowerCase(); 
+                        const sala = cols[2].trim().toLowerCase(); const desc = cols[3].trim();
                         const valor = parseFloat(cols[4].trim());
-
                         if(data && tipo && !isNaN(valor)) {
-                            lancamentos.push({
-                                id: Date.now() + i,
-                                data,
-                                tipo,
-                                sala: tipo === 'receita' ? sala : '-',
-                                desc,
-                                valor
-                            });
+                            lancamentos.push({ id: Date.now() + i, data, tipo, sala: tipo === 'receita' ? sala : '-', desc, valor });
                             count++;
                         }
                     }
@@ -542,11 +496,8 @@
                 if(count > 0) {
                     localStorage.setItem('simulador_lancamentos', JSON.stringify(lancamentos));
                     triggerToast(`${count} registros importados!`, "📥");
-                    renderApp();
-                    switchTab('dash');
-                } else {
-                    alert("Formato incompatível detectado no arquivo CSV.");
-                }
+                    renderApp(); Spruce.switchTab('dash');
+                } else { alert("Formato incompatível de arquivo."); }
             };
             reader.readAsText(file);
         }
@@ -557,16 +508,10 @@
 
         function calcularTIRReal(investimento, lucroMensal, meses) {
             if (investimento <= 0 || lucroMensal <= 0) return 0;
-            let fluxos = [-investimento];
-            for (let i = 0; i < meses; i++) { fluxos.push(lucroMensal); }
-
-            let guess = 0.1;
-            let maxIter = 1000;
-            let precision = 1e-6;
-
+            let fluxos = [-investimento]; for (let i = 0; i < meses; i++) { fluxos.push(lucroMensal); }
+            let guess = 0.1; let maxIter = 1000; let precision = 1e-6;
             for (let i = 0; i < maxIter; i++) {
-                let vpl = 0;
-                let derivadaVpl = 0;
+                let vpl = 0; let derivadaVpl = 0;
                 for (let t = 0; t < fluxos.length; t++) {
                     vpl += fluxos[t] / Math.pow(1 + guess, t);
                     if (t > 0) derivadaVpl -= t * fluxos[t] / Math.pow(1 + guess, t + 1);
@@ -582,17 +527,14 @@
         function renderApp() {
             const tbody = document.getElementById('table-body');
             const mobileContainer = document.getElementById('mobile-cards-container');
-            
             if (tbody) tbody.innerHTML = '';
             if (mobileContainer) mobileContainer.innerHTML = '';
             
             const filtroAno = document.getElementById('dash-filtro-ano').value;
             const sorted = [...lancamentos].sort((a,b) => new Date(b.data) - new Date(a.data));
             
-            let sala1Tot = 0;
-            let sala2Tot = 0;
-            let totalDespesas = 0;
-            let totalInvestido = 0;
+            let sala1Tot = 0; let sala2Tot = 0;
+            let totalDespesas = 0; let totalInvestido = 0;
             let totalRegistrosExibidos = 0;
 
             sorted.forEach(item => {
@@ -602,7 +544,6 @@
 
                 if (itemAno === filtroAno && mesesAtivos.includes(itemMes)) {
                     totalRegistrosExibidos++;
-                    
                     if(item.tipo === 'receita' && item.sala === 'sala1') sala1Tot += item.valor;
                     if(item.tipo === 'receita' && item.sala === 'sala2') sala2Tot += item.valor;
                     if(item.tipo === 'despesa') totalDespesas += item.valor;
@@ -610,41 +551,27 @@
 
                     if (tbody) {
                         const tr = document.createElement('tr');
-                        let badge = '';
-                        if(item.tipo === 'receita') badge = '<span class="px-2 py-0.5 text-[10px] font-semibold rounded-sm bg-emerald-50 text-emerald-700">Entrada</span>';
-                        if(item.tipo === 'despesa') badge = '<span class="px-2 py-0.5 text-[10px] font-semibold rounded-sm bg-rose-50 text-rose-700">Saída</span>';
-                        if(item.tipo === 'investimento') badge = '<span class="px-2 py-0.5 text-[10px] font-semibold rounded-sm bg-indigo-50 text-indigo-700">Invest.</span>';
+                        let badge = item.tipo === 'receita' ? '<span class="px-2 py-0.5 text-[10px] font-semibold rounded-sm bg-emerald-50 text-emerald-700">Entrada</span>' : (item.tipo === 'despesa' ? '<span class="px-2 py-0.5 text-[10px] font-semibold rounded-sm bg-rose-50 text-rose-700">Saída</span>' : '<span class="px-2 py-0.5 text-[10px] font-semibold rounded-sm bg-indigo-50 text-indigo-700">Invest.</span>');
                         let orig = item.tipo === 'receita' ? (item.sala === 'sala1' ? 'Sala 01' : 'Sala 02') : 'Geral';
-
                         tr.innerHTML = `
                             <td class="p-4 text-slate-500 whitespace-nowrap">${item.data.split('-').reverse().join('/')}</td>
                             <td class="p-4">${badge}</td>
                             <td class="p-4 font-semibold text-slate-600 whitespace-nowrap">${orig}</td>
                             <td class="p-4 text-slate-700 min-w-[150px]">${item.desc}</td>
                             <td class="p-4 text-right font-bold whitespace-nowrap ${item.tipo==='receita'?'text-emerald-600':(item.tipo==='despesa'?'text-rose-600':'text-indigo-600')}">${formatCurrency(item.valor)}</td>
-                            <td class="p-4 text-center whitespace-nowrap">
-                                <button onclick="deleteLancamento(${item.id})" class="text-xs text-rose-500 font-semibold hover:text-rose-700 cursor-pointer">Remover</button>
-                            </td>
+                            <td class="p-4 text-center whitespace-nowrap"><button onclick="deleteLancamento(${item.id})" class="text-xs text-rose-500 font-semibold hover:text-rose-700 cursor-pointer">Remover</button></td>
                         `;
                         tbody.appendChild(tr);
                     }
 
                     if (mobileContainer) {
-                        const card = document.createElement('div');
-                        card.className = "p-4 flex flex-col gap-2 bg-white";
+                        const card = document.createElement('div'); card.className = "p-4 flex flex-col gap-2 bg-white";
                         let orig = item.tipo === 'receita' ? (item.sala === 'sala1' ? 'Sala 01' : 'Sala 02') : 'Geral';
-                        
                         card.innerHTML = `
-                            <div class="flex justify-between items-center">
-                                <span class="text-xs font-bold text-slate-400">${item.data.split('-').reverse().join('/')}</span>
-                                <span class="text-[10px] font-bold uppercase px-2 py-0.5 rounded-sm ${item.tipo === 'receita' ? 'bg-emerald-50 text-emerald-700' : (item.tipo === 'despesa' ? 'bg-rose-50 text-rose-700' : 'bg-indigo-50 text-indigo-700')}">${item.tipo}</span>
-                            </div>
+                            <div class="flex justify-between items-center"><span class="text-xs font-bold text-slate-400">${item.data.split('-').reverse().join('/')}</span><span class="text-[10px] font-bold uppercase px-2 py-0.5 rounded-sm ${item.tipo === 'receita' ? 'bg-emerald-50 text-emerald-700' : (item.tipo==='despesa'?'bg-rose-50 text-rose-700':'bg-indigo-50 text-indigo-700')}">${item.tipo}</span></div>
                             <div class="text-sm font-semibold text-slate-800">${item.desc}</div>
                             <div class="text-xs text-slate-500">Origem: <span class="font-semibold text-slate-700">${orig}</span></div>
-                            <div class="flex justify-between items-center mt-1 pt-2 border-t border-slate-50">
-                                <span class="text-base font-black ${item.tipo === 'receita' ? 'text-emerald-600' : (item.tipo==='despesa'?'text-rose-600':'text-indigo-600')}">${formatCurrency(item.valor)}</span>
-                                <button onclick="deleteLancamento(${item.id})" class="text-xs font-bold text-rose-500 hover:underline">Remover</button>
-                            </div>
+                            <div class="flex justify-between items-center mt-1 pt-2 border-t border-slate-50"><span class="text-base font-black ${item.tipo==='receita'?'text-emerald-600':(item.tipo==='despesa'?'text-rose-600':'text-indigo-600')}">${formatCurrency(item.valor)}</span><button onclick="deleteLancamento(${item.id})" class="text-xs font-bold text-rose-500 hover:underline">Remover</button></div>
                         `;
                         mobileContainer.appendChild(card);
                     }
@@ -654,80 +581,58 @@
             const emptyStateEl = document.getElementById('empty-state');
             const tableContainerEl = document.getElementById('desktop-table-container');
             if (totalRegistrosExibidos === 0) {
-                emptyStateEl.classList.remove('hidden');
-                tableContainerEl.classList.add('hidden');
-                mobileContainer.classList.add('hidden');
+                emptyStateEl.classList.remove('hidden'); tableContainerEl.classList.add('hidden'); mobileContainer.classList.add('hidden');
             } else {
-                emptyStateEl.classList.add('hidden');
-                tableContainerEl.classList.remove('hidden');
-                mobileContainer.classList.remove('hidden');
+                emptyStateEl.classList.add('hidden'); tableContainerEl.classList.remove('hidden'); mobileContainer.classList.remove('hidden');
             }
 
             document.getElementById('faturamento-sala1').innerText = formatCurrency(sala1Tot);
             document.getElementById('faturamento-sala2').innerText = formatCurrency(sala2Tot);
             
             let totalReceitas = sala1Tot + sala2Tot;
-            document.getElementById('sum-liquido').innerText = formatCurrency(totalReceitas - totalDespesas - totalInvestido);
-
             const qtdMesesSelecionados = mesesAtivos.length || 1;
             
-            // --- CÁLCULO MATEMÁTICO: MARGEM DE CONTRIBUIÇÃO ---
             let custoFixoAcumulado = config.custoFixo * qtdMesesSelecionados;
             let margemContribuicaoUnitaria = config.preco - config.custoVariavel;
-            
-            if(margemContribuicaoUnitaria <= 0) {
-                margemContribuicaoUnitaria = config.preco || 1; 
-            }
+            if(margemContribuicaoUnitaria <= 0) margemContribuicaoUnitaria = config.preco || 1; 
 
             const unidadesBreakEven = custoFixoAcumulado / margemContribuicaoUnitaria;
             let faturamentoMinimoRequerido = unidadesBreakEven * config.preco;
-
             document.getElementById('kpi-break-even').innerText = formatCurrency(faturamentoMinimoRequerido);
 
-            let capacidadeAjustadaPeriodo = config.capacidade * qtdMesesSelecionados;
-            const ocuPct = capacidadeAjustadaPeriodo > 0 ? (unidadesBreakEven / capacidadeAjustadaPeriodo) * 100 : 0;
-            
+            let capacidadAjustadaPeriodo = config.capacidade * qtdMesesSelecionados;
+            const ocuPct = capacidadAjustadaPeriodo > 0 ? (unidadesBreakEven / capacidadAjustadaPeriodo) * 100 : 0;
             document.getElementById('kpi-ponto-eq').innerText = ocuPct.toFixed(1) + '%';
-            document.getElementById('lbl-metrica-eq').innerText = `Eq. em ${config.metrica === 'turnos' ? 'Turnos' : 'Horas'}`;
 
-            // --- REVISÃO MATEMÁTICA: ROI E INDICADORES DE ATRATIVIDADE ---
+            let resultadoOperacional = totalReceitas - totalDespesas;
+            let fluxoCaixaLiquido = resultadoOperacional - totalInvestido;
+
+            document.getElementById('sum-operacional').innerText = formatCurrency(resultadoOperacional);
+            document.getElementById('sum-liquido').innerText = formatCurrency(fluxoCaixaLiquido);
+
             let totalInvestidoGeral = lancamentos.filter(i => i.tipo === 'investimento').reduce((acc, i) => acc + i.valor, 0);
-            let lucroMensalMedioReal = (totalReceitas - totalDespesas) / qtdMesesSelecionados;
+            let lucroMensalMedioReal = resultadoOperacional / qtdMesesSelecionados;
 
             if (totalInvestidoGeral > 0 && lucroMensalMedioReal > 0) {
-                const payback = totalInvestidoGeral / lucroMensalMedioReal;
-                document.getElementById('kpi-payback').innerText = payback.toFixed(1) + ' meses';
-                
-                // Correção Conceitual: Taxa de Retorno Anualizada (Yield) sobre o Capital Aportado
-                const receitaAnualProjetada = lucroMensalMedioReal * 12;
-                const roiReal = (receitaAnualProjetada / totalInvestidoGeral) * 100;
-                document.getElementById('kpi-roi').innerText = roiReal.toFixed(1) + '%';
-
-                let tirReal = calcularTIRReal(totalInvestidoGeral, lucroMensalMedioReal, 12);
-                document.getElementById('kpi-tir').innerText = tirReal.toFixed(1) + '%';
+                document.getElementById('kpi-payback').innerText = (totalInvestidoGeral / lucroMensalMedioReal).toFixed(1) + ' meses';
+                document.getElementById('kpi-roi').innerText = ((lucroMensalMedioReal * 12) / totalInvestidoGeral * 100).toFixed(1) + '%';
+                document.getElementById('kpi-tir').innerText = calcularTIRReal(totalInvestidoGeral, lucroMensalMedioReal, 12).toFixed(1) + '%';
             } else {
                 document.getElementById('kpi-payback').innerText = 'Inviável';
                 document.getElementById('kpi-roi').innerText = '0.0%';
                 document.getElementById('kpi-tir').innerText = '0.0%';
             }
-
             renderCharts();
         }
 
         function renderCharts() {
-            const ctx = document.getElementById('mainChart');
-            if(!ctx) return;
-
+            const ctx = document.getElementById('mainChart'); if(!ctx) return;
             const filtroAno = document.getElementById('dash-filtro-ano').value;
-            let labelsFiltradas = [];
-            let receitasData = [];
-            let despesasData = [];
+            let labelsFiltradas = []; let receitasData = []; let despesasData = [];
 
             nomesCurtos.forEach((mes, idx) => {
                 if (mesesAtivos.includes(idx)) {
-                    labelsFiltradas.push(mes);
-                    let rMes = 0, dMes = 0;
-                    
+                    labelsFiltradas.push(mes); let rMes = 0; let dMes = 0;
                     lancamentos.forEach(item => {
                         const itemDate = new Date(item.data + 'T00:00:00');
                         if(itemDate.getFullYear().toString() === filtroAno && itemDate.getMonth() === idx) {
@@ -735,35 +640,22 @@
                             if(item.tipo === 'despesa') dMes += item.valor;
                         }
                     });
-                    receitasData.push(rMes);
-                    despesasData.push(dMes);
+                    receitasData.push(rMes); despesasData.push(dMes);
                 }
             });
 
             if(chartInstance) chartInstance.destroy();
-
             chartInstance = new Chart(ctx, {
                 type: 'bar',
                 data: {
                     labels: labelsFiltradas,
                     datasets: [
-                        {
-                            label: 'Receitas',
-                            data: receitasData,
-                            backgroundColor: '#4f46e5',
-                            borderRadius: 4
-                        },
-                        {
-                            label: 'Despesas',
-                            data: despesasData,
-                            backgroundColor: '#ef4444',
-                            borderRadius: 4
-                        }
+                        { label: 'Receitas', data: receitasData, backgroundColor: '#4f46e5', borderRadius: 4 },
+                        { label: 'Despesas', data: despesasData, backgroundColor: '#ef4444', borderRadius: 4 }
                     ]
                 },
                 options: {
-                    responsive: true,
-                    maintainAspectRatio: false,
+                    responsive: true, maintainAspectRatio: false,
                     plugins: { legend: { position: 'bottom', labels: { boxWidth: 12, font: { size: 11 } } } },
                     scales: { y: { beginAtZero: true, ticks: { font: { size: 10 } } }, x: { ticks: { font: { size: 10 } } } }
                 }
@@ -775,30 +667,23 @@
             config.preco = parseFloat(document.getElementById('cfg-preco').value) || 60;
             config.custoFixo = parseFloat(document.getElementById('cfg-custofixo').value) || 0;
             config.custoVariavel = parseFloat(document.getElementById('cfg-custovariavel').value) || 0;
-            
             localStorage.setItem('simulador_config', JSON.stringify(config));
             triggerToast("Parâmetros operacionais salvos!", "⚙️");
-            renderApp();
-            switchTab('dash');
+            renderApp(); switchTab('dash');
         }
 
         function clearData() {
-            if(confirm("Tem certeza que deseja limpar todo o banco de dados local?")) {
-                lancamentos = [];
-                localStorage.setItem('simulador_lancamentos', JSON.stringify(lancamentos));
-                triggerToast("Banco de dados resetado.", "🧹");
-                renderApp();
+            if(confirm("Deseja apagar todos os dados locais?")) {
+                lancamentos = []; localStorage.setItem('simulador_lancamentos', JSON.stringify(lancamentos));
+                triggerToast("Banco de dados resetado.", "🧹"); renderApp();
             }
         }
 
         function exportJSON() {
             const dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(lancamentos));
-            const downloadAnchor = document.createElement('a');
-            downloadAnchor.setAttribute("href", dataStr);
-            downloadAnchor.setAttribute("download", "backup_simulador.json");
-            document.body.appendChild(downloadAnchor);
-            downloadAnchor.click();
-            downloadAnchor.remove();
+            const downloadAnchor = document.createElement('a'); downloadAnchor.setAttribute("href", dataStr);
+            downloadAnchor.setAttribute("download", "backup_simulador.json"); document.body.appendChild(downloadAnchor);
+            downloadAnchor.click(); downloadAnchor.remove();
         }
     </script>
 </body>
