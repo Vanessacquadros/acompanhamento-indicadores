@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Simulador Financeiro - Salas de Saúde</title>
+    <title>Simulador Financeiro Pro - Gestão Estratégica</title>
     <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <style>
@@ -15,7 +15,6 @@
 </head>
 <body class="bg-slate-50 text-slate-800 min-h-screen flex flex-col antialiased">
 
-    <!-- Sistema Dinâmico de Notificação (Toast) -->
     <div id="toast-notification" class="hidden fixed bottom-5 right-5 bg-slate-900 text-white text-xs font-semibold px-4 py-3 rounded-xl shadow-xl z-50 transition-all duration-300 flex items-center gap-2 border border-slate-700">
         <span id="toast-icon">ℹ️</span>
         <span id="toast-message">Notificação</span>
@@ -25,7 +24,6 @@
         <div class="max-w-7xl mx-auto px-4 py-4 flex flex-col lg:flex-row justify-between items-center gap-4">
             <div class="text-center lg:text-left w-full lg:w-auto">
                 <h1 class="text-lg lg:text-xl font-bold tracking-tight">Simulador Financeiro</h1>
-                <!-- SUBTÍTULO ATUALIZADO CONFORME SOLICITADO -->
                 <p class="text-[11px] text-indigo-200 mt-0.5">Gestão Estratégica</p>
             </div>
             <nav class="flex gap-1 bg-indigo-950 p-1 rounded-xl w-full lg:w-auto overflow-x-auto no-scrollbar scroll-smooth whitespace-nowrap snap-x">
@@ -39,7 +37,6 @@
 
     <main class="flex-1 max-w-7xl w-full mx-auto px-4 py-6">
         
-        <!-- DASHBOARD TAB -->
         <div id="tab-dash" class="tab-content space-y-6">
             
             <div class="bg-white p-5 rounded-2xl shadow-xs border border-slate-100 flex flex-col md:flex-row md:items-end justify-between gap-4">
@@ -52,23 +49,26 @@
                     <div class="flex flex-col gap-1">
                         <label for="dash-filtro-ano" class="text-[10px] font-bold uppercase text-slate-400 cursor-pointer">Ano de Análise</label>
                         <select id="dash-filtro-ano" onchange="renderApp()" class="w-full h-11 px-3 border border-slate-200 rounded-xl text-sm bg-slate-50 font-semibold text-slate-700 focus:bg-white focus:outline-hidden cursor-pointer">
-                            <option value="2026">2026</option>
+                            <option value="2025">2025</option>
+                            <option value="2026" selected>2026</option>
                             <option value="2027">2027</option>
                             <option value="2028">2028</option>
+                            <option value="2029">2029</option>
+                            <option value="2030">2030</option>
                         </select>
                     </div>
 
                     <div class="relative flex flex-col gap-1">
                         <label for="dropdown-btn" class="text-[10px] font-bold uppercase text-slate-400 cursor-pointer">Múltiplos Meses</label>
-                        <button type="button" id="dropdown-btn" onclick="toggleDropdown()" class="w-full h-11 flex justify-between items-center rounded-xl border border-slate-200 bg-slate-50 px-3 text-sm font-semibold text-slate-700 shadow-xs hover:bg-slate-100 focus:outline-hidden cursor-pointer">
+                        <button type="button" id="dropdown-btn" onclick="toggleDropdown(event)" class="w-full h-11 flex justify-between items-center rounded-xl border border-slate-200 bg-slate-50 px-3 text-sm font-semibold text-slate-700 shadow-xs hover:bg-slate-100 focus:outline-hidden cursor-pointer">
                             <span id="dropdown-label" class="truncate">Todos os meses</span>
                             <svg class="h-4 w-4 text-slate-400 shrink-0 ml-2" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M5.23 7.21a.75.75 0 011.06.02L10 11.168l3.71-3.938a.75.75 0 111.08 1.04l-4.25 4.5a.75.75 0 01-1.08 0l-4.25-4.5a.75.75 0 01.02-1.06z" clip-rule="evenodd" /></svg>
                         </button>
 
-                        <div id="dropdown-menu" class="hidden absolute left-0 md:right-0 top-18 md:top-16 z-20 w-full md:w-64 max-h-72 overflow-y-auto rounded-2xl bg-white shadow-xl border border-slate-100 p-2 space-y-0.5">
+                        <div id="dropdown-menu" onclick="event.stopPropagation()" class="hidden absolute left-0 md:right-0 top-18 md:top-16 z-20 w-full md:w-64 max-h-72 overflow-y-auto rounded-2xl bg-white shadow-xl border border-slate-200 p-2 space-y-0.5">
                             <div class="flex items-center justify-between border-b border-slate-100 pb-2 pt-1 mb-1 px-2">
-                                <button onclick="selecionarTodosMeses(true); event.stopPropagation();" class="text-xs font-bold text-indigo-600 hover:underline cursor-pointer">Marcar todos</button>
-                                <button onclick="selecionarTodosMeses(false); event.stopPropagation();" class="text-xs font-bold text-slate-400 hover:underline cursor-pointer">Limpar</button>
+                                <button onclick="selecionarTodosMeses(true)" class="text-xs font-bold text-indigo-600 hover:underline cursor-pointer">Marcar todos</button>
+                                <button onclick="selecionarTodosMeses(false)" class="text-xs font-bold text-slate-400 hover:underline cursor-pointer">Limpar</button>
                             </div>
                             <div id="dropdown-checkboxes-container" class="space-y-0.5"></div>
                         </div>
@@ -76,7 +76,6 @@
                 </div>
             </div>
 
-            <!-- KPIs -->
             <div class="grid grid-cols-2 lg:grid-cols-5 gap-3">
                 <div class="bg-white p-4 rounded-2xl shadow-xs border border-slate-100 col-span-1">
                     <span class="text-[10px] font-bold text-slate-400 uppercase tracking-wider block">Ocupação Mínima</span>
@@ -105,7 +104,6 @@
                 </div>
             </div>
 
-            <!-- Gráfico e Visão de Salas -->
             <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
                 <div class="bg-white p-5 rounded-2xl shadow-xs border border-slate-100 lg:col-span-2">
                     <h3 class="text-sm font-bold text-slate-700 mb-3">Evolução Mensal (Receitas vs. Despesas)</h3>
@@ -143,7 +141,6 @@
             </div>
         </div>
 
-        <!-- LANÇAMENTOS TAB -->
         <div id="tab-lanc" class="tab-content hidden max-w-3xl mx-auto space-y-6">
             <div class="bg-white p-5 rounded-2xl shadow-xs border border-slate-100">
                 <h2 class="text-sm font-bold text-slate-700 mb-1">📥 Importar Dados via Planilha</h2>
@@ -179,7 +176,7 @@
                         <label class="block text-[10px] font-bold uppercase text-slate-400 mb-1.5">2. Destinação da Receita</label>
                         <div class="grid grid-cols-2 gap-2">
                             <button type="button" onclick="setFormSala('sala1')" id="btn-sala1" class="sala-btn h-11 border rounded-xl font-semibold text-sm transition-all bg-indigo-50 border-indigo-500 text-indigo-800 cursor-pointer text-center">Sala 01</button>
-                            <button type="button" onclick="setFormSala('sala2')" id="btn-sala2" class="sala-btn h-11 border border-slate-200 rounded-xl font-semibold text-sm transition-all text-slate-600 hover:bg-slate-50 cursor-pointer text-center">Sala 02</button>
+                            <button type="button" onclick="setFormSala('sala2')" id="btn-sala2" class="sala-btn h-11 border border-slate-200 rounded-xl font-semibold text-sm transition-all text-slate-600 hover:bg-slate-50 cursor-pointer text-center w-full text-center">Sala 02</button>
                         </div>
                     </div>
 
@@ -203,7 +200,6 @@
             </div>
         </div>
 
-        <!-- EXTRATO TAB -->
         <div id="tab-extrato" class="tab-content hidden">
             <div class="bg-white rounded-2xl shadow-xs border border-slate-100 overflow-hidden">
                 <div class="p-5 border-b border-slate-100 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
@@ -243,7 +239,6 @@
             </div>
         </div>
 
-        <!-- CONFIG TAB -->
         <div id="tab-config" class="tab-content hidden max-w-md mx-auto">
             <div class="bg-white p-5 rounded-2xl shadow-xs border border-slate-100">
                 <h2 class="text-sm font-bold text-slate-700 mb-1">Parâmetros Operacionais Estratégicos</h2>
@@ -296,6 +291,7 @@
         const nomesMeses = ['Janeiro', 'Fevereiro', 'Março', 'Abril', 'Maio', 'Junho', 'Julho', 'Agosto', 'Setembro', 'Outubro', 'Novembro', 'Dezembro'];
         const nomesCurtos = ['Jan', 'Fev', 'Mar', 'Abr', 'Mai', 'Jun', 'Jul', 'Ago', 'Set', 'Out', 'Nov', 'Dez'];
 
+        // Fallback e Inicialização Segura de dados para dar autonomia à usuária
         let lancamentos = JSON.parse(localStorage.getItem('simulador_lancamentos')) || [
             { id: 1, data: '2026-01-01', tipo: 'investimento', sala: '-', desc: 'Reforma Estrutural Inicial', valor: 45000 },
             { id: 2, data: '2026-01-05', tipo: 'despesa', sala: '-', desc: 'Custos Fixos de Aluguel/Condomínio', valor: 3500 },
@@ -315,6 +311,22 @@
 
         let chartInstance = null;
 
+        document.addEventListener("DOMContentLoaded", () => {
+            document.getElementById('lanc-data').valueAsDate = new Date();
+            renderDropdownCheckboxes();
+            updateMetricaUI();
+            renderApp();
+
+            // Fechamento inteligente de cliques externos do Dropdown
+            document.addEventListener('click', (e) => {
+                const menu = document.getElementById('dropdown-menu');
+                const btn = document.getElementById('dropdown-btn');
+                if (menu && btn && !menu.contains(e.target) && !btn.contains(e.target)) {
+                    menu.classList.add('hidden');
+                }
+            });
+        });
+
         function triggerToast(msg, icon = "ℹ️") {
             const toast = document.getElementById('toast-notification');
             document.getElementById('toast-icon').innerText = icon;
@@ -325,10 +337,7 @@
 
         function handleCurrencyInput(input) {
             let value = input.value.replace(/\D/g, '');
-            if(value === '') {
-                input.value = '';
-                return;
-            }
+            if(value === '') { input.value = ''; return; }
             value = (value / 100).toFixed(2) + '';
             value = value.replace(".", ",");
             value = value.replace(/(\d)(?=(\d{3})+(?!\d))/g, "$1.");
@@ -341,17 +350,22 @@
             return parseFloat(cleanVal) || 0;
         }
 
-        function toggleDropdown() { document.getElementById('dropdown-menu').classList.toggle('hidden'); }
+        function toggleDropdown(event) {
+            event.stopPropagation();
+            document.getElementById('dropdown-menu').classList.toggle('hidden');
+        }
 
+        // Correção de UX: A linha inteira do mês ganha o comportamento de clique dinâmico
         function renderDropdownCheckboxes() {
             const container = document.getElementById('dropdown-checkboxes-container');
             container.innerHTML = '';
             nomesMeses.forEach((mes, idx) => {
                 const label = document.createElement('label');
                 label.className = "flex items-center gap-3 px-3 py-2.5 rounded-lg hover:bg-slate-50 text-sm font-semibold text-slate-700 cursor-pointer w-full select-none";
-                label.onclick = (e) => e.stopPropagation();
+                
+                // Força o clique no label a disparar a alteração do input interno sem engolir propagação interna
                 label.innerHTML = `
-                    <input type="checkbox" id="chk-mes-${idx}" checked onchange="onCheckboxChange(${idx})" class="h-5 w-5 rounded-md border-slate-300 text-indigo-600 focus:ring-indigo-500 cursor-pointer">
+                    <input type="checkbox" id="chk-mes-${idx}" ${mesesAtivos.includes(idx) ? 'checked' : ''} onchange="onCheckboxChange(${idx})" class="h-5 w-5 rounded-md border-slate-300 text-indigo-600 focus:ring-indigo-500 cursor-pointer">
                     <span>${mes}</span>
                 `;
                 container.appendChild(label);
@@ -360,8 +374,11 @@
 
         function onCheckboxChange(idx) {
             const chk = document.getElementById(`chk-mes-${idx}`);
-            if (chk.checked) { if (!mesesAtivos.includes(idx)) mesesAtivos.push(idx); } 
-            else { mesesAtivos = mesesAtivos.filter(m => m !== idx); }
+            if (chk.checked) { 
+                if (!mesesAtivos.includes(idx)) mesesAtivos.push(idx); 
+            } else { 
+                mesesAtivos = mesesAtivos.filter(m => m !== idx); 
+            }
             mesesAtivos.sort((a, b) => a - b);
             updateDropdownLabel();
             renderApp();
@@ -496,7 +513,7 @@
                 if(count > 0) {
                     localStorage.setItem('simulador_lancamentos', JSON.stringify(lancamentos));
                     triggerToast(`${count} registros importados!`, "📥");
-                    renderApp(); Spruce.switchTab('dash');
+                    renderApp(); switchTab('dash');
                 } else { alert("Formato incompatível de arquivo."); }
             };
             reader.readAsText(file);
