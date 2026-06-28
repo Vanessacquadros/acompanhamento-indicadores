@@ -3,116 +3,84 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Simulador Financeiro Pro</title>
+    <title>Simulador Financeiro Completo</title>
     <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-    <style>
-        body { font-family: 'Inter', sans-serif; }
-        .no-scrollbar::-webkit-scrollbar { display: none; }
-    </style>
 </head>
 <body class="bg-slate-50 text-slate-800">
-
-    <header class="bg-indigo-900 text-white p-4 shadow-lg sticky top-0 z-30">
-        <div class="max-w-5xl mx-auto flex justify-between items-center">
-            <h1 class="font-bold text-lg">Simulador Financeiro</h1>
-            <nav class="flex gap-2 text-xs font-semibold">
-                <button onclick="changeTab('dash')" class="bg-indigo-600 px-3 py-1 rounded-lg">Dashboard</button>
-                <button onclick="changeTab('lanc')" class="text-indigo-300">Lançamentos</button>
-            </nav>
-        </div>
-    </header>
-
-    <main class="max-w-5xl mx-auto p-4 space-y-6">
-        <section class="bg-white p-4 rounded-2xl shadow-sm border border-slate-100 flex flex-wrap gap-4">
-            <select id="filtro-ano" onchange="updateUI()" class="bg-slate-50 border rounded-lg p-2 text-sm font-bold">
-                <option value="2026">2026</option>
-            </select>
-            <div id="meses-container" class="flex gap-1 overflow-x-auto no-scrollbar">
-                </div>
-        </section>
-
-        <section class="grid grid-cols-2 lg:grid-cols-4 gap-4">
-            <div class="bg-white p-4 rounded-2xl border border-slate-100 shadow-sm">
+    <div class="max-w-6xl mx-auto p-6">
+        <div class="grid grid-cols-1 md:grid-cols-4 gap-4 mb-8">
+            <div class="bg-white p-5 rounded-2xl border shadow-sm">
                 <p class="text-[10px] uppercase font-bold text-slate-400">Resultado do Período</p>
-                <p id="kpi-resultado" class="text-lg font-bold text-indigo-700">R$ 0,00</p>
+                <p id="kpi-resultado" class="text-xl font-bold text-indigo-700">R$ 0,00</p>
             </div>
-            <div class="bg-white p-4 rounded-2xl border border-slate-100 shadow-sm">
+            <div class="bg-white p-5 rounded-2xl border shadow-sm">
                 <p class="text-[10px] uppercase font-bold text-slate-400">Payback Acumulado</p>
-                <p id="kpi-payback" class="text-lg font-bold text-slate-800">0 meses</p>
+                <p id="kpi-payback" class="text-xl font-bold text-slate-800">0 meses</p>
             </div>
-            <div class="bg-white p-4 rounded-2xl border border-slate-100 shadow-sm">
+            <div class="bg-white p-5 rounded-2xl border shadow-sm">
                 <p class="text-[10px] uppercase font-bold text-slate-400">ROI Histórico</p>
-                <p id="kpi-roi" class="text-lg font-bold text-slate-800">0%</p>
+                <p id="kpi-roi" class="text-xl font-bold text-slate-800">0%</p>
             </div>
-            <div class="bg-white p-4 rounded-2xl border border-slate-100 shadow-sm">
+            <div class="bg-white p-5 rounded-2xl border shadow-sm">
                 <p class="text-[10px] uppercase font-bold text-slate-400">TIR Estimada</p>
-                <p id="kpi-tir" class="text-lg font-bold text-emerald-600">0%</p>
+                <p id="kpi-tir" class="text-xl font-bold text-emerald-600">0%</p>
+            </div>
+        </div>
+
+        <section class="bg-white p-6 rounded-2xl border shadow-sm">
+            <select id="filtro-ano" onchange="renderApp()" class="mb-4 bg-slate-50 border p-2 rounded-lg text-sm">
+                <option value="2026">2026</option>
+                <option value="2027">2027</option>
+            </select>
+            <div class="h-64">
+                <canvas id="mainChart"></canvas>
             </div>
         </section>
-
-        <section class="bg-white p-4 rounded-2xl shadow-sm border border-slate-100 h-64">
-            <canvas id="mainChart"></canvas>
-        </section>
-    </main>
+    </div>
 
     <script>
-        // State
-        let data = JSON.parse(localStorage.getItem('fin_data')) || [];
-        let activeMonths = [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11];
-        let chart = null;
+        // Dados iniciais e estado
+        let lancamentos = JSON.parse(localStorage.getItem('simulador_lancamentos')) || [];
+        let chartInstance = null;
 
-        // Formatação
-        const fmt = (v) => v.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' });
+        const formatCurrency = (v) => v.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' });
 
-        function updateUI() {
-            const year = document.getElementById('filtro-ano').value;
+        function renderApp() {
+            const filtroAno = document.getElementById('filtro-ano').value;
             
-            // Cálculos Financeiros
-            let totalInvestido = data.filter(i => i.tipo === 'investimento').reduce((a, b) => a + b.valor, 0);
-            let lucroTotal = data.reduce((acc, i) => acc + (i.tipo === 'receita' ? i.valor : (i.tipo === 'despesa' ? -i.valor : 0)), 0);
+            // Variáveis de Cálculo Histórico (para Payback, ROI e TIR)
+            let totalInvestido = 0;
+            let totalLucro = 0;
             
-            // Filtrados por período
-            let filtered = data.filter(i => new Date(i.data).getFullYear() == year && activeMonths.includes(new Date(i.data).getMonth()));
-            let resPeriodo = filtered.reduce((acc, i) => acc + (i.tipo === 'receita' ? i.valor : (i.tipo === 'despesa' ? -i.valor : 0)), 0);
+            // Variáveis de Cálculo do Período (para Resultado)
+            let resultadoPeriodo = 0;
 
-            // Update DOM
-            document.getElementById('kpi-resultado').innerText = fmt(resPeriodo);
-            
-            // Métricas Históricas (Financeiramente Corretas)
-            let mesesAtivos = Math.max(1, (new Date() - new Date(data.length ? data[0].data : new Date())) / 2592000000);
-            let lucroMensal = lucroTotal / mesesAtivos;
-            
-            document.getElementById('kpi-payback').innerText = totalInvestido > 0 ? (totalInvestido / lucroMensal).toFixed(1) + ' meses' : '-';
-            document.getElementById('kpi-roi').innerText = totalInvestido > 0 ? ((lucroTotal / totalInvestido) * 100).toFixed(1) + '%' : '-';
+            lancamentos.forEach(item => {
+                const itemDate = new Date(item.data);
+                
+                // Histórico Total
+                if(item.tipo === 'investimento') totalInvestido += item.valor;
+                if(item.tipo === 'receita') totalLucro += item.valor;
+                if(item.tipo === 'despesa') totalLucro -= item.valor;
+
+                // Período Filtrado
+                if(itemDate.getFullYear() == filtroAno) {
+                    resultadoPeriodo += (item.tipo === 'receita' ? item.valor : (item.tipo === 'despesa' ? -item.valor : 0));
+                }
+            });
+
+            // Lógica financeira: Payback e ROI baseados no histórico
+            const mesesDeVida = 6; // Exemplo: estimativa de meses de operação
+            const lucroMensal = totalLucro / mesesDeVida;
+
+            document.getElementById('kpi-resultado').innerText = formatCurrency(resultadoPeriodo);
+            document.getElementById('kpi-payback').innerText = totalInvestido > 0 ? (totalInvestido / Math.max(1, lucroMensal)).toFixed(1) + ' meses' : '-';
+            document.getElementById('kpi-roi').innerText = totalInvestido > 0 ? ((totalLucro / totalInvestido) * 100).toFixed(1) + '%' : '-';
             document.getElementById('kpi-tir').innerText = totalInvestido > 0 ? ((lucroMensal / totalInvestido) * 100).toFixed(1) + '%' : '-';
-
-            renderChart(filtered);
         }
 
-        function renderChart(filtered) {
-            const ctx = document.getElementById('mainChart').getContext('2d');
-            if (chart) chart.destroy();
-            chart = new Chart(ctx, {
-                type: 'bar',
-                data: {
-                    labels: ['Jan', 'Fev', 'Mar', 'Abr', 'Mai', 'Jun'],
-                    datasets: [{ label: 'Fluxo Período', data: [1000, 2000, 1500, 3000, 2500, 4000], backgroundColor: '#4f46e5' }]
-                },
-                options: { responsive: true, maintainAspectRatio: false }
-            });
-        }
-
-        // Inicialização
-        function init() {
-            const container = document.getElementById('meses-container');
-            ['Jan','Fev','Mar','Abr','Mai','Jun','Jul','Ago','Set','Out','Nov','Dez'].forEach((m, i) => {
-                container.innerHTML += `<button onclick="toggleMonth(${i})" class="px-3 py-1 bg-slate-100 rounded-lg text-[10px] font-bold">${m}</button>`;
-            });
-            updateUI();
-        }
-
-        init();
+        renderApp();
     </script>
 </body>
 </html>
