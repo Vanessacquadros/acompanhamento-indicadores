@@ -15,6 +15,7 @@
 </head>
 <body class="bg-slate-50 text-slate-800 min-h-screen flex flex-col antialiased">
 
+    <!-- Sistema Dinâmico de Notificação (Toast) -->
     <div id="toast-notification" class="hidden fixed bottom-5 right-5 bg-slate-900 text-white text-xs font-semibold px-4 py-3 rounded-xl shadow-xl z-50 transition-all duration-300 flex items-center gap-2 border border-slate-700">
         <span id="toast-icon">ℹ️</span>
         <span id="toast-message">Notificação</span>
@@ -37,6 +38,7 @@
 
     <main class="flex-1 max-w-7xl w-full mx-auto px-4 py-6">
         
+        <!-- DASHBOARD TAB -->
         <div id="tab-dash" class="tab-content space-y-6">
             
             <div class="bg-white p-5 rounded-2xl shadow-xs border border-slate-100 flex flex-col md:flex-row md:items-end justify-between gap-4">
@@ -76,6 +78,7 @@
                 </div>
             </div>
 
+            <!-- KPIs -->
             <div class="grid grid-cols-2 lg:grid-cols-5 gap-3">
                 <div class="bg-white p-4 rounded-2xl shadow-xs border border-slate-100 col-span-1">
                     <span class="text-[10px] font-bold text-slate-400 uppercase tracking-wider block">Ocupação Mínima</span>
@@ -104,6 +107,7 @@
                 </div>
             </div>
 
+            <!-- Gráfico e Visão de Salas -->
             <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
                 <div class="bg-white p-5 rounded-2xl shadow-xs border border-slate-100 lg:col-span-2">
                     <h3 class="text-sm font-bold text-slate-700 mb-3">Evolução Mensal (Receitas vs. Despesas)</h3>
@@ -141,6 +145,7 @@
             </div>
         </div>
 
+        <!-- LANÇAMENTOS TAB -->
         <div id="tab-lanc" class="tab-content hidden max-w-3xl mx-auto space-y-6">
             <div class="bg-white p-5 rounded-2xl shadow-xs border border-slate-100">
                 <h2 class="text-sm font-bold text-slate-700 mb-1">📥 Importar Dados via Planilha</h2>
@@ -175,8 +180,8 @@
                     <div id="sala-selector-block">
                         <label class="block text-[10px] font-bold uppercase text-slate-400 mb-1.5">2. Destinação da Receita</label>
                         <div class="grid grid-cols-2 gap-2">
-                            <button type="button" onclick="setFormSala('sala1')" id="btn-sala1" class="sala-btn h-11 border rounded-xl font-semibold text-sm transition-all bg-indigo-50 border-indigo-500 text-indigo-800 cursor-pointer text-center">Sala 01</button>
-                            <button type="button" onclick="setFormSala('sala2')" id="btn-sala2" class="sala-btn h-11 border border-slate-200 rounded-xl font-semibold text-sm transition-all text-slate-600 hover:bg-slate-50 cursor-pointer text-center w-full text-center">Sala 02</button>
+                            <button type="button" onclick="setFormSala('sala1')" id="btn-sala1" class="sala-btn h-11 border rounded-xl font-semibold text-sm transition-all bg-indigo-50 border-indigo-500 text-indigo-800 cursor-pointer text-center w-full">Sala 01</button>
+                            <button type="button" onclick="setFormSala('sala2')" id="btn-sala2" class="sala-btn h-11 border border-slate-200 rounded-xl font-semibold text-sm transition-all text-slate-600 hover:bg-slate-50 cursor-pointer text-center w-full">Sala 02</button>
                         </div>
                     </div>
 
@@ -200,6 +205,7 @@
             </div>
         </div>
 
+        <!-- EXTRATO TAB -->
         <div id="tab-extrato" class="tab-content hidden">
             <div class="bg-white rounded-2xl shadow-xs border border-slate-100 overflow-hidden">
                 <div class="p-5 border-b border-slate-100 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
@@ -239,6 +245,7 @@
             </div>
         </div>
 
+        <!-- CONFIG TAB -->
         <div id="tab-config" class="tab-content hidden max-w-md mx-auto">
             <div class="bg-white p-5 rounded-2xl shadow-xs border border-slate-100">
                 <h2 class="text-sm font-bold text-slate-700 mb-1">Parâmetros Operacionais Estratégicos</h2>
@@ -291,8 +298,8 @@
         const nomesMeses = ['Janeiro', 'Fevereiro', 'Março', 'Abril', 'Maio', 'Junho', 'Julho', 'Agosto', 'Setembro', 'Outubro', 'Novembro', 'Dezembro'];
         const nomesCurtos = ['Jan', 'Fev', 'Mar', 'Abr', 'Mai', 'Jun', 'Jul', 'Ago', 'Set', 'Out', 'Nov', 'Dez'];
 
-        // Histórico de Testes Abrangente de 12 Meses Completos para Autonomia da Empreendedora (Ano base 2026)
-        let lancamentos = JSON.parse(localStorage.getItem('simulador_lancamentos')) || [
+        // ATUALIZAÇÃO CONCEITUAL: Versão v3 das chaves de banco para forçar o recarregamento limpo no navegador do cliente
+        let lancamentos = JSON.parse(localStorage.getItem('simulador_lancamentos_v3')) || [
             // Janeiro
             { id: 101, data: '2026-01-02', tipo: 'investimento', sala: '-', desc: 'Reforma de Infraestrutura e Cadeiras Clínicas', valor: 45000 },
             { id: 102, data: '2026-01-05', tipo: 'despesa', sala: '-', desc: 'Aluguel + Condomínio Comercial Fixos', valor: 3500 },
@@ -348,7 +355,7 @@
             { id: 1204, data: '2026-12-23', tipo: 'receita', sala: 'sala2', desc: 'Fechamento Recorde de Ocupação', valor: 7500 }
         ];
 
-        let config = JSON.parse(localStorage.getItem('simulador_config')) || {
+        let config = JSON.parse(localStorage.getItem('simulador_config_v3')) || {
             metrica: 'horas',
             capacidade: 320,
             preco: 60,
@@ -520,7 +527,7 @@
 
             if(valor <= 0) { alert("Insira um valor acima de R$ 0,00"); return; }
             lancamentos.push({ id: Date.now(), data, tipo: selectedType, sala, desc, valor });
-            localStorage.setItem('simulador_lancamentos', JSON.stringify(lancamentos));
+            localStorage.setItem('simulador_lancamentos_v3', JSON.stringify(lancamentos));
 
             document.getElementById('lanc-desc').value = '';
             document.getElementById('lanc-valor').value = '';
@@ -531,7 +538,7 @@
 
         function deleteLancamento(id) {
             lancamentos = lancamentos.filter(item => item.id !== id);
-            localStorage.setItem('simulador_lancamentos', JSON.stringify(lancamentos));
+            localStorage.setItem('simulador_lancamentos_v3', JSON.stringify(lancamentos));
             triggerToast("Registro removido.", "🔴");
             renderApp();
         }
@@ -554,7 +561,7 @@
                     }
                 }
                 if(count > 0) {
-                    localStorage.setItem('simulador_lancamentos', JSON.stringify(lancamentos));
+                    localStorage.setItem('simulador_lancamentos_v3', JSON.stringify(lancamentos));
                     triggerToast(`${count} registros importados!`, "📥");
                     renderApp(); switchTab('dash');
                 } else { alert("Formato incompatível de arquivo."); }
@@ -652,7 +659,6 @@
             let totalReceitas = sala1Tot + sala2Tot;
             const qtdMesesSelecionados = mesesAtivos.length || 1;
             
-            // --- ENGENHARIA DO PONTO DE EQUILÍBRIO REAL ---
             let custoFixoAcumulado = config.custoFixo * qtdMesesSelecionados;
             let margemContribuicaoUnitaria = config.preco - config.custoVariavel;
             if(margemContribuicaoUnitaria <= 0) margemContribuicaoUnitaria = config.preco || 1; 
@@ -666,7 +672,6 @@
             document.getElementById('kpi-ponto-eq').innerText = ocuPct.toFixed(1) + '%';
             document.getElementById('lbl-metrica-eq').innerText = `Eq. em ${config.metrica === 'turnos' ? 'Turnos' : 'Horas'}`;
 
-            // --- CÁLCULO DAS NOMENCLATURAS SOLICITADAS ---
             let resultadoOperacional = totalReceitas - totalDespesas;
             let fluxoCaixaLiquido = resultadoOperacional - totalInvestido;
 
@@ -730,18 +735,19 @@
             config.preco = parseFloat(document.getElementById('cfg-preco').value) || 60;
             config.custoFixo = parseFloat(document.getElementById('cfg-custofixo').value) || 0;
             config.custoVariavel = parseFloat(document.getElementById('cfg-custovariavel').value) || 0;
-            localStorage.setItem('simulador_config', JSON.stringify(config));
+            localStorage.setItem('simulador_config_v3', JSON.stringify(config));
             triggerToast("Parâmetros operacionais salvos!", "⚙️");
             renderApp(); switchTab('dash');
         }
 
         function clearData() {
             if(confirm("Deseja apagar todos os dados locais?")) {
-                lancamentos = []; localStorage.setItem('simulador_lancamentos', JSON.stringify(lancamentos));
+                lancamentos = []; localStorage.setItem('simulador_lancamentos_v3', JSON.stringify(lancamentos));
                 triggerToast("Banco de dados resetado.", "🧹"); renderApp();
             }
         }
 
+        // Correção de exportação para apontar para a tabela correta
         function exportJSON() {
             const dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(lancamentos));
             const downloadAnchor = document.createElement('a'); downloadAnchor.setAttribute("href", dataStr);
