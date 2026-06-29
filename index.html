@@ -107,7 +107,7 @@
 
             <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
                 <div class="bg-white p-5 rounded-2xl shadow-xs border border-slate-100 lg:col-span-2">
-                    <h3 class="text-sm font-bold text-slate-700 mb-3">Evolução de Fluxo Misto (Receitas vs. Despesas + Linha de Lucro)</h3>
+                    <h3 class="text-sm font-bold text-slate-700 mb-3">Evolução de Fluxo Misto (Receitas vs. Despesas + Linha de Resultado)</h3>
                     <div class="h-60 sm:h-64 relative" id="chart-wrapper">
                         <canvas id="mainChart"></canvas>
                     </div>
@@ -292,8 +292,8 @@
         const nomesMeses = ['Janeiro', 'Fevereiro', 'Março', 'Abril', 'Maio', 'Junho', 'Julho', 'Agosto', 'Setembro', 'Outubro', 'Novembro', 'Dezembro'];
         const nomesCurtos = ['Jan', 'Fev', 'Mar', 'Abr', 'Mai', 'Jun', 'Jul', 'Ago', 'Set', 'Out', 'Nov', 'Dez'];
 
-        // ATUALIZAÇÃO v10: Engine blindada com normalização estrutural de strings e tratamento de fusos horários do Excel
-        let lancamentos = JSON.parse(localStorage.getItem('simulador_lancamentos_v10')) || [
+        // ATUALIZAÇÃO v11: Rótulo da linha do gráfico alterado para "Lucro ou Déficit Real" conforme solicitação
+        let lancamentos = JSON.parse(localStorage.getItem('simulador_lancamentos_v11')) || [
             { id: '8Itjnat1UwZOqqmhnZIh', data: '2026-06-08', tipo: 'receita', sala: 'sala1', desc: 'Receita avulsa - Recarga gás', valor: 200.00 },
             { id: 'FPSqPHBXckuuCvrSo0TM', data: '2026-05-17', tipo: 'receita', sala: 'sala1', desc: 'Estorno cartao - Estorno de 1 caixa de rodapé', valor: 309.54 },
             { id: 'Fm2VHpe47l9GNOAqsBqQ', data: '2026-06-17', tipo: 'receita', sala: 'sala2', desc: 'Andressa Alves Santos - Locação Áthos II', valor: 40.00 },
@@ -304,7 +304,7 @@
             { id: '0Ow7s8v44HmAVrfVccJ7', data: '2026-05-20', tipo: 'investimento', sala: '-', desc: 'Estofados Obra (Serviços)', valor: 500.00 }
         ];
 
-        let config = JSON.parse(localStorage.getItem('simulador_config_v10')) || {
+        let config = JSON.parse(localStorage.getItem('simulador_config_v11')) || {
             metrica: 'horas',
             capacidade: 320,
             preco: 60,
@@ -360,12 +360,11 @@
             return parseFloat(clean) || 0;
         }
 
-        // NORMALIZADOR COMPLETO DE STRINGS (IGNORA ESPAÇOS, ACENTOS E MAIÚSCULAS)
         function normalizeKey(key) {
             if (!key) return '';
             return key.toString().toLowerCase().trim()
-                .normalize("NFD").replace(/[\u0300-\u036f]/g, "") // Remove acentuação
-                .replace(/[^a-z0-9]/g, ""); // Limpa espaços extras e caracteres como 'Nº'
+                .normalize("NFD").replace(/[\u0300-\u036f]/g, "") 
+                .replace(/[^a-z0-9]/g, ""); 
         }
 
         function normalizeDate(dateVal) {
@@ -448,7 +447,6 @@
             return 'despesa';
         }
 
-        // NOVO MOTOR PARSER INTEGRAL: Normaliza dinamicamente as chaves e valores lidos do Excel
         function importFile(input) {
             const file = input.files[0]; if (!file) return;
             const reader = new FileReader();
@@ -469,7 +467,6 @@
                         
                         if (jsonData.length === 0) return;
 
-                        // Passo de Normalização: Mapeia o objeto bruto para chaves sanitizadas
                         const normalizedRows = jsonData.map(row => {
                             let normObj = {};
                             for (let key in row) { normObj[normalizeKey(key)] = row[key]; }
@@ -528,13 +525,12 @@
                         return;
                     }
 
-                    localStorage.setItem('simulador_lancamentos_v10', JSON.stringify(lancamentos));
+                    localStorage.setItem('simulador_lancamentos_v11', JSON.stringify(lancamentos));
                     triggerToast(`Planilha integrada com sucesso! Abas processadas: ${sheetsProcessed.join(', ')}.`, "📥");
                     renderApp(); switchTab('dash');
                 };
                 reader.readAsArrayBuffer(file);
             } else {
-                // Fallback robusto para CSV estruturado
                 reader.onload = function(e) {
                     const text = e.target.result; const lines = text.split(/\r?\n/);
                     if (lines.length < 2) return;
@@ -590,7 +586,7 @@
                             countImported++;
                         }
                     }
-                    localStorage.setItem('simulador_lancamentos_v10', JSON.stringify(lancamentos));
+                    localStorage.setItem('simulador_lancamentos_v11', JSON.stringify(lancamentos));
                     triggerToast(`Dados do CSV processados com sucesso!`, "📥");
                     renderApp(); switchTab('dash');
                 };
@@ -716,7 +712,7 @@
             if(valor <= 0) { alert("Insira um valor acima de R$ 0,00"); return; }
             let manualId = 'manual-' + Date.now();
             lancamentos.push({ id: manualId, data, tipo: selectedType, sala, desc, valor });
-            localStorage.setItem('simulador_lancamentos_v10', JSON.stringify(lancamentos));
+            localStorage.setItem('simulador_lancamentos_v11', JSON.stringify(lancamentos));
 
             document.getElementById('lanc-desc').value = '';
             document.getElementById('lanc-valor').value = '';
@@ -726,30 +722,14 @@
 
         function deleteLancamento(id) {
             lancamentos = lancamentos.filter(item => item.id !== id);
-            localStorage.setItem('simulador_lancamentos_v10', JSON.stringify(lancamentos));
+            localStorage.setItem('simulador_lancamentos_v11', JSON.stringify(lancamentos));
             triggerToast("Registro removido.", "🔴"); renderApp();
         }
 
-        function formatCurrency(val) {
-            return val.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' });
-        }
-
-        function calcularTIRReal(investimento, lucroMensal, meses) {
-            if (investimento <= 0 || lucroMensal <= 0) return 0;
-            let fluxos = [-investimento]; for (let i = 0; i < meses; i++) { fluxos.push(lucroMensal); }
-            let guess = 0.1; let maxIter = 1000; let precision = 1e-6;
-            for (let i = 0; i < maxIter; i++) {
-                let vpl = 0; let derivadaVpl = 0;
-                for (let t = 0; t < fluxos.length; t++) {
-                    vpl += fluxos[t] / Math.pow(1 + guess, t);
-                    if (t > 0) derivadaVpl -= t * fluxos[t] / Math.pow(1 + guess, t + 1);
-                }
-                if (Math.abs(derivadaVpl) < 1e-10) break;
-                let nextGuess = guess - (vpl / derivadaVpl);
-                if (Math.abs(nextGuess - guess) < precision) return nextGuess * 100;
-                guess = nextGuess;
-            }
-            return 0;
+        function parseCurrencyToFloat(stringVal) {
+            if(!stringVal) return 0;
+            let cleanVal = stringVal.replace(/[^\d,]/g, '').replace(',', '.');
+            return parseFloat(cleanVal) || 0;
         }
 
         function renderApp() {
@@ -857,6 +837,7 @@
             renderCharts();
         }
 
+        // RENDERIZADOR DE GRÁFICOS AJUSTADO COM O NOVO RÓTULO PEDIDO
         function renderCharts() {
             const ctx = document.getElementById('mainChart'); if(!ctx) return;
             const filtroAno = document.getElementById('dash-filtro-ano').value;
@@ -882,7 +863,8 @@
                 data: {
                     labels: labelsFiltradas,
                     datasets: [
-                        { type: 'line', label: 'Lucro Líquido Real', data: lucrosData, borderColor: '#10b981', backgroundColor: '#10b981', borderWidth: 2.5, pointRadius: 3, tension: 0.15, fill: false },
+                        // ATUALIZAÇÃO DO LABEL DA LINHA CONTINUA DO GRÁFICO
+                        { type: 'line', label: 'Lucro ou Déficit Real', data: lucrosData, borderColor: '#10b981', backgroundColor: '#10b981', borderWidth: 2.5, pointRadius: 3, tension: 0.15, fill: false },
                         { type: 'bar', label: 'Receitas', data: receitasData, backgroundColor: '#4f46e5', borderRadius: 4 },
                         { type: 'bar', label: 'Despesas', data: despesasData, backgroundColor: '#ef4444', borderRadius: 4 }
                     ]
@@ -900,14 +882,14 @@
             config.preco = parseFloat(document.getElementById('cfg-preco').value) || 60;
             config.custoFixo = parseFloat(document.getElementById('cfg-custofixo').value) || 0;
             config.custoVariavel = parseFloat(document.getElementById('cfg-custovariavel').value) || 0;
-            localStorage.setItem('simulador_config_v10', JSON.stringify(config));
+            localStorage.setItem('simulador_config_v11', JSON.stringify(config));
             triggerToast("Parâmetros operacionais salvos!", "⚙️");
             renderApp(); switchTab('dash');
         }
 
         function clearData() {
             if(confirm("Deseja apagar todos os dados locais?")) {
-                lancamentos = []; localStorage.setItem('simulador_lancamentos_v10', JSON.stringify(lancamentos));
+                lancamentos = []; localStorage.setItem('simulador_lancamentos_v11', JSON.stringify(lancamentos));
                 triggerToast("Banco de dados resetado.", "🧹"); renderApp();
             }
         }
