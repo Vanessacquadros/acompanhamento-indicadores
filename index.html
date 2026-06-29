@@ -292,8 +292,8 @@
         const nomesMeses = ['Janeiro', 'Fevereiro', 'Março', 'Abril', 'Maio', 'Junho', 'Julho', 'Agosto', 'Setembro', 'Outubro', 'Novembro', 'Dezembro'];
         const nomesCurtos = ['Jan', 'Fev', 'Mar', 'Abr', 'Mai', 'Jun', 'Jul', 'Ago', 'Set', 'Out', 'Nov', 'Dez'];
 
-        // ATUALIZAÇÃO v9: Versão estruturada com gráfico misto (lucro mensal contínuo) e remoção de resíduos
-        let lancamentos = JSON.parse(localStorage.getItem('simulador_lancamentos_v9')) || [
+        // ATUALIZAÇÃO v10: Engine blindada com normalização estrutural de strings e tratamento de fusos horários do Excel
+        let lancamentos = JSON.parse(localStorage.getItem('simulador_lancamentos_v10')) || [
             { id: '8Itjnat1UwZOqqmhnZIh', data: '2026-06-08', tipo: 'receita', sala: 'sala1', desc: 'Receita avulsa - Recarga gás', valor: 200.00 },
             { id: 'FPSqPHBXckuuCvrSo0TM', data: '2026-05-17', tipo: 'receita', sala: 'sala1', desc: 'Estorno cartao - Estorno de 1 caixa de rodapé', valor: 309.54 },
             { id: 'Fm2VHpe47l9GNOAqsBqQ', data: '2026-06-17', tipo: 'receita', sala: 'sala2', desc: 'Andressa Alves Santos - Locação Áthos II', valor: 40.00 },
@@ -304,7 +304,7 @@
             { id: '0Ow7s8v44HmAVrfVccJ7', data: '2026-05-20', tipo: 'investimento', sala: '-', desc: 'Estofados Obra (Serviços)', valor: 500.00 }
         ];
 
-        let config = JSON.parse(localStorage.getItem('simulador_config_v9')) || {
+        let config = JSON.parse(localStorage.getItem('simulador_config_v10')) || {
             metrica: 'horas',
             capacidade: 320,
             preco: 60,
@@ -360,6 +360,14 @@
             return parseFloat(clean) || 0;
         }
 
+        // NORMALIZADOR COMPLETO DE STRINGS (IGNORA ESPAÇOS, ACENTOS E MAIÚSCULAS)
+        function normalizeKey(key) {
+            if (!key) return '';
+            return key.toString().toLowerCase().trim()
+                .normalize("NFD").replace(/[\u0300-\u036f]/g, "") // Remove acentuação
+                .replace(/[^a-z0-9]/g, ""); // Limpa espaços extras e caracteres como 'Nº'
+        }
+
         function normalizeDate(dateVal) {
             if (!dateVal) return new Date().toISOString().split('T')[0];
             if (dateVal instanceof Date) {
@@ -368,11 +376,18 @@
                 let d = String(dateVal.getDate()).padStart(2, '0');
                 return `${y}-${m}-${d}`;
             }
+            if (typeof dateVal === 'number' && dateVal > 40000 && dateVal < 60000) {
+                let date = new Date((dateVal - 25569) * 86400 * 1000);
+                let y = date.getFullYear();
+                let m = String(date.getMonth() + 1).padStart(2, '0');
+                let d = String(date.getDate()).padStart(2, '0');
+                return `${y}-${m}-${d}`;
+            }
             let str = dateVal.toString().trim();
             if (str.includes('-')) { return str.split('T')[0]; }
             if (str.includes('/')) {
                 let parts = str.split('/');
-                if (parts[0].length === 4) return str; 
+                if (parts[0].length === 4) return str.split(' ')[0];
                 return `${parts[2]}-${parts[1].padStart(2, '0')}-${parts[0].padStart(2, '0')}`;
             }
             return str;
@@ -390,41 +405,41 @@
         }
 
         function processarClassificacaoDespesa(descricao, categoria, subcategoria) {
-            const desc = descricao.toString().toLowerCase().trim();
-            const cat = categoria.toString().toLowerCase().trim();
-            const sub = subcategoria.toString().toLowerCase().trim();
+            const desc = normalizeKey(descricao);
+            const cat = normalizeKey(categoria);
+            const sub = normalizeKey(subcategoria);
 
             if (cat === 'fixo' || cat.includes('operacional') || cat.includes('recorrente')) {
                 return 'despesa';
             }
             
-            const opexSubcategorias = ['energia', 'iptu', 'internet', 'telefone', 'água', 'agua', 'taxas', 'impostos', 'aluguel', 'condomínio', 'condominio', 'limpeza'];
+            const opexSubcategorias = ['energia', 'iptu', 'internet', 'telefone', 'agua', 'taxas', 'impostos', 'aluguel', 'condominio', 'limpeza'];
             if (opexSubcategorias.some(item => sub.includes(item))) {
                 return 'despesa';
             }
 
             const opexKeywords = [
                 'enel', 'coelce', 'cagece', 'algar', 'claro', 'vivo', 'tim', 'oi', 'net',
-                'aluguel', 'condominio', 'condomínio', 'iptu', 'contador', 'contabilidade',
-                'simples nacional', 'das', 'fgts', 'inss', 'darf', 'tarifa', 'banco', 'bancária'
+                'aluguel', 'condominio', 'iptu', 'contador', 'contabilidade',
+                'simplesnacional', 'das', 'fgts', 'inss', 'darf', 'tarifa', 'banco', 'bancaria'
             ];
             if (opexKeywords.some(kw => desc.includes(kw))) {
                 return 'despesa';
             }
 
-            const capexSubcategorias = ['despesas obra', 'obra', 'investimento', 'imobilizado', 'móveis', 'moveis', 'equipamentos'];
+            const capexSubcategorias = ['despesasobra', 'obra', 'investimento', 'imobilizado', 'moveis', 'equipamentos'];
             if (capexSubcategorias.some(item => sub.includes(item))) {
                 return 'investimento';
             }
 
             const capexKeywords = [
-                'obra', 'reforma', 'santiago', 'construção', 'construcao', 'pedreiro', 'pintor', 'mão de obra', 'mao de obra',
-                'gesso', 'tinta', 'madeira', 'fio', 'cimento', 'tijolo', 'rodapé', 'rodape', 'frete', 'ferragem',
-                'cadeira', 'poltrona', 'divã', 'diva', 'mesa', 'aparador', 'armário', 'armario', 'estofado', 'sofá', 'sofa',
-                'tapete', 'cortina', 'luminaria', 'luminária', 'lâmpada', 'led', 'espelho', 'quadro', 'decoração', 'decoracao',
-                'ar condicionado', 'ar-condicionado', 'climario', 'split', 'compressor', 'autoclave', 'computador', 'notebook',
+                'obra', 'reforma', 'santiago', 'construcao', 'pedreiro', 'pintor', 'maodeobra',
+                'gesso', 'tinta', 'madeira', 'fio', 'cimento', 'tijolo', 'rodape', 'frete', 'ferragem',
+                'cadeira', 'poltrona', 'diva', 'mesa', 'aparador', 'armario', 'estofado', 'sofa',
+                'tapete', 'cortina', 'luminaria', 'lampada', 'led', 'espelho', 'quadro', 'decoracao',
+                'arcondicionado', 'climario', 'split', 'compressor', 'autoclave', 'computador', 'notebook',
                 'impressora', 'cafeteira', 'frigobar', 'microondas', 'tv', 'temu', 'shein', 'aliexpress', 'shopee', 'amazon', 
-                'mercado livre', 'mercadolivre', 'americanas', 'leroy', 'magalu', 'freitas'
+                'mercadolivre', 'americanas', 'leroy', 'magalu', 'freitas'
             ];
             if (capexKeywords.some(kw => desc.includes(kw))) {
                 return 'investimento';
@@ -433,6 +448,7 @@
             return 'despesa';
         }
 
+        // NOVO MOTOR PARSER INTEGRAL: Normaliza dinamicamente as chaves e valores lidos do Excel
         function importFile(input) {
             const file = input.files[0]; if (!file) return;
             const reader = new FileReader();
@@ -452,23 +468,32 @@
                         const jsonData = XLSX.utils.sheet_to_json(worksheet, { defval: "" });
                         
                         if (jsonData.length === 0) return;
-                        const keys = Object.keys(jsonData[0]);
 
-                        if (nameLower.includes('receita') || (keys.includes('Profissional') && keys.includes('Valor Final'))) {
+                        // Passo de Normalização: Mapeia o objeto bruto para chaves sanitizadas
+                        const normalizedRows = jsonData.map(row => {
+                            let normObj = {};
+                            for (let key in row) { normObj[normalizeKey(key)] = row[key]; }
+                            return normObj;
+                        });
+
+                        const firstRowKeys = Object.keys(normalizedRows[0]);
+                        let isReceitaSheet = nameLower.includes('receita') || (firstRowKeys.includes('profissional') && (firstRowKeys.includes('valorfinal') || firstRowKeys.includes('valor')));
+                        let isDespesaSheet = nameLower.includes('despesa') || (firstRowKeys.includes('descricao') && firstRowKeys.includes('subcategoria'));
+
+                        if (isReceitaSheet) {
                             sheetsProcessed.push(sheetName);
-                            jsonData.forEach(row => {
-                                let rawId = row['ID'] ? row['ID'].toString() : ('rec-' + Date.now() + '-' + Math.random());
-                                let normalizedDateStr = normalizeDate(row['Vencimento']);
-                                let profissional = row['Profissional'] || 'Receita Avulsa';
-                                let observacao = row['Observação'] || '';
-                                let valorFinal = row['Valor Final'] !== undefined ? row['Valor Final'] : row['Valor'];
+                            normalizedRows.forEach(row => {
+                                let rawId = row['id'] ? row['id'].toString() : ('rec-' + Date.now() + '-' + Math.random());
+                                let normalizedDateStr = normalizeDate(row['vencimento']);
+                                let profissional = row['profissional'] || 'Receita Avulsa';
+                                let observacao = row['observacao'] || '';
+                                let valorFinal = row['valorfinal'] !== undefined ? row['valorfinal'] : row['valor'];
                                 
                                 let valor = parseRawValue(valorFinal);
                                 let desc = profissional + (observacao ? ' - ' + observacao : '');
                                 
                                 let sala = 'sala1';
                                 let upperObs = observacao.toString().toUpperCase();
-                                // Correção textual definitiva do gatilho da Sala 2
                                 if (upperObs.includes('ÁTHOS II') || upperObs.includes('ATHOS II') || upperObs.includes('SALA 2') || upperObs.includes('SALA 02')) {
                                     sala = 'sala2';
                                 }
@@ -478,15 +503,15 @@
                                 countImported++;
                             });
                         }
-                        else if (nameLower.includes('despesa') || (keys.includes('Descrição') && keys.includes('Subcategoria'))) {
+                        else if (isDespesaSheet) {
                             sheetsProcessed.push(sheetName);
-                            jsonData.forEach(row => {
-                                let rawId = row['ID'] ? row['ID'].toString() : ('desp-' + Date.now() + '-' + Math.random());
-                                let normalizedDateStr = normalizeDate(row['Vencimento']);
-                                let descricao = row['Descrição'] || 'Despesa';
-                                let categoria = row['Categoria'] || '';
-                                let subcategoria = row['Subcategoria'] || '';
-                                let valorRaw = row['Valor'] || '0';
+                            normalizedRows.forEach(row => {
+                                let rawId = row['id'] ? row['id'].toString() : ('desp-' + Date.now() + '-' + Math.random());
+                                let normalizedDateStr = normalizeDate(row['vencimento']);
+                                let descricao = row['descricao'] || 'Despesa';
+                                let categoria = row['categoria'] || '';
+                                let subcategoria = row['subcategoria'] || '';
+                                let valorRaw = row['valor'] || '0';
                                 
                                 let valor = parseRawValue(valorRaw);
                                 let tipo = processarClassificacaoDespesa(descricao, categoria, subcategoria);
@@ -499,78 +524,74 @@
                     });
 
                     if (sheetsProcessed.length === 0) {
-                        alert("Nenhuma aba mapeável identificada ('Receitas' ou 'Despesas'). Verifique o arquivo Excel.");
+                        alert("Não foi possível mapear as abas. Verifique se o arquivo possui colunas com nomes válidos para 'Profissional' ou 'Descrição'.");
                         return;
                     }
 
-                    localStorage.setItem('simulador_lancamentos_v9', JSON.stringify(lancamentos));
-                    let statusMsg = `Sincronização concluída! Abas lidas: ${sheetsProcessed.join(', ')}. ${countImported} registros salvos.`;
-                    if (countDuplicated > 0) statusMsg += ` (${countDuplicated} duplicidades ignoradas)`;
-                    triggerToast(statusMsg, "📥");
+                    localStorage.setItem('simulador_lancamentos_v10', JSON.stringify(lancamentos));
+                    triggerToast(`Planilha integrada com sucesso! Abas processadas: ${sheetsProcessed.join(', ')}.`, "📥");
                     renderApp(); switchTab('dash');
                 };
                 reader.readAsArrayBuffer(file);
             } else {
+                // Fallback robusto para CSV estruturado
                 reader.onload = function(e) {
                     const text = e.target.result; const lines = text.split(/\r?\n/);
-                    if (lines.length < 2) { alert("Arquivo vazio."); return; }
-                    const headers = parseCSVRow(lines[0]).map(h => h.trim().replace(/"/g, ''));
-                    let isReceitas = headers.includes('Profissional') && headers.includes('Valor Final');
-                    let isDespesas = headers.includes('Descrição') && headers.includes('Subcategoria');
+                    if (lines.length < 2) return;
+                    const headers = parseCSVRow(lines[0]).map(h => normalizeKey(h));
+                    let isReceitas = headers.includes('profissional') && (headers.includes('valorfinal') || headers.includes('valor'));
+                    let isDespesas = headers.includes('descricao') && headers.includes('subcategoria');
                     
                     if (!isReceitas && !isDespesas) {
-                        alert("Formato CSV não suportado diretamente. Utilize a planilha Excel nativa (.xlsx).");
+                        alert("Formato incompatível. Carregue o arquivo consolidado original em formato Excel (.xlsx).");
                         return;
                     }
                     
                     let countImported = 0; let countDuplicated = 0;
-                    let idxID = headers.indexOf('ID'); let idxVencimento = headers.indexOf('Vencimento');
+                    let idxID = headers.indexOf('id'); let idxVencimento = headers.indexOf('vencimento');
                     
                     if (isReceitas) {
-                        let idxProfissional = headers.indexOf('Profissional');
-                        let idxObservacao = headers.indexOf('Observação');
-                        let idxValorFinal = headers.indexOf('Valor Final');
+                        let idxProf = headers.indexOf('profissional');
+                        let idxObs = headers.indexOf('observacao');
+                        let idxVal = headers.includes('valorfinal') ? headers.indexOf('valorfinal') : headers.indexOf('valor');
                         
                         for (let i = 1; i < lines.length; i++) {
                             if (!lines[i].trim()) continue; let cols = parseCSVRow(lines[i]);
-                            if (cols.length < headers.length) continue;
                             let rawId = cols[idxID] || ('rec-' + Date.now() + '-' + i);
                             let normalizedDateStr = normalizeDate(cols[idxVencimento]);
-                            let profesional = cols[idxProfissional] || 'Receita Avulsa';
-                            let observacao = cols[idxObservacao] || '';
-                            let valor = parseRawValue(cols[idxValorFinal]);
-                            let desc = profesional + (observacao ? ' - ' + observacao : '');
+                            let valor = parseRawValue(cols[idxVal]);
+                            let obs = cols[idxObs] || '';
+                            let desc = (cols[idxProf] || 'Receita Avulsa') + (obs ? ' - ' + obs : '');
                             let sala = 'sala1';
-                            if (observacao.toUpperCase().includes('ÁTHOS II') || observacao.toUpperCase().includes('ATHOS II')) sala = 'sala2';
+                            if (obs.toUpperCase().includes('ÁTHOS II') || obs.toUpperCase().includes('ATHOS II')) sala = 'sala2';
                             
                             if (lancamentos.some(l => l.id === rawId)) { countDuplicated++; continue; }
                             lancamentos.push({ id: rawId, data: normalizedDateStr, tipo: 'receita', sala: sala, desc: desc, valor: valor });
                             countImported++;
                         }
                     } else if (isDespesas) {
-                        let idxDescricao = headers.indexOf('Descrição');
-                        let idxCategoria = headers.indexOf('Categoria');
-                        let idxSubcategoria = headers.indexOf('Subcategoria');
-                        let idxValor = headers.indexOf('Valor');
+                        let idxDesc = headers.indexOf('descricao');
+                        let idxCat = headers.indexOf('categoria');
+                        let idxSub = headers.indexOf('subcategoria');
+                        let idxVal = headers.indexOf('valor');
                         
                         for (let i = 1; i < lines.length; i++) {
                             if (!lines[i].trim()) continue; let cols = parseCSVRow(lines[i]);
-                            if (cols.length < headers.length) continue;
                             let rawId = cols[idxID] || ('desp-' + Date.now() + '-' + i);
                             let normalizedDateStr = normalizeDate(cols[idxVencimento]);
-                            let descricao = cols[idxDescricao] || 'Despesa';
-                            let categoria = cols[idxCategoria] || '';
-                            let subcategoria = cols[idxSubcategoria] || '';
-                            let valor = parseRawValue(cols[idxValor]);
-                            let tipo = processarClassificacaoDespesa(descricao, categoria, subcategoria);
+                            let descr = cols[idxDesc] || 'Despesa';
+                            let cat = cols[idxCat] || '';
+                            let sub = cols[idxSub] || '';
+                            let valor = parseRawValue(cols[idxVal]);
+                            let tipo = processarClassificacaoDespesa(descr, cat, sub);
                             
                             if (lancamentos.some(l => l.id === rawId)) { countDuplicated++; continue; }
-                            lancamentos.push({ id: rawId, data: normalizedDateStr, tipo: tipo, sala: '-', desc: descricao + (subcategoria ? ' (' + subcategoria + ')' : ''), valor: valor });
+                            lancamentos.push({ id: rawId, data: normalizedDateStr, tipo: tipo, sala: '-', desc: descr + (sub ? ' (' + sub + ')' : ''), valor: valor });
                             countImported++;
                         }
                     }
-                    localStorage.setItem('simulador_lancamentos_v9', JSON.stringify(lancamentos));
-                    triggerToast(`${countImported} registros sincronizados!`, "📥");
+                    localStorage.setItem('simulador_lancamentos_v10', JSON.stringify(lancamentos));
+                    triggerToast(`Dados do CSV processados com sucesso!`, "📥");
                     renderApp(); switchTab('dash');
                 };
                 reader.readAsText(file);
@@ -695,7 +716,7 @@
             if(valor <= 0) { alert("Insira um valor acima de R$ 0,00"); return; }
             let manualId = 'manual-' + Date.now();
             lancamentos.push({ id: manualId, data, tipo: selectedType, sala, desc, valor });
-            localStorage.setItem('simulador_lancamentos_v9', JSON.stringify(lancamentos));
+            localStorage.setItem('simulador_lancamentos_v10', JSON.stringify(lancamentos));
 
             document.getElementById('lanc-desc').value = '';
             document.getElementById('lanc-valor').value = '';
@@ -705,14 +726,30 @@
 
         function deleteLancamento(id) {
             lancamentos = lancamentos.filter(item => item.id !== id);
-            localStorage.setItem('simulador_lancamentos_v9', JSON.stringify(lancamentos));
+            localStorage.setItem('simulador_lancamentos_v10', JSON.stringify(lancamentos));
             triggerToast("Registro removido.", "🔴"); renderApp();
         }
 
-        function parseCurrencyToFloat(stringVal) {
-            if(!stringVal) return 0;
-            let cleanVal = stringVal.replace(/[^\d,]/g, '').replace(',', '.');
-            return parseFloat(cleanVal) || 0;
+        function formatCurrency(val) {
+            return val.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' });
+        }
+
+        function calcularTIRReal(investimento, lucroMensal, meses) {
+            if (investimento <= 0 || lucroMensal <= 0) return 0;
+            let fluxos = [-investimento]; for (let i = 0; i < meses; i++) { fluxos.push(lucroMensal); }
+            let guess = 0.1; let maxIter = 1000; let precision = 1e-6;
+            for (let i = 0; i < maxIter; i++) {
+                let vpl = 0; let derivadaVpl = 0;
+                for (let t = 0; t < fluxos.length; t++) {
+                    vpl += fluxos[t] / Math.pow(1 + guess, t);
+                    if (t > 0) derivadaVpl -= t * fluxos[t] / Math.pow(1 + guess, t + 1);
+                }
+                if (Math.abs(derivadaVpl) < 1e-10) break;
+                let nextGuess = guess - (vpl / derivadaVpl);
+                if (Math.abs(nextGuess - guess) < precision) return nextGuess * 100;
+                guess = nextGuess;
+            }
+            return 0;
         }
 
         function renderApp() {
@@ -808,7 +845,6 @@
             let totalInvestidoGeral = lancamentos.filter(i => i.tipo === 'investimento').reduce((acc, i) => acc + i.valor, 0);
             let lucroMensalMedioReal = resultadoOperacional / qtdMesesSelecionados;
 
-            // Ajuste fino para evitar falhas ou travamento visual em períodos com lucros negativos
             if (totalInvestidoGeral > 0 && lucroMensalMedioReal > 0) {
                 document.getElementById('kpi-payback').innerText = (totalInvestidoGeral / lucroMensalMedioReal).toFixed(1) + ' meses';
                 document.getElementById('kpi-roi').innerText = ((lucroMensalMedioReal * 12) / totalInvestidoGeral * 100).toFixed(1) + '%';
@@ -837,7 +873,7 @@
                         }
                     });
                     receitasData.push(rMes); despesasData.push(dMes);
-                    lucrosData.push(rMes - dMes); // Cálculo matemático da linha contínua do lucro líquido por mês
+                    lucrosData.push(rMes - dMes);
                 }
             });
 
@@ -864,14 +900,14 @@
             config.preco = parseFloat(document.getElementById('cfg-preco').value) || 60;
             config.custoFixo = parseFloat(document.getElementById('cfg-custofixo').value) || 0;
             config.custoVariavel = parseFloat(document.getElementById('cfg-custovariavel').value) || 0;
-            localStorage.setItem('simulador_config_v9', JSON.stringify(config));
+            localStorage.setItem('simulador_config_v10', JSON.stringify(config));
             triggerToast("Parâmetros operacionais salvos!", "⚙️");
             renderApp(); switchTab('dash');
         }
 
         function clearData() {
             if(confirm("Deseja apagar todos os dados locais?")) {
-                lancamentos = []; localStorage.setItem('simulador_lancamentos_v9', JSON.stringify(lancamentos));
+                lancamentos = []; localStorage.setItem('simulador_lancamentos_v10', JSON.stringify(lancamentos));
                 triggerToast("Banco de dados resetado.", "🧹"); renderApp();
             }
         }
