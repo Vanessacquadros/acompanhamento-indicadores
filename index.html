@@ -107,7 +107,7 @@
 
             <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
                 <div class="bg-white p-5 rounded-2xl shadow-xs border border-slate-100 lg:col-span-2">
-                    <h3 class="text-sm font-bold text-slate-700 mb-3">Evolução Mensal (Receitas vs. Despesas)</h3>
+                    <h3 class="text-sm font-bold text-slate-700 mb-3">Evolução de Fluxo Misto (Receitas vs. Despesas + Linha de Lucro)</h3>
                     <div class="h-60 sm:h-64 relative" id="chart-wrapper">
                         <canvas id="mainChart"></canvas>
                     </div>
@@ -292,8 +292,8 @@
         const nomesMeses = ['Janeiro', 'Fevereiro', 'Março', 'Abril', 'Maio', 'Junho', 'Julho', 'Agosto', 'Setembro', 'Outubro', 'Novembro', 'Dezembro'];
         const nomesCurtos = ['Jan', 'Fev', 'Mar', 'Abr', 'Mai', 'Jun', 'Jul', 'Ago', 'Set', 'Out', 'Nov', 'Dez'];
 
-        // ARQUITETURA ATUALIZADA v8: Sincronização nativa multifile de objetos do Excel
-        let lancamentos = JSON.parse(localStorage.getItem('simulador_lancamentos_v8')) || [
+        // ATUALIZAÇÃO v9: Versão estruturada com gráfico misto (lucro mensal contínuo) e remoção de resíduos
+        let lancamentos = JSON.parse(localStorage.getItem('simulador_lancamentos_v9')) || [
             { id: '8Itjnat1UwZOqqmhnZIh', data: '2026-06-08', tipo: 'receita', sala: 'sala1', desc: 'Receita avulsa - Recarga gás', valor: 200.00 },
             { id: 'FPSqPHBXckuuCvrSo0TM', data: '2026-05-17', tipo: 'receita', sala: 'sala1', desc: 'Estorno cartao - Estorno de 1 caixa de rodapé', valor: 309.54 },
             { id: 'Fm2VHpe47l9GNOAqsBqQ', data: '2026-06-17', tipo: 'receita', sala: 'sala2', desc: 'Andressa Alves Santos - Locação Áthos II', valor: 40.00 },
@@ -304,7 +304,7 @@
             { id: '0Ow7s8v44HmAVrfVccJ7', data: '2026-05-20', tipo: 'investimento', sala: '-', desc: 'Estofados Obra (Serviços)', valor: 500.00 }
         ];
 
-        let config = JSON.parse(localStorage.getItem('simulador_config_v8')) || {
+        let config = JSON.parse(localStorage.getItem('simulador_config_v9')) || {
             metrica: 'horas',
             capacidade: 320,
             preco: 60,
@@ -360,7 +360,6 @@
             return parseFloat(clean) || 0;
         }
 
-        // FORMATADOR/NORMALIZADOR INTELIGENTE DE DATOS DO EXCEL
         function normalizeDate(dateVal) {
             if (!dateVal) return new Date().toISOString().split('T')[0];
             if (dateVal instanceof Date) {
@@ -370,9 +369,7 @@
                 return `${y}-${m}-${d}`;
             }
             let str = dateVal.toString().trim();
-            if (str.includes('-')) {
-                return str.split('T')[0];
-            }
+            if (str.includes('-')) { return str.split('T')[0]; }
             if (str.includes('/')) {
                 let parts = str.split('/');
                 if (parts[0].length === 4) return str; 
@@ -436,7 +433,6 @@
             return 'despesa';
         }
 
-        // PARSER UNIFICADO: Capaz de abrir arquivos binários .xlsx processando abas simultâneas
         function importFile(input) {
             const file = input.files[0]; if (!file) return;
             const reader = new FileReader();
@@ -458,7 +454,6 @@
                         if (jsonData.length === 0) return;
                         const keys = Object.keys(jsonData[0]);
 
-                        // Detecção e tratamento da Aba de Receitas
                         if (nameLower.includes('receita') || (keys.includes('Profissional') && keys.includes('Valor Final'))) {
                             sheetsProcessed.push(sheetName);
                             jsonData.forEach(row => {
@@ -473,6 +468,7 @@
                                 
                                 let sala = 'sala1';
                                 let upperObs = observacao.toString().toUpperCase();
+                                // Correção textual definitiva do gatilho da Sala 2
                                 if (upperObs.includes('ÁTHOS II') || upperObs.includes('ATHOS II') || upperObs.includes('SALA 2') || upperObs.includes('SALA 02')) {
                                     sala = 'sala2';
                                 }
@@ -482,7 +478,6 @@
                                 countImported++;
                             });
                         }
-                        // Detecção e tratamento da Aba de Despesas
                         else if (nameLower.includes('despesa') || (keys.includes('Descrição') && keys.includes('Subcategoria'))) {
                             sheetsProcessed.push(sheetName);
                             jsonData.forEach(row => {
@@ -508,15 +503,14 @@
                         return;
                     }
 
-                    localStorage.setItem('simulador_lancamentos_v8', JSON.stringify(lancamentos));
-                    let statusMsg = `Planilha processada! Abas sincronizadas: ${sheetsProcessed.join(', ')}. ${countImported} lançamentos incluídos.`;
-                    if (countDuplicated > 0) statusMsg += ` (${countDuplicated} duplicados pulados)`;
+                    localStorage.setItem('simulador_lancamentos_v9', JSON.stringify(lancamentos));
+                    let statusMsg = `Sincronização concluída! Abas lidas: ${sheetsProcessed.join(', ')}. ${countImported} registros salvos.`;
+                    if (countDuplicated > 0) statusMsg += ` (${countDuplicated} duplicidades ignoradas)`;
                     triggerToast(statusMsg, "📥");
                     renderApp(); switchTab('dash');
                 };
                 reader.readAsArrayBuffer(file);
             } else {
-                // Fallback de retrocompatibilidade para arquivos CSV individuais
                 reader.onload = function(e) {
                     const text = e.target.result; const lines = text.split(/\r?\n/);
                     if (lines.length < 2) { alert("Arquivo vazio."); return; }
@@ -525,7 +519,7 @@
                     let isDespesas = headers.includes('Descrição') && headers.includes('Subcategoria');
                     
                     if (!isReceitas && !isDespesas) {
-                        alert("Formato CSV inválido. Forneça o arquivo consolidado em formato Excel (.xlsx).");
+                        alert("Formato CSV não suportado diretamente. Utilize a planilha Excel nativa (.xlsx).");
                         return;
                     }
                     
@@ -542,10 +536,10 @@
                             if (cols.length < headers.length) continue;
                             let rawId = cols[idxID] || ('rec-' + Date.now() + '-' + i);
                             let normalizedDateStr = normalizeDate(cols[idxVencimento]);
-                            let profissional = cols[idxProfissional] || 'Receita Avulsa';
+                            let profesional = cols[idxProfissional] || 'Receita Avulsa';
                             let observacao = cols[idxObservacao] || '';
                             let valor = parseRawValue(cols[idxValorFinal]);
-                            let desc = profissional + (observacao ? ' - ' + observacao : '');
+                            let desc = profesional + (observacao ? ' - ' + observacao : '');
                             let sala = 'sala1';
                             if (observacao.toUpperCase().includes('ÁTHOS II') || observacao.toUpperCase().includes('ATHOS II')) sala = 'sala2';
                             
@@ -575,7 +569,7 @@
                             countImported++;
                         }
                     }
-                    localStorage.setItem('simulador_lancamentos_v8', JSON.stringify(lancamentos));
+                    localStorage.setItem('simulador_lancamentos_v9', JSON.stringify(lancamentos));
                     triggerToast(`${countImported} registros sincronizados!`, "📥");
                     renderApp(); switchTab('dash');
                 };
@@ -701,7 +695,7 @@
             if(valor <= 0) { alert("Insira um valor acima de R$ 0,00"); return; }
             let manualId = 'manual-' + Date.now();
             lancamentos.push({ id: manualId, data, tipo: selectedType, sala, desc, valor });
-            localStorage.setItem('simulador_lancamentos_v8', JSON.stringify(lancamentos));
+            localStorage.setItem('simulador_lancamentos_v9', JSON.stringify(lancamentos));
 
             document.getElementById('lanc-desc').value = '';
             document.getElementById('lanc-valor').value = '';
@@ -711,30 +705,14 @@
 
         function deleteLancamento(id) {
             lancamentos = lancamentos.filter(item => item.id !== id);
-            localStorage.setItem('simulador_lancamentos_v8', JSON.stringify(lancamentos));
+            localStorage.setItem('simulador_lancamentos_v9', JSON.stringify(lancamentos));
             triggerToast("Registro removido.", "🔴"); renderApp();
         }
 
-        function formatCurrency(val) {
-            return val.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' });
-        }
-
-        function calcularTIRReal(investimento, lucroMensal, meses) {
-            if (investimento <= 0 || lucroMensal <= 0) return 0;
-            let fluxos = [-investimento]; for (let i = 0; i < meses; i++) { fluxos.push(lucroMensal); }
-            let guess = 0.1; let maxIter = 1000; let precision = 1e-6;
-            for (let i = 0; i < maxIter; i++) {
-                let vpl = 0; let derivadaVpl = 0;
-                for (let t = 0; t < fluxos.length; t++) {
-                    vpl += fluxos[t] / Math.pow(1 + guess, t);
-                    if (t > 0) derivadaVpl -= t * fluxos[t] / Math.pow(1 + guess, t + 1);
-                }
-                if (Math.abs(derivadaVpl) < 1e-10) break;
-                let nextGuess = guess - (vpl / derivadaVpl);
-                if (Math.abs(nextGuess - guess) < precision) return nextGuess * 100;
-                guess = nextGuess;
-            }
-            return 0;
+        function parseCurrencyToFloat(stringVal) {
+            if(!stringVal) return 0;
+            let cleanVal = stringVal.replace(/[^\d,]/g, '').replace(',', '.');
+            return parseFloat(cleanVal) || 0;
         }
 
         function renderApp() {
@@ -830,12 +808,13 @@
             let totalInvestidoGeral = lancamentos.filter(i => i.tipo === 'investimento').reduce((acc, i) => acc + i.valor, 0);
             let lucroMensalMedioReal = resultadoOperacional / qtdMesesSelecionados;
 
+            // Ajuste fino para evitar falhas ou travamento visual em períodos com lucros negativos
             if (totalInvestidoGeral > 0 && lucroMensalMedioReal > 0) {
                 document.getElementById('kpi-payback').innerText = (totalInvestidoGeral / lucroMensalMedioReal).toFixed(1) + ' meses';
                 document.getElementById('kpi-roi').innerText = ((lucroMensalMedioReal * 12) / totalInvestidoGeral * 100).toFixed(1) + '%';
                 document.getElementById('kpi-tir').innerText = calcularTIRReal(totalInvestidoGeral, lucroMensalMedioReal, 12).toFixed(1) + '%';
             } else {
-                document.getElementById('kpi-payback').innerText = 'Inviável';
+                document.getElementById('kpi-payback').innerText = 'Déficit Ativo';
                 document.getElementById('kpi-roi').innerText = '0.0%';
                 document.getElementById('kpi-tir').innerText = '0.0%';
             }
@@ -845,7 +824,7 @@
         function renderCharts() {
             const ctx = document.getElementById('mainChart'); if(!ctx) return;
             const filtroAno = document.getElementById('dash-filtro-ano').value;
-            let labelsFiltradas = []; let receitasData = []; let despesasData = [];
+            let labelsFiltradas = []; let receitasData = []; let despesasData = []; let lucrosData = [];
 
             nomesCurtos.forEach((mes, idx) => {
                 if (mesesAtivos.includes(idx)) {
@@ -858,17 +837,18 @@
                         }
                     });
                     receitasData.push(rMes); despesasData.push(dMes);
+                    lucrosData.push(rMes - dMes); // Cálculo matemático da linha contínua do lucro líquido por mês
                 }
             });
 
             if(chartInstance) chartInstance.destroy();
             chartInstance = new Chart(ctx, {
-                type: 'bar',
                 data: {
                     labels: labelsFiltradas,
                     datasets: [
-                        { label: 'Receitas', data: receitasData, backgroundColor: '#4f46e5', borderRadius: 4 },
-                        { label: 'Despesas', data: despesasData, backgroundColor: '#ef4444', borderRadius: 4 }
+                        { type: 'line', label: 'Lucro Líquido Real', data: lucrosData, borderColor: '#10b981', backgroundColor: '#10b981', borderWidth: 2.5, pointRadius: 3, tension: 0.15, fill: false },
+                        { type: 'bar', label: 'Receitas', data: receitasData, backgroundColor: '#4f46e5', borderRadius: 4 },
+                        { type: 'bar', label: 'Despesas', data: despesasData, backgroundColor: '#ef4444', borderRadius: 4 }
                     ]
                 },
                 options: {
@@ -884,14 +864,14 @@
             config.preco = parseFloat(document.getElementById('cfg-preco').value) || 60;
             config.custoFixo = parseFloat(document.getElementById('cfg-custofixo').value) || 0;
             config.custoVariavel = parseFloat(document.getElementById('cfg-custovariavel').value) || 0;
-            localStorage.setItem('simulador_config_v8', JSON.stringify(config));
+            localStorage.setItem('simulador_config_v9', JSON.stringify(config));
             triggerToast("Parâmetros operacionais salvos!", "⚙️");
             renderApp(); switchTab('dash');
         }
 
         function clearData() {
             if(confirm("Deseja apagar todos os dados locais?")) {
-                lancamentos = []; localStorage.setItem('simulador_lancamentos_v8', JSON.stringify(lancamentos));
+                lancamentos = []; localStorage.setItem('simulador_lancamentos_v9', JSON.stringify(lancamentos));
                 triggerToast("Banco de dados resetado.", "🧹"); renderApp();
             }
         }
