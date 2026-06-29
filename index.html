@@ -292,8 +292,8 @@
         const nomesMeses = ['Janeiro', 'Fevereiro', 'Março', 'Abril', 'Maio', 'Junho', 'Julho', 'Agosto', 'Setembro', 'Outubro', 'Novembro', 'Dezembro'];
         const nomesCurtos = ['Jan', 'Fev', 'Mar', 'Abr', 'Mai', 'Jun', 'Jul', 'Ago', 'Set', 'Out', 'Nov', 'Dez'];
 
-        // ARQUITETURA TOTALMENTE BLINDADA v13 - CHAVES DE VALOR FIXADAS
-        let lancamentos = JSON.parse(localStorage.getItem('simulador_lancamentos_v13')) || [
+        // PARSER SEGURO v14 - SISTEMA ANTIFALHAS DE LEITURA
+        let lancamentos = JSON.parse(localStorage.getItem('simulador_lancamentos_v14')) || [
             { id: '8Itjnat1UwZOqqmhnZIh', data: '2026-06-08', tipo: 'receita', sala: 'sala1', desc: 'Receita avulsa - Recarga gás', valor: 200.00 },
             { id: 'FPSqPHBXckuuCvrSo0TM', data: '2026-05-17', tipo: 'receita', sala: 'sala1', desc: 'Estorno cartao - Estorno de 1 caixa de rodapé', valor: 309.54 },
             { id: 'Fm2VHpe47l9GNOAqsBqQ', data: '2026-06-17', tipo: 'receita', sala: 'sala2', desc: 'Andressa Alves Santos - Locação Áthos II', valor: 40.00 },
@@ -304,7 +304,7 @@
             { id: '0Ow7s8v44HmAVrfVccJ7', data: '2026-05-20', tipo: 'investimento', sala: '-', desc: 'Estofados Obra (Serviços)', valor: 500.00 }
         ];
 
-        let config = JSON.parse(localStorage.getItem('simulador_config_v13')) || {
+        let config = JSON.parse(localStorage.getItem('simulador_config_v14')) || {
             metrica: 'horas',
             capacidade: 320,
             preco: 60,
@@ -346,7 +346,6 @@
             input.value = 'R$ ' + value;
         }
 
-        // LIMPEZA MONETÁRIA DE ALTA PRECISÃO
         function parseRawValue(val) {
             if (val === undefined || val === null) return 0;
             if (typeof val === 'number') return val;
@@ -361,7 +360,6 @@
             return parseFloat(clean) || 0;
         }
 
-        // HIGIENIZADOR RIGOROSO DE CABEÇALHOS DO EXCEL
         function normalizeKey(key) {
             if (!key) return '';
             return key.toString().toLowerCase().trim()
@@ -369,7 +367,6 @@
                 .replace(/[^a-z0-9]/g, ""); 
         }
 
-        // NORMALIZADOR COMPLETO DE DATAS POR COMPONENTES LOCAIS (ANTI-FUSO HORÁRIO)
         function normalizeDate(dateVal) {
             if (!dateVal) return new Date().toISOString().split('T')[0];
             if (dateVal instanceof Date) {
@@ -441,88 +438,95 @@
             return 'despesa';
         }
 
-        // MOTOR DE MAPEAMENTO E CAPTURA INTEGRAL COM LOOKUP EXATO POR PRIORIDADE
+        // NOVO MOTOR SÓLIDO POR ACCESSO DIRETO COM CAMADA TRY-CATCH ANTI-TRAVAMENTOS
         function importFile(input) {
             const file = input.files[0]; if (!file) return;
             const reader = new FileReader();
 
             reader.onload = function(e) {
-                const data = new Uint8Array(e.target.result);
-                const workbook = XLSX.read(data, { type: 'array', cellDates: true });
-                
-                let countImported = 0; let countDuplicated = 0;
-                let sheetsProcessed = [];
-
-                workbook.SheetNames.forEach(sheetName => {
-                    const nameLower = sheetName.toLowerCase().trim();
-                    const worksheet = workbook.Sheets[sheetName];
-                    const jsonData = XLSX.utils.sheet_to_json(worksheet, { raw: true });
+                try {
+                    const data = new Uint8Array(e.target.result);
+                    const workbook = XLSX.read(data, { type: 'array', cellDates: true });
                     
-                    if (jsonData.length === 0) return;
+                    let countImported = 0; let countDuplicated = 0;
+                    let sheetsProcessed = [];
 
-                    // Normalização das chaves em estrutura rasa direta
-                    const normalizedRows = jsonData.map(row => {
-                        let normObj = {};
-                        for (let key in row) { normObj[normalizeKey(key)] = row[key]; }
-                        return normObj;
+                    workbook.SheetNames.forEach(sheetName => {
+                        try {
+                            const nameLower = sheetName.toLowerCase().trim();
+                            const worksheet = workbook.Sheets[sheetName];
+                            const jsonData = XLSX.utils.sheet_to_json(worksheet, { raw: true });
+                            
+                            if (!jsonData || jsonData.length === 0) return;
+
+                            const normalizedRows = jsonData.map(row => {
+                                let normObj = {};
+                                for (let key in row) { normObj[normalizeKey(key)] = row[key]; }
+                                return normObj;
+                            });
+
+                            const firstRowKeys = Object.keys(normalizedRows[0] || {});
+                            let isReceitaSheet = nameLower.includes('receita') || firstRowKeys.includes('profissional');
+                            let isDespesaSheet = nameLower.includes('despesa') || firstRowKeys.includes('descricao');
+
+                            if (isReceitaSheet) {
+                                sheetsProcessed.push(sheetName);
+                                normalizedRows.forEach(row => {
+                                    let rawId = (row['id'] || '').toString().trim() || ('rec-' + Date.now() + '-' + Math.random());
+                                    let normalizedDateStr = normalizeDate(row['vencimento'] || row['data']);
+                                    let profissional = row['profissional'] || 'Receita Avulsa';
+                                    let observacao = row['observacao'] || row['obs'] || '';
+                                    
+                                    let valorFinalRaw = (row['valorfinal'] !== undefined && row['valorfinal'] !== "") ? row['valorfinal'] : row['valor'];
+                                    let valor = parseRawValue(valorFinalRaw);
+                                    let desc = profissional + (observacao ? ' - ' + observacao : '');
+                                    
+                                    let sala = 'sala1';
+                                    let upperObs = (observacao || '').toString().toUpperCase();
+                                    if (upperObs.includes('ÁTHOS II') || upperObs.includes('ATHOS II') || upperObs.includes('SALA 2') || upperObs.includes('SALA 02')) {
+                                        sala = 'sala2';
+                                    }
+                                    
+                                    if (lancamentos.some(l => l.id === rawId)) { countDuplicated++; return; }
+                                    lancamentos.push({ id: rawId, data: normalizedDateStr, tipo: 'receita', sala: sala, desc: desc, valor: valor });
+                                    countImported++;
+                                });
+                            }
+                            else if (isDespesaSheet) {
+                                sheetsProcessed.push(sheetName);
+                                normalizedRows.forEach(row => {
+                                    let rawId = (row['id'] || '').toString().trim() || ('desp-' + Date.now() + '-' + Math.random());
+                                    let normalizedDateStr = normalizeDate(row['vencimento'] || row['data']);
+                                    let descricao = row['descricao'] || row['desc'] || 'Despesa';
+                                    let categoria = row['categoria'] || '';
+                                    let subcategoria = row['subcategoria'] || '';
+                                    let valorRaw = row['valor'];
+                                    
+                                    let valor = parseRawValue(valorRaw);
+                                    let tipo = processarClassificacaoDespesa(descricao, categoria, subcategoria);
+                                    
+                                    if (lancamentos.some(l => l.id === rawId)) { countDuplicated++; return; }
+                                    lancamentos.push({ id: rawId, data: normalizedDateStr, tipo: tipo, sala: '-', desc: descricao + (subcategoria ? ' (' + subcategoria + ')' : ''), valor: valor });
+                                    countImported++;
+                                });
+                            }
+                        } catch (sheetErr) {
+                            console.error("Erro ao processar aba específica do Excel:", sheetErr);
+                        }
                     });
 
-                    const firstRowKeys = Object.keys(normalizedRows[0]);
-                    let isReceitaSheet = nameLower.includes('receita') || firstRowKeys.includes('profissional');
-                    let isDespesaSheet = nameLower.includes('despesa') || firstRowKeys.includes('descricao');
-
-                    if (isReceitaSheet) {
-                        sheetsProcessed.push(sheetName);
-                        normalizedRows.forEach(row => {
-                            let rawId = row['id'] ? row['id'].toString().trim() : ('rec-' + Date.now() + '-' + Math.random());
-                            let normalizedDateStr = normalizeDate(row['vencimento'] || row['data']);
-                            let profissional = row['profissional'] || 'Receita Avulsa';
-                            let observacao = row['observacao'] || row['obs'] || '';
-                            
-                            // Lookup por prioridade para não herdar valor nulo/vazio
-                            let valorFinalRaw = (row['valorfinal'] !== undefined && row['valorfinal'] !== "") ? row['valorfinal'] : row['valor'];
-                            let valor = parseRawValue(valorFinalRaw);
-                            let desc = profissional + (observacao ? ' - ' + observacao : '');
-                            
-                            let sala = 'sala1';
-                            let upperObs = observacao.toString().toUpperCase();
-                            if (upperObs.includes('ÁTHOS II') || upperObs.includes('ATHOS II') || upperObs.includes('SALA 2') || upperObs.includes('SALA 02')) {
-                                sala = 'sala2';
-                            }
-                            
-                            if (lancamentos.some(l => l.id === rawId)) { countDuplicated++; return; }
-                            lancamentos.push({ id: rawId, data: normalizedDateStr, tipo: 'receita', sala: sala, desc: desc, valor: valor });
-                            countImported++;
-                        });
+                    if (sheetsProcessed.length === 0) {
+                        alert("Não foi possível processar o arquivo. Verifique se as abas contêm as colunas estruturais padrão.");
+                        return;
                     }
-                    else if (isDespesaSheet) {
-                        sheetsProcessed.push(sheetName);
-                        normalizedRows.forEach(row => {
-                            let rawId = row['id'] ? row['id'].toString().trim() : ('desp-' + Date.now() + '-' + Math.random());
-                            let normalizedDateStr = normalizeDate(row['vencimento'] || row['data']);
-                            let descricao = row['descricao'] || row['desc'] || 'Despesa';
-                            let categoria = row['categoria'] || '';
-                            let subcategoria = row['subcategoria'] || '';
-                            let valorRaw = row['valor'];
-                            
-                            let valor = parseRawValue(valorRaw);
-                            let tipo = processarClassificacaoDespesa(descricao, categoria, subcategoria);
-                            
-                            if (lancamentos.some(l => l.id === rawId)) { countDuplicated++; return; }
-                            lancamentos.push({ id: rawId, data: normalizedDateStr, tipo: tipo, sala: '-', desc: descricao + (subcategoria ? ' (' + subcategoria + ')' : ''), valor: valor });
-                            countImported++;
-                        });
-                    }
-                });
 
-                if (sheetsProcessed.length === 0) {
-                    alert("Aba incompatível. Certifique-se de que o arquivo possui as abas 'Receitas' ou 'Despesas' com cabeçalhos válidos.");
-                    return;
+                    localStorage.setItem('simulador_lancamentos_v14', JSON.stringify(lancamentos));
+                    triggerToast(`Planilha integrada! Abas mapeadas: ${sheetsProcessed.join(', ')}. Registros novos: ${countImported}.`, "📥");
+                    renderApp(); switchTab('dash');
+                } catch (globalErr) {
+                    console.error("Erro fatal na leitura do arquivo Excel:", globalErr);
+                    alert("Erro interno ao ler o Excel. Certifique-se de que o arquivo não está corrompido.");
                 }
-
-                localStorage.setItem('simulador_lancamentos_v13', JSON.stringify(lancamentos));
-                triggerToast(`Importação bem-sucedida! Abas unificadas: ${sheetsProcessed.join(', ')}. Registros incluídos: ${countImported}.`, "📥");
-                renderApp(); switchTab('dash');
             };
             reader.readAsArrayBuffer(file);
         }
@@ -645,7 +649,7 @@
             if(valor <= 0) { alert("Insira um valor acima de R$ 0,00"); return; }
             let manualId = 'manual-' + Date.now();
             lancamentos.push({ id: manualId, data, tipo: selectedType, sala, desc, valor });
-            localStorage.setItem('simulador_lancamentos_v13', JSON.stringify(lancamentos));
+            localStorage.setItem('simulador_lancamentos_v14', JSON.stringify(lancamentos));
 
             document.getElementById('lanc-desc').value = '';
             document.getElementById('lanc-valor').value = '';
@@ -655,7 +659,7 @@
 
         function deleteLancamento(id) {
             lancamentos = lancamentos.filter(item => item.id !== id);
-            localStorage.setItem('simulador_lancamentos_v13', JSON.stringify(lancamentos));
+            localStorage.setItem('simulador_lancamentos_v14', JSON.stringify(lancamentos));
             triggerToast("Registro removido.", "🔴"); renderApp();
         }
 
@@ -663,6 +667,24 @@
             if(!stringVal) return 0;
             let cleanVal = stringVal.replace(/[^\d,]/g, '').replace(',', '.');
             return parseFloat(cleanVal) || 0;
+        }
+
+        function calcularTIRReal(investimento, lucroMensal, meses) {
+            if (investimento <= 0 || lucroMensal <= 0) return 0;
+            let fluxos = [-investimento]; for (let i = 0; i < meses; i++) { fluxos.push(lucroMensal); }
+            let guess = 0.1; let maxIter = 1000; let precision = 1e-6;
+            for (let i = 0; i < maxIter; i++) {
+                let vpl = 0; let derivadaVpl = 0;
+                for (let t = 0; t < fluxos.length; t++) {
+                    vpl += fluxos[t] / Math.pow(1 + guess, t);
+                    if (t > 0) derivadaVpl -= t * fluxos[t] / Math.pow(1 + guess, t + 1);
+                }
+                if (Math.abs(derivadaVpl) < 1e-10) break;
+                let nextGuess = guess - (vpl / derivadaVpl);
+                if (Math.abs(nextGuess - guess) < precision) return nextGuess * 100;
+                guess = nextGuess;
+            }
+            return 0;
         }
 
         function renderApp() {
@@ -770,6 +792,10 @@
             renderCharts();
         }
 
+        function formatCurrency(val) {
+            return val.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' });
+        }
+
         function renderCharts() {
             const ctx = document.getElementById('mainChart'); if(!ctx) return;
             const filtroAno = document.getElementById('dash-filtro-ano').value;
@@ -813,14 +839,14 @@
             config.preco = parseFloat(document.getElementById('cfg-preco').value) || 60;
             config.custoFixo = parseFloat(document.getElementById('cfg-custofixo').value) || 0;
             config.custoVariavel = parseFloat(document.getElementById('cfg-custovariavel').value) || 0;
-            localStorage.setItem('simulador_config_v13', JSON.stringify(config));
+            localStorage.setItem('simulador_config_v14', JSON.stringify(config));
             triggerToast("Parâmetros operacionais salvos!", "⚙️");
             renderApp(); switchTab('dash');
         }
 
         function clearData() {
             if(confirm("Deseja apagar todos os dados locais?")) {
-                lancamentos = []; localStorage.setItem('simulador_lancamentos_v13', JSON.stringify(lancamentos));
+                lancamentos = []; localStorage.setItem('simulador_lancamentos_v14', JSON.stringify(lancamentos));
                 triggerToast("Banco de dados resetado.", "🧹"); renderApp();
             }
         }
