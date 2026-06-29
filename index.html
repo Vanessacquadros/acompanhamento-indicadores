@@ -15,6 +15,7 @@
 </head>
 <body class="bg-slate-50 text-slate-800 min-h-screen flex flex-col antialiased">
 
+    <!-- Sistema Dinâmico de Notificação (Toast) -->
     <div id="toast-notification" class="hidden fixed bottom-5 right-5 bg-slate-900 text-white text-xs font-semibold px-4 py-3 rounded-xl shadow-xl z-50 transition-all duration-300 flex items-center gap-2 border border-slate-700">
         <span id="toast-icon">ℹ️</span>
         <span id="toast-message">Notificação</span>
@@ -37,6 +38,7 @@
 
     <main class="flex-1 max-w-7xl w-full mx-auto px-4 py-6">
         
+        <!-- DASHBOARD TAB -->
         <div id="tab-dash" class="tab-content space-y-6">
             
             <div class="bg-white p-5 rounded-2xl shadow-xs border border-slate-100 flex flex-col md:flex-row md:items-end justify-between gap-4">
@@ -76,6 +78,7 @@
                 </div>
             </div>
 
+            <!-- KPIs -->
             <div class="grid grid-cols-2 lg:grid-cols-5 gap-3">
                 <div class="bg-white p-4 rounded-2xl shadow-xs border border-slate-100 col-span-1">
                     <span class="text-[10px] font-bold text-slate-400 uppercase tracking-wider block">Ocupação Mínima</span>
@@ -104,6 +107,7 @@
                 </div>
             </div>
 
+            <!-- Gráfico e Visão de Salas -->
             <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
                 <div class="bg-white p-5 rounded-2xl shadow-xs border border-slate-100 lg:col-span-2">
                     <h3 class="text-sm font-bold text-slate-700 mb-3">Evolução Mensal (Receitas vs. Despesas)</h3>
@@ -141,14 +145,15 @@
             </div>
         </div>
 
+        <!-- LANÇAMENTOS TAB -->
         <div id="tab-lanc" class="tab-content hidden max-w-3xl mx-auto space-y-6">
             <div class="bg-white p-5 rounded-2xl shadow-xs border border-slate-100">
-                <h2 class="text-sm font-bold text-slate-700 mb-1">📥 Importar Dados via Planilha</h2>
-                <p class="text-xs text-slate-400 mb-4">Selecione um arquivo CSV com os dados formatados para atualização rápida.</p>
+                <h2 class="text-sm font-bold text-slate-700 mb-1">📥 Importar Dados do Sistema (Aba de Receitas ou Despesas)</h2>
+                <p class="text-xs text-slate-400 mb-4">Selecione o arquivo CSV bruto exportado. O sistema identificará o formato e categorizará tudo de forma autônoma.</p>
                 <div class="w-full">
                     <label for="file-uploader" class="flex flex-col items-center justify-center w-full h-28 border-2 border-slate-200 border-dashed rounded-xl cursor-pointer bg-slate-50 hover:bg-slate-100 transition-all p-4 text-center">
                         <svg class="w-6 h-6 mb-2 text-slate-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12"></path></svg>
-                        <p class="text-xs text-slate-500 font-semibold">Toque para selecionar o arquivo CSV</p>
+                        <p class="text-xs text-slate-500 font-semibold">Toque para selecionar o arquivo CSV bruto</p>
                         <input type="file" id="file-uploader" accept=".csv" class="hidden" onchange="importCSV(this)" />
                     </label>
                 </div>
@@ -200,6 +205,7 @@
             </div>
         </div>
 
+        <!-- EXTRATO TAB -->
         <div id="tab-extrato" class="tab-content hidden">
             <div class="bg-white rounded-2xl shadow-xs border border-slate-100 overflow-hidden">
                 <div class="p-5 border-b border-slate-100 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
@@ -239,6 +245,7 @@
             </div>
         </div>
 
+        <!-- CONFIG TAB -->
         <div id="tab-config" class="tab-content hidden max-w-md mx-auto">
             <div class="bg-white p-5 rounded-2xl shadow-xs border border-slate-100">
                 <h2 class="text-sm font-bold text-slate-700 mb-1">Parâmetros Operacionais Estratégicos</h2>
@@ -291,64 +298,19 @@
         const nomesMeses = ['Janeiro', 'Fevereiro', 'Março', 'Abril', 'Maio', 'Junho', 'Julho', 'Agosto', 'Setembro', 'Outubro', 'Novembro', 'Dezembro'];
         const nomesCurtos = ['Jan', 'Fev', 'Mar', 'Abr', 'Mai', 'Jun', 'Jul', 'Ago', 'Set', 'Out', 'Nov', 'Dez'];
 
-        // ATUALIZAÇÃO REQUISITADA: Histórico 100% focado em Locações e Sublocações para Psicologia Clínica (Chave v4)
-        let lancamentos = JSON.parse(localStorage.getItem('simulador_lancamentos_v4')) || [
-            // Janeiro
-            { id: 101, data: '2026-01-02', tipo: 'investimento', sala: '-', desc: 'Reforma Estrutural, Divãs e Poltronas de Recepção', valor: 45000 },
-            { id: 102, data: '2026-01-05', tipo: 'despesa', sala: '-', desc: 'Aluguel + Condomínio Comercial Fixos', valor: 3500 },
-            { id: 103, data: '2026-01-15', tipo: 'receita', sala: 'sala1', desc: 'Locação Turno Manhã - Psicoterapia Adulto', valor: 2800 },
-            { id: 104, data: '2026-01-20', tipo: 'receita', sala: 'sala2', desc: 'Locação Turno Tarde - TCC e Casal', valor: 2200 },
-            // Fevereiro
-            { id: 201, data: '2026-02-05', tipo: 'despesa', sala: '-', desc: 'Aluguel + Condomínio Comercial Fixos', valor: 3500 },
-            { id: 202, data: '2026-02-12', tipo: 'despesa', sala: '-', desc: 'Insumos de Higiene e Cafeteria Clínicos', valor: 220 },
-            { id: 203, data: '2026-02-18', tipo: 'receita', sala: 'sala1', desc: 'Sublocação por Hora - Psicologia Clínica', valor: 3500 },
-            { id: 204, data: '2026-02-25', tipo: 'receita', sala: 'sala2', desc: 'Sublocação por Hora - Avaliação Neuropsicológica', valor: 3100 },
-            // Março
-            { id: 301, data: '2026-03-05', tipo: 'despesa', sala: '-', desc: 'Aluguel + Condomínio Comercial Fixos', valor: 3500 },
-            { id: 302, data: '2026-03-20', tipo: 'receita', sala: 'sala1', desc: 'Pacotes Mensais Fechados - Sala 1 Psicanálise', valor: 4200 },
-            { id: 303, data: '2026-03-25', tipo: 'receita', sala: 'sala2', desc: 'Pacotes Mensais Fechados - Sala 2 Abordagem Humanista', valor: 3800 },
-            // Abril
-            { id: 401, data: '2026-04-05', tipo: 'despesa', sala: '-', desc: 'Aluguel + Condomínio Comercial Fixos', valor: 3500 },
-            { id: 402, data: '2026-04-18', tipo: 'receita', sala: 'sala1', desc: 'Locação Turnos - Psicologia Infantil e Ludoterapia', valor: 4900 },
-            { id: 403, data: '2026-04-22', tipo: 'receita', sala: 'sala2', desc: 'Locação Turnos - Psicoterapia de Casal', valor: 4400 },
-            // Maio
-            { id: 501, data: '2026-05-05', tipo: 'despesa', sala: '-', desc: 'Aluguel + Condomínio Comercial Fixos', valor: 3500 },
-            { id: 502, data: '2026-05-15', tipo: 'receita', sala: 'sala1', desc: 'Contratos Mensalistas - Sublocação de Horas', valor: 5400 },
-            { id: 503, data: '2026-05-20', tipo: 'receita', sala: 'sala2', desc: 'Contratos Mensalistas - Sublocação de Horas', valor: 4600 },
-            // Junho
-            { id: 601, data: '2026-06-05', tipo: 'despesa', sala: '-', desc: 'Aluguel + Condomínio Comercial Fixos', valor: 3500 },
-            { id: 602, data: '2026-06-15', tipo: 'despesa', sala: '-', desc: 'Manutenção Preventiva de Filtro de Ar e Ar-Condicionado', valor: 450 },
-            { id: 603, data: '2026-06-24', tipo: 'receita', sala: 'sala1', desc: 'Repasse Semanal - Psicoterapeutas Associados', valor: 5100 },
-            { id: 604, data: '2026-06-28', tipo: 'receita', sala: 'sala2', desc: 'Repasse Semanal - Psicoterapeutas Associados', valor: 4900 },
-            // Julho
-            { id: 701, data: '2026-07-02', tipo: 'investimento', sala: '-', desc: 'Compra de Softwares de Triagem e Testes Psicológicos Padronizados', valor: 6500 },
-            { id: 702, data: '2026-07-05', tipo: 'despesa', sala: '-', desc: 'Aluguel + Condomínio Comercial Fixos', valor: 3500 },
-            { id: 703, data: '2026-07-18', tipo: 'receita', sala: 'sala1', desc: 'Locações Expandidas - Período de Alta Ocupação', valor: 5800 },
-            { id: 704, data: '2026-07-22', tipo: 'receita', sala: 'sala2', desc: 'Locações Expandidas - Período de Alta Ocupação', valor: 5200 },
-            // Agosto
-            { id: 801, data: '2026-08-05', tipo: 'despesa', sala: '-', desc: 'Aluguel + Condomínio Comercial Fixos', valor: 3500 },
-            { id: 802, data: '2026-08-19', tipo: 'receita', sala: 'sala1', desc: 'Fechamento Mensal Sublocação Psicologia', valor: 6100 },
-            { id: 803, data: '2026-08-25', tipo: 'receita', sala: 'sala2', desc: 'Fechamento Mensal Sublocação Psicologia', valor: 5500 },
-            // Setembro
-            { id: 901, data: '2026-09-05', tipo: 'despesa', sala: '-', desc: 'Aluguel + Condomínio Comercial Fixos', valor: 3500 },
-            { id: 902, data: '2026-09-20', tipo: 'receita', sala: 'sala1', desc: 'Sublocação por Turno - Psicanálise e Fenomenologia', valor: 6400 },
-            { id: 903, data: '2026-09-26', tipo: 'receita', sala: 'sala2', desc: 'Sublocação por Turno - Neuropsicologia', valor: 5900 },
-            // Outubro
-            { id: 1001, data: '2026-10-05', tipo: 'despesa', sala: '-', desc: 'Aluguel + Condomínio Comercial Fixos', valor: 3500 },
-            { id: 1002, data: '2026-10-15', tipo: 'receita', sala: 'sala1', desc: 'Contratos Mensais - Psicologia Ocupacional', valor: 6900 },
-            { id: 1003, data: '2026-10-22', tipo: 'receita', sala: 'sala2', desc: 'Contratos Mensais - Psicologia Organizacional', valor: 6200 },
-            // Novembro
-            { id: 1101, data: '2026-11-05', tipo: 'despesa', sala: '-', desc: 'Aluguel + Condomínio Comercial Fixos', valor: 3500 },
-            { id: 1102, data: '2026-11-18', tipo: 'receita', sala: 'sala1', desc: 'Faturamento Bruto - Sala 1 Psicologia', valor: 7200 },
-            { id: 1103, data: '2026-11-25', tipo: 'receita', sala: 'sala2', desc: 'Faturamento Bruto - Sala 2 Psicologia', valor: 6600 },
-            // Dezembro
-            { id: 1201, data: '2026-12-05', tipo: 'despesa', sala: '-', desc: 'Aluguel + Condomínio Comercial Fixos', valor: 3500 },
-            { id: 1202, data: '2026-12-10', tipo: 'despesa', sala: '-', desc: 'Materiais Gráficos de Escritório e Agenda', valor: 400 },
-            { id: 1203, data: '2026-12-20', tipo: 'receita', sala: 'sala1', desc: 'Fechamento Anual - Ocupação Máxima', valor: 8200 },
-            { id: 1204, data: '2026-12-23', tipo: 'receita', sala: 'sala2', desc: 'Fechamento Anual - Ocupação Máxima', valor: 7500 }
+        // ATUALIZAÇÃO CONCEITUAL v7: Motor recalibrado para tratar o desconhecido como Despesa (OPEX), blindando os indicadores
+        let lancamentos = JSON.parse(localStorage.getItem('simulador_lancamentos_v7')) || [
+            { id: '8Itjnat1UwZOqqmhnZIh', data: '2026-06-08', tipo: 'receita', sala: 'sala1', desc: 'Receita avulsa - Recarga gás', valor: 200.00 },
+            { id: 'FPSqPHBXckuuCvrSo0TM', data: '2026-05-17', tipo: 'receita', sala: 'sala1', desc: 'Estorno cartao - Estorno de 1 caixa de rodapé', valor: 309.54 },
+            { id: 'Fm2VHpe47l9GNOAqsBqQ', data: '2026-06-17', tipo: 'receita', sala: 'sala2', desc: 'Andressa Alves Santos - Locação Áthos II', valor: 40.00 },
+            { id: 'pOUrAZjqHpjL7gusj8cs', data: '2026-06-25', tipo: 'receita', sala: 'sala2', desc: 'Andressa Alves Santos - Locação Áthos II', valor: 40.00 },
+            { id: '04QGu29zSkFzPGnNQIvQ', data: '2026-06-15', tipo: 'despesa', sala: '-', desc: 'Enel (Energia)', valor: 226.31 },
+            { id: '0BN9iiHb19AeU0oPiRa2', data: '2026-04-17', tipo: 'investimento', sala: '-', desc: 'Compras - Santiago (Serviços)', valor: 301.06 },
+            { id: '0I1Jxi8SbC4DbSxaKPp7', data: '2026-06-10', tipo: 'investimento', sala: '-', desc: 'Carrinho Aparador (Compras)', valor: 42.33 },
+            { id: '0Ow7s8v44HmAVrfVccJ7', data: '2026-05-20', tipo: 'investimento', sala: '-', desc: 'Estofados Obra (Serviços)', valor: 500.00 }
         ];
 
-        let config = JSON.parse(localStorage.getItem('simulador_config_v4')) || {
+        let config = JSON.parse(localStorage.getItem('simulador_config_v7')) || {
             metrica: 'horas',
             capacidade: 320,
             preco: 60,
@@ -378,7 +340,7 @@
             document.getElementById('toast-icon').innerText = icon;
             document.getElementById('toast-message').innerText = msg;
             toast.classList.remove('hidden');
-            setTimeout(() => toast.classList.add('hidden'), 3500);
+            setTimeout(() => toast.classList.add('hidden'), 4500);
         }
 
         function handleCurrencyInput(input) {
@@ -390,10 +352,164 @@
             input.value = 'R$ ' + value;
         }
 
-        function parseCurrencyToFloat(stringVal) {
-            if(!stringVal) return 0;
-            let cleanVal = stringVal.replace(/[^\d,]/g, '').replace(',', '.');
-            return parseFloat(cleanVal) || 0;
+        function parseRawValue(valStr) {
+            if(!valStr) return 0;
+            let clean = valStr.replace(/"/g, '').trim();
+            if (clean === '') return 0;
+            clean = clean.replace('R$', '').trim();
+            if (clean.includes(',') && !clean.includes('.')) {
+                clean = clean.replace(',', '.');
+            } else if (clean.includes(',') && clean.includes('.')) {
+                clean = clean.replace(/\./g, '').replace(',', '.');
+            }
+            return parseFloat(clean) || 0;
+        }
+
+        function parseCSVRow(rowText) {
+            let result = []; let insideQuotes = false; let entry = '';
+            for (let i = 0; i < rowText.length; i++) {
+                let char = rowText[i];
+                if (char === '"') { insideQuotes = !insideQuotes; }
+                else if (char === ',' && !insideQuotes) { result.push(entry.trim()); entry = ''; }
+                else { entry += char; }
+            }
+            result.push(entry.trim()); return result;
+        }
+
+        // NOVO MOTOR RESILIENTE: Prioriza OPEX (Despesa) em qualquer caso ambíguo para proteger a DRE e o Break-Even
+        function processarClassificacaoDespesa(descricao, categoria, subcategoria) {
+            const desc = descricao.toLowerCase().trim();
+            const cat = categoria.toLowerCase().trim();
+            const sub = subcategoria.toLowerCase().trim();
+
+            // GATILHO CLARO 1: Estrutura Fixa ou Recorrente do Sistema (OPEX Absoluto)
+            if (cat === 'fixo' || cat.includes('operacional') || cat.includes('recorrente')) {
+                return 'despesa';
+            }
+            
+            const opexSubcategorias = ['energia', 'iptu', 'internet', 'telefone', 'água', 'agua', 'taxas', 'impostos', 'aluguel', 'condomínio', 'condominio', 'limpeza'];
+            if (opexSubcategorias.some(item => sub.includes(item))) {
+                return 'despesa';
+            }
+
+            const opexKeywords = [
+                'enel', 'coelce', 'cagece', 'algar', 'claro', 'vivo', 'tim', 'oi', 'net',
+                'aluguel', 'condominio', 'condomínio', 'iptu', 'contador', 'contabilidade',
+                'simples nacional', 'das', 'fgts', 'inss', 'darf', 'tarifa', 'banco', 'bancária'
+            ];
+            if (opexKeywords.some(kw => desc.includes(kw))) {
+                return 'despesa';
+            }
+
+            // GATILHO CLARO 2: Ativos Patrimoniais Estruturais Mapeados (CAPEX Absoluto)
+            const capexSubcategorias = ['despesas obra', 'obra', 'investimento', 'imobilizado', 'móveis', 'moveis', 'equipamentos'];
+            if (capexSubcategorias.some(item => sub.includes(item))) {
+                return 'investimento';
+            }
+
+            const capexKeywords = [
+                'obra', 'reforma', 'santiago', 'construção', 'construcao', 'pedreiro', 'pintor', 'mão de obra', 'mao de obra',
+                'gesso', 'tinta', 'madeira', 'fio', 'cimento', 'tijolo', 'rodapé', 'rodape', 'frete', 'ferragem',
+                'cadeira', 'poltrona', 'divã', 'diva', 'mesa', 'aparador', 'armário', 'armario', 'estofado', 'sofá', 'sofa',
+                'tapete', 'cortina', 'luminaria', 'luminária', 'lâmpada', 'led', 'espelho', 'quadro', 'decoração', 'decoracao',
+                'ar condicionado', 'ar-condicionado', 'climario', 'split', 'compressor', 'autoclave', 'computador', 'notebook',
+                'impressora', 'cafeteira', 'frigobar', 'microondas', 'tv', 'temu', 'shein', 'aliexpress', 'shopee', 'amazon', 
+                'mercado livre', 'mercadolivre', 'americanas', 'leroy', 'magalu', 'freitas'
+            ];
+            if (capexKeywords.some(kw => desc.includes(kw))) {
+                return 'investimento';
+            }
+
+            // SE NÃO DISPARAR NENHUM GATILHO CLARO ANTERIOR: Trata com prudência como DESPESA (Evita inflar lucro operacional artificialmente)
+            return 'despesa';
+        }
+
+        function importCSV(input) {
+            const file = input.files[0]; if (!file) return;
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                const text = e.target.result;
+                const lines = text.split(/\r?\n/);
+                if (lines.length < 2) { alert("Arquivo vazio ou inválido."); return; }
+                
+                const headers = parseCSVRow(lines[0]).map(h => h.trim().replace(/"/g, ''));
+                let isReceitas = headers.includes('Profissional') && headers.includes('Valor Final');
+                let isDespesas = headers.includes('Descrição') && headers.includes('Subcategoria');
+                
+                if (!isReceitas && !isDespesas) {
+                    alert("Estrutura não reconhecida. Certifique-se de carregar o CSV bruto de Receitas ou de Despesas.");
+                    return;
+                }
+                
+                let countImported = 0; let countDuplicated = 0;
+                let idxID = headers.indexOf('ID');
+                let idxVencimento = headers.indexOf('Vencimento');
+                
+                if (isReceitas) {
+                    let idxProfissional = headers.indexOf('Profissional');
+                    let idxObservacao = headers.indexOf('Observação');
+                    let idxValorFinal = headers.indexOf('Valor Final');
+                    
+                    for (let i = 1; i < lines.length; i++) {
+                        if (!lines[i].trim()) continue;
+                        let cols = parseCSVRow(lines[i]);
+                        if (cols.length < headers.length) continue;
+                        
+                        let rawId = cols[idxID] || ('rec-' + Date.now() + '-' + i);
+                        let vencimento = cols[idxVencimento] || new Date().toISOString().split('T')[0];
+                        let profissional = cols[idxProfissional] || 'Receita Avulsa';
+                        let observacao = cols[idxObservacao] || '';
+                        let valorRaw = cols[idxValorFinal] || '0';
+                        
+                        let valor = parseRawValue(valorRaw);
+                        let desc = profissional + (observacao ? ' - ' + observacao : '');
+                        
+                        let sala = 'sala1';
+                        let upperObs = observacao.toUpperCase();
+                        if (upperObs.includes('ÁTHOS II') || upperObs.includes('ATHOS II') || upperObs.includes('SALA 2防') || upperObs.includes('SALA 02')) {
+                            sala = 'sala2';
+                        }
+                        
+                        if (lancamentos.some(l => l.id === rawId)) { countDuplicated++; continue; }
+                        
+                        lancamentos.push({ id: rawId, data: vencimento, tipo: 'receita', sala: sala, desc: desc, valor: valor });
+                        countImported++;
+                    }
+                } else if (isDespesas) {
+                    let idxDescricao = headers.indexOf('Descrição');
+                    let idxCategoria = headers.indexOf('Categoria');
+                    let idxSubcategoria = headers.indexOf('Subcategoria');
+                    let idxValor = headers.indexOf('Valor');
+                    
+                    for (let i = 1; i < lines.length; i++) {
+                        if (!lines[i].trim()) continue;
+                        let cols = parseCSVRow(lines[i]);
+                        if (cols.length < headers.length) continue;
+                        
+                        let rawId = cols[idxID] || ('desp-' + Date.now() + '-' + i);
+                        let vencimento = cols[idxVencimento] || new Date().toISOString().split('T')[0];
+                        let descricao = cols[idxDescricao] || 'Despesa';
+                        let categoria = cols[idxCategoria] || '';
+                        let subcategoria = cols[idxSubcategoria] || '';
+                        let valorRaw = cols[idxValor] || '0';
+                        
+                        let valor = parseRawValue(valorRaw);
+                        let tipo = processarClassificacaoDespesa(descricao, categoria, subcategoria);
+                        
+                        if (lancamentos.some(l => l.id === rawId)) { countDuplicated++; continue; }
+                        
+                        lancamentos.push({ id: rawId, data: vencimento, tipo: tipo, sala: '-', desc: descricao + (subcategoria ? ' (' + subcategoria + ')' : ''), valor: valor });
+                        countImported++;
+                    }
+                }
+                
+                localStorage.setItem('simulador_lancamentos_v7', JSON.stringify(lancamentos));
+                let statusMsg = `${countImported} novos registros sincronizados com sucesso!`;
+                if (countDuplicated > 0) statusMsg += ` (${countDuplicated} duplicados ignorados para evitar duplicidade)`;
+                triggerToast(statusMsg, "📥");
+                renderApp(); switchTab('dash');
+            };
+            reader.readAsText(file);
         }
 
         function toggleDropdown(event) {
@@ -417,14 +533,10 @@
 
         function onCheckboxChange(idx) {
             const chk = document.getElementById(`chk-mes-${idx}`);
-            if (chk.checked) { 
-                if (!mesesAtivos.includes(idx)) mesesAtivos.push(idx); 
-            } else { 
-                mesesAtivos = mesesAtivos.filter(m => m !== idx); 
-            }
+            if (chk.checked) { if (!mesesAtivos.includes(idx)) mesesAtivos.push(idx); } 
+            else { mesesAtivos = mesesAtivos.filter(m => m !== idx); }
             mesesAtivos.sort((a, b) => a - b);
-            updateDropdownLabel();
-            renderApp();
+            updateDropdownLabel(); renderApp();
         }
 
         function selecionarTodosMeses(status) {
@@ -433,8 +545,7 @@
                 const chk = document.getElementById(`chk-mes-${idx}`);
                 if (chk) chk.checked = status;
             });
-            updateDropdownLabel();
-            renderApp();
+            updateDropdownLabel(); renderApp();
         }
 
         function updateDropdownLabel() {
@@ -480,7 +591,7 @@
             });
             document.getElementById(`tab-${tabId}`).classList.remove('hidden');
             document.getElementById(`btn-${tabId}`).className = "tab-btn snap-center px-4 py-2.5 text-xs lg:text-sm font-semibold rounded-lg bg-indigo-600 text-white shadow-xs cursor-pointer";
-            if (tabId === 'dash') setTimeout(renderCharts, 50);
+            if (tabId === 'dash') setTimeout(renderApp, 5);
         }
 
         function setFormType(type) {
@@ -494,12 +605,10 @@
                 document.getElementById('sala-selector-block').classList.remove('hidden');
             } else if(type === 'despesa') {
                 btn.className = "type-btn h-14 border rounded-xl flex items-center px-4 gap-3 font-semibold text-sm transition-all bg-rose-50 border-rose-500 text-rose-800 cursor-pointer";
-                document.getElementById('sala-selector-block').classList.add('hidden');
-                selectedSala = '-';
+                document.getElementById('sala-selector-block').classList.add('hidden'); selectedSala = '-';
             } else {
                 btn.className = "type-btn h-14 border rounded-xl flex items-center px-4 gap-3 font-semibold text-sm transition-all bg-indigo-50 border-indigo-500 text-indigo-800 cursor-pointer";
-                document.getElementById('sala-selector-block').classList.add('hidden');
-                selectedSala = '-';
+                document.getElementById('sala-selector-block').classList.add('hidden'); selectedSala = '-';
             }
         }
 
@@ -519,76 +628,32 @@
             const sala = selectedType === 'receita' ? selectedSala : '-';
 
             if(valor <= 0) { alert("Insira um valor acima de R$ 0,00"); return; }
-            lancamentos.push({ id: Date.now(), data, tipo: selectedType, sala, desc, valor });
-            localStorage.setItem('simulador_lancamentos_v4', JSON.stringify(lancamentos));
+            let manualId = 'manual-' + Date.now();
+            lancamentos.push({ id: manualId, data, tipo: selectedType, sala, desc, valor });
+            localStorage.setItem('simulador_lancamentos_v7', JSON.stringify(lancamentos));
 
             document.getElementById('lanc-desc').value = '';
             document.getElementById('lanc-valor').value = '';
-            triggerToast("Lançamento adicionado com sucesso!", "🟢");
-            renderApp();
-            switchTab('dash');
+            triggerToast("Lançamento adicionado manualmente!", "🟢");
+            renderApp(); switchTab('dash');
         }
 
         function deleteLancamento(id) {
             lancamentos = lancamentos.filter(item => item.id !== id);
-            localStorage.setItem('simulador_lancamentos_v4', JSON.stringify(lancamentos));
-            triggerToast("Registro removido.", "🔴");
-            renderApp();
+            localStorage.setItem('simulador_lancamentos_v7', JSON.stringify(lancamentos));
+            triggerToast("Registro removido.", "🔴"); renderApp();
         }
 
-        function importCSV(input) {
-            const file = input.files[0]; if (!file) return;
-            const reader = new FileReader();
-            reader.onload = function(e) {
-                const text = e.target.result; const lines = text.split('\n'); let count = 0;
-                for(let i = 1; i < lines.length; i++) {
-                    const cols = lines[i].split(',');
-                    if(cols.length >= 5) {
-                        const data = cols[0].trim(); const tipo = cols[1].trim().toLowerCase(); 
-                        const sala = cols[2].trim().toLowerCase(); const desc = cols[3].trim();
-                        const valor = parseFloat(cols[4].trim());
-                        if(data && tipo && !isNaN(valor)) {
-                            lancamentos.push({ id: Date.now() + i, data, tipo, sala: tipo === 'receita' ? sala : '-', desc, valor });
-                            count++;
-                        }
-                    }
-                }
-                if(count > 0) {
-                    localStorage.setItem('simulador_lancamentos_v4', JSON.stringify(lancamentos));
-                    triggerToast(`${count} registros importados!`, "📥");
-                    renderApp(); switchTab('dash');
-                } else { alert("Formato incompatível de arquivo."); }
-            };
-            reader.readAsText(file);
-        }
-
-        function formatCurrency(val) {
-            return val.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' });
-        }
-
-        function calcularTIRReal(investimento, lucroMensal, meses) {
-            if (investimento <= 0 || lucroMensal <= 0) return 0;
-            let fluxos = [-investimento]; for (let i = 0; i < meses; i++) { fluxos.push(lucroMensal); }
-            let guess = 0.1; let maxIter = 1000; let precision = 1e-6;
-            for (let i = 0; i < maxIter; i++) {
-                let vpl = 0; let derivadaVpl = 0;
-                for (let t = 0; t < fluxos.length; t++) {
-                    vpl += fluxos[t] / Math.pow(1 + guess, t);
-                    if (t > 0) derivadaVpl -= t * fluxos[t] / Math.pow(1 + guess, t + 1);
-                }
-                if (Math.abs(derivadaVpl) < 1e-10) break;
-                let nextGuess = guess - (vpl / derivadaVpl);
-                if (Math.abs(nextGuess - guess) < precision) return nextGuess * 100;
-                guess = nextGuess;
-            }
-            return 0;
+        function parseCurrencyToFloat(stringVal) {
+            if(!stringVal) return 0;
+            let cleanVal = stringVal.replace(/[^\d,]/g, '').replace(',', '.');
+            return parseFloat(cleanVal) || 0;
         }
 
         function renderApp() {
             const tbody = document.getElementById('table-body');
             const mobileContainer = document.getElementById('mobile-cards-container');
-            if (tbody) tbody.innerHTML = '';
-            if (mobileContainer) mobileContainer.innerHTML = '';
+            if (tbody) tbody.innerHTML = ''; if (mobileContainer) mobileContainer.innerHTML = '';
             
             const filtroAno = document.getElementById('dash-filtro-ano').value;
             const sorted = [...lancamentos].sort((a,b) => new Date(b.data) - new Date(a.data));
@@ -619,7 +684,7 @@
                             <td class="p-4 font-semibold text-slate-600 whitespace-nowrap">${orig}</td>
                             <td class="p-4 text-slate-700 min-w-[150px]">${item.desc}</td>
                             <td class="p-4 text-right font-bold whitespace-nowrap ${item.tipo==='receita'?'text-emerald-600':(item.tipo==='despesa'?'text-rose-600':'text-indigo-600')}">${formatCurrency(item.valor)}</td>
-                            <td class="p-4 text-center whitespace-nowrap"><button onclick="deleteLancamento(${item.id})" class="text-xs text-rose-500 font-semibold hover:text-rose-700 cursor-pointer">Remover</button></td>
+                            <td class="p-4 text-center whitespace-nowrap"><button onclick="deleteLancamento('${item.id}')" class="text-xs text-rose-500 font-semibold hover:text-rose-700 cursor-pointer">Remover</button></td>
                         `;
                         tbody.appendChild(tr);
                     }
@@ -631,7 +696,7 @@
                             <div class="flex justify-between items-center"><span class="text-xs font-bold text-slate-400">${item.data.split('-').reverse().join('/')}</span><span class="text-[10px] font-bold uppercase px-2 py-0.5 rounded-sm ${item.tipo === 'receita' ? 'bg-emerald-50 text-emerald-700' : (item.tipo==='despesa'?'bg-rose-50 text-rose-700':'bg-indigo-50 text-indigo-700')}">${item.tipo}</span></div>
                             <div class="text-sm font-semibold text-slate-800">${item.desc}</div>
                             <div class="text-xs text-slate-500">Origem: <span class="font-semibold text-slate-700">${orig}</span></div>
-                            <div class="flex justify-between items-center mt-1 pt-2 border-t border-slate-50"><span class="text-base font-black ${item.tipo==='receita'?'text-emerald-600':(item.tipo==='despesa'?'text-rose-600':'text-indigo-600')}">${formatCurrency(item.valor)}</span><button onclick="deleteLancamento(${item.id})" class="text-xs font-bold text-rose-500 hover:underline">Remover</button></div>
+                            <div class="flex justify-between items-center mt-1 pt-2 border-t border-slate-50"><span class="text-base font-black ${item.tipo==='receita'?'text-emerald-600':(item.tipo==='despesa'?'text-rose-600':'text-indigo-600')}">${formatCurrency(item.valor)}</span><button onclick="deleteLancamento('${item.id}')" class="text-xs font-bold text-rose-500 hover:underline">Remover</button></div>
                         `;
                         mobileContainer.appendChild(card);
                     }
@@ -641,9 +706,13 @@
             const emptyStateEl = document.getElementById('empty-state');
             const tableContainerEl = document.getElementById('desktop-table-container');
             if (totalRegistrosExibidos === 0) {
-                emptyStateEl.classList.remove('hidden'); tableContainerEl.classList.add('hidden'); mobileContainer.classList.add('hidden');
+                if (emptyStateEl) emptyStateEl.classList.remove('hidden');
+                if (tableContainerEl) tableContainerEl.classList.add('hidden');
+                if (mobileContainer) mobileContainer.classList.add('hidden');
             } else {
-                emptyStateEl.classList.add('hidden'); tableContainerEl.classList.remove('hidden'); mobileContainer.classList.remove('hidden');
+                if (emptyStateEl) emptyStateEl.classList.add('hidden');
+                if (tableContainerEl) tableContainerEl.classList.remove('hidden');
+                if (mobileContainer) mobileContainer.classList.remove('hidden');
             }
 
             document.getElementById('faturamento-sala1').innerText = formatCurrency(sala1Tot);
@@ -728,14 +797,14 @@
             config.preco = parseFloat(document.getElementById('cfg-preco').value) || 60;
             config.custoFixo = parseFloat(document.getElementById('cfg-custofixo').value) || 0;
             config.custoVariavel = parseFloat(document.getElementById('cfg-custovariavel').value) || 0;
-            localStorage.setItem('simulador_config_v4', JSON.stringify(config));
+            localStorage.setItem('simulador_config_v7', JSON.stringify(config));
             triggerToast("Parâmetros operacionais salvos!", "⚙️");
             renderApp(); switchTab('dash');
         }
 
         function clearData() {
             if(confirm("Deseja apagar todos os dados locais?")) {
-                lancamentos = []; localStorage.setItem('simulador_lancamentos_v4', JSON.stringify(lancamentos));
+                lancamentos = []; localStorage.setItem('simulador_lancamentos_v7', JSON.stringify(lancamentos));
                 triggerToast("Banco de dados resetado.", "🧹"); renderApp();
             }
         }
