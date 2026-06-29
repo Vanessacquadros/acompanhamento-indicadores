@@ -145,7 +145,7 @@
         <div id="tab-lanc" class="tab-content hidden max-w-3xl mx-auto space-y-6">
             <div class="bg-white p-5 rounded-2xl shadow-xs border border-slate-100">
                 <h2 class="text-sm font-bold text-slate-700 mb-1">📥 Importar Planilha do Excel (.xlsx / .xls)</h2>
-                <p class="text-xs text-slate-400 mb-4">Arraste ou selecione o arquivo consolidade da clínica. O motor filtrará automaticamente apenas as abas de Receitas e Despesas.</p>
+                <p class="text-xs text-slate-400 mb-4">Arraste ou selecione o arquivo consolidado da clínica. O motor filtrará automaticamente apenas as abas de Receitas e Despesas.</p>
                 <div class="w-full">
                     <label for="file-uploader" class="flex flex-col items-center justify-center w-full h-28 border-2 border-slate-200 border-dashed rounded-xl cursor-pointer bg-slate-50 hover:bg-slate-100 transition-all p-4 text-center">
                         <svg class="w-6 h-6 mb-2 text-slate-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12"></path></svg>
@@ -292,8 +292,8 @@
         const nomesMeses = ['Janeiro', 'Fevereiro', 'Março', 'Abril', 'Maio', 'Junho', 'Julho', 'Agosto', 'Setembro', 'Outubro', 'Novembro', 'Dezembro'];
         const nomesCurtos = ['Jan', 'Fev', 'Mar', 'Abr', 'Mai', 'Jun', 'Jul', 'Ago', 'Set', 'Out', 'Nov', 'Dez'];
 
-        // CONTROLE DE ARMAZENAMENTO v15 - FILTRAGEM ABSOLUTA DE ABAS STRUTURAIS
-        let lancamentos = JSON.parse(localStorage.getItem('simulador_lancamentos_v15')) || [
+        // CONTROLE DE ARMAZENAMENTO v16 - ENGINE DE BISSECÇÃO PARA CÁLCULO DE TIR REAL SÓLIDA
+        let lancamentos = JSON.parse(localStorage.getItem('simulador_lancamentos_v16')) || [
             { id: '8Itjnat1UwZOqqmhnZIh', data: '2026-06-08', tipo: 'receita', sala: 'sala1', desc: 'Receita avulsa - Recarga gás', valor: 200.00 },
             { id: 'FPSqPHBXckuuCvrSo0TM', data: '2026-05-17', tipo: 'receita', sala: 'sala1', desc: 'Estorno cartao - Estorno de 1 caixa de rodapé', valor: 309.54 },
             { id: 'Fm2VHpe47l9GNOAqsBqQ', data: '2026-06-17', tipo: 'receita', sala: 'sala2', desc: 'Andressa Alves Santos - Locação Áthos II', valor: 40.00 },
@@ -304,7 +304,7 @@
             { id: '0Ow7s8v44HmAVrfVccJ7', data: '2026-05-20', tipo: 'investimento', sala: '-', desc: 'Estofados Obra (Serviços)', valor: 500.00 }
         ];
 
-        let config = JSON.parse(localStorage.getItem('simulador_config_v15')) || {
+        let config = JSON.parse(localStorage.getItem('simulador_config_v16')) || {
             metrica: 'horas',
             capacidade: 320,
             preco: 60,
@@ -417,7 +417,6 @@
             return 'despesa';
         }
 
-        // MOTOR DE IMPORTAÇÃO COM BLOQUEIO DE SEGURANÇA CONTRA ABAS DE CONSULTA/ESTRUTURAIS
         function importFile(input) {
             const file = input.files[0]; if (!file) return;
             const reader = new FileReader();
@@ -434,9 +433,7 @@
                         try {
                             const nameLower = sheetName.toLowerCase().trim().normalize("NFD").replace(/[\u0300-\u036f]/g, "");
                             
-                            // BARREIRA DE INTEGRIDADE: Ignora abas de configuração, listagem de profissionais ou locações brutas
                             if (nameLower.includes('locac') || nameLower.includes('profission') || nameLower.includes('sala')) {
-                                console.log(`Aba estrutural ignorada de forma segura: ${sheetName}`);
                                 return; 
                             }
 
@@ -452,24 +449,22 @@
 
                             const firstRowKeys = Object.keys(normalizedRows[0] || {});
                             
-                            // Validação estrita por assinatura de colunas financeiras reais
                             let isReceitaSheet = nameLower.includes('receita') || (firstRowKeys.includes('profissional') && firstRowKeys.includes('valorfinal'));
                             let isDespesaSheet = nameLower.includes('despesa') || (firstRowKeys.includes('descricao') && firstRowKeys.includes('subcategoria'));
 
                             if (isReceitaSheet) {
                                 sheetsProcessed.push(sheetName);
                                 normalizedRows.forEach(row => {
-                                    if (!row['profissional'] && !row['valor'] && !row['valorfinal']) return; // Pula linhas em branco
+                                    if (!row['profissional'] && !row['valor'] && !row['valorfinal']) return;
                                     
                                     let rawId = (row['id'] || '').toString().trim() || ('rec-' + Date.now() + '-' + Math.random());
                                     let normalizedDateStr = normalizeDate(row['vencimento'] || row['data']);
                                     let profissional = row['profissional'] || 'Receita Avulsa';
                                     let observacao = row['observacao'] || row['obs'] || '';
                                     
-                                    // Puxa estritamente o Valor Final real ou o Valor Base correspondente da planilha
                                     let valorFinalRaw = (row['valorfinal'] !== undefined && row['valorfinal'] !== "") ? row['valorfinal'] : row['valor'];
                                     let valor = parseRawValue(valorFinalRaw);
-                                    if(valor === 0) return; // Evita qualquer inserção zerada involuntária
+                                    if(valor === 0) return; 
                                     
                                     let desc = profissional + (observacao ? ' - ' + observacao : '');
                                     
@@ -506,20 +501,20 @@
                                 });
                             }
                         } catch (sheetErr) {
-                            console.error("Erro interno na leitura de registros da aba:", sheetErr);
+                            console.error(sheetErr);
                         }
                     });
 
                     if (sheetsProcessed.length === 0) {
-                        alert("Não foram encontradas abas válidas de 'Receitas' ou 'Despesas' para importação.");
+                        alert("Não foram encontradas abas válidas de 'Receitas' ou 'Despesas'.");
                         return;
                     }
 
-                    localStorage.setItem('simulador_lancamentos_v15', JSON.stringify(lancamentos));
-                    triggerToast(`Planilha Áthos integrada! Abas processadas: ${sheetsProcessed.join(', ')}. Registros: +${countImported}.`, "📥");
+                    localStorage.setItem('simulador_lancamentos_v16', JSON.stringify(lancamentos));
+                    triggerToast(`Planilha Áthos integrada! Novas linhas inclusas: ${countImported}.`, "📥");
                     renderApp(); switchTab('dash');
                 } catch (globalErr) {
-                    alert("Erro estrutural no processamento do Excel. Verifique a formatação das tabelas.");
+                    alert("Erro estrutural no processamento do Excel.");
                 }
             };
             reader.readAsArrayBuffer(file);
@@ -643,7 +638,7 @@
             if(valor <= 0) { alert("Insira um valor acima de R$ 0,00"); return; }
             let manualId = 'manual-' + Date.now();
             lancamentos.push({ id: manualId, data, tipo: selectedType, sala, desc, valor });
-            localStorage.setItem('simulador_lancamentos_v15', JSON.stringify(lancamentos));
+            localStorage.setItem('simulador_lancamentos_v16', JSON.stringify(lancamentos));
 
             document.getElementById('lanc-desc').value = '';
             document.getElementById('lanc-valor').value = '';
@@ -653,7 +648,7 @@
 
         function deleteLancamento(id) {
             lancamentos = lancamentos.filter(item => item.id !== id);
-            localStorage.setItem('simulador_lancamentos_v15', JSON.stringify(lancamentos));
+            localStorage.setItem('simulador_lancamentos_v16', JSON.stringify(lancamentos));
             triggerToast("Registro removido.", "🔴"); renderApp();
         }
 
@@ -663,22 +658,34 @@
             return parseFloat(cleanVal) || 0;
         }
 
+        // ALGORITMO DE BISSECÇÃO DE ALTA PRECISÃO (TOTALMENTE ANTI-NAN / ANTI-TRAVAMENTO)
         function calcularTIRReal(investimento, lucroMensal, meses) {
             if (investimento <= 0 || lucroMensal <= 0) return 0;
-            let fluxos = [-investimento]; for (let i = 0; i < meses; i++) { fluxos.push(lucroMensal); }
-            let guess = 0.1; let maxIter = 1000; let precision = 1e-6;
-            for (let i = 0; i < maxIter; i++) {
-                let vpl = 0; let derivadaVpl = 0;
-                for (let t = 0; t < fluxos.length; t++) {
-                    vpl += fluxos[t] / Math.pow(1 + guess, t);
-                    if (t > 0) derivadaVpl -= t * fluxos[t] / Math.pow(1 + guess, t + 1);
+
+            function calcularVPL(r) {
+                let vpl = -investimento;
+                for (let t = 1; t <= meses; t++) {
+                    vpl += lucroMensal / Math.pow(1 + r, t);
                 }
-                if (Math.abs(derivadaVpl) < 1e-10) break;
-                let nextGuess = guess - (vpl / derivadaVpl);
-                if (Math.abs(nextGuess - guess) < precision) return nextGuess * 100;
-                guess = nextGuess;
+                return vpl;
             }
-            return 0;
+
+            let low = -0.99;  // Limite inferior (-99% de retorno)
+            let high = 15.0; // Limite superior (+1500% de retorno)
+
+            if (calcularVPL(low) < 0) return low * 100;
+            if (calcularVPL(high) > 0) return high * 100;
+
+            for (let i = 0; i < 80; i++) {
+                let mid = (low + high) / 2;
+                let vplMid = calcularVPL(mid);
+
+                if (Math.abs(vplMid) < 1e-4) return mid * 100;
+
+                if (vplMid > 0) { low = mid; } 
+                else { high = mid; }
+            }
+            return ((low + high) / 2) * 100;
         }
 
         function renderApp() {
@@ -687,7 +694,7 @@
             if (tbody) tbody.innerHTML = ''; if (mobileContainer) mobileContainer.innerHTML = '';
             
             const filtroAno = document.getElementById('dash-filtro-ano').value;
-            const sorted = [...lancamentos].sort((a,b) => new Date(a.data) - new Date(a.data));
+            const sorted = [...lancamentos].sort((a,b) => new Date(b.data) - new Date(a.data));
             
             let sala1Tot = 0; let sala2Tot = 0;
             let totalDespesas = 0; let totalInvestido = 0;
@@ -774,14 +781,21 @@
             let totalInvestidoGeral = lancamentos.filter(i => i.tipo === 'investimento').reduce((acc, i) => acc + i.valor, 0);
             let lucroMensalMedioReal = resultadoOperacional / qtdMesesSelecionados;
 
-            if (totalInvestidoGeral > 0 && lucroMensalMedioReal > 0) {
-                document.getElementById('kpi-payback').innerText = (totalInvestidoGeral / lucroMensalMedioReal).toFixed(1) + ' meses';
+            if (totalInvestidoGeral > 0 && lucroMensalMedioReal !== 0) {
+                document.getElementById('kpi-payback').innerText = lucroMensalMedioReal > 0 ? (totalInvestidoGeral / lucroMensalMedioReal).toFixed(1) + ' meses' : 'Déficit Ativo';
                 document.getElementById('kpi-roi').innerText = ((lucroMensalMedioReal * 12) / totalInvestidoGeral * 100).toFixed(1) + '%';
-                document.getElementById('kpi-tir').innerText = calcularTIRReal(totalInvestidoGeral, lucroMensalMedioReal, 12).toFixed(1) + '%';
+                
+                // Dispara o motor robusto de TIR
+                let tirCalculada = calcularTIRReal(totalInvestidoGeral, lucroMensalMedioReal, 12);
+                let tirEl = document.getElementById('kpi-tir');
+                tirEl.innerText = tirCalculada.toFixed(1) + '%';
+                if(tirCalculada < 0) { tirEl.className = "text-xl lg:text-2xl font-bold text-rose-600 block mt-1.5"; } 
+                else { tirEl.className = "text-xl lg:text-2xl font-bold text-emerald-600 block mt-1.5"; }
             } else {
-                document.getElementById('kpi-payback').innerText = 'Déficit Ativo';
+                document.getElementById('kpi-payback').innerText = '0.0 meses';
                 document.getElementById('kpi-roi').innerText = '0.0%';
                 document.getElementById('kpi-tir').innerText = '0.0%';
+                document.getElementById('kpi-tir').className = "text-xl lg:text-2xl font-bold text-slate-500 block mt-1.5";
             }
             renderCharts();
         }
@@ -840,7 +854,7 @@
 
         function clearData() {
             if(confirm("Deseja apagar todos os dados locais?")) {
-                lancamentos = []; localStorage.setItem('simulador_lancamentos_v15', JSON.stringify(lancamentos));
+                lancamentos = []; localStorage.setItem('simulador_lancamentos_v16', JSON.stringify(lancamentos));
                 triggerToast("Banco de dados resetado.", "🧹"); renderApp();
             }
         }
