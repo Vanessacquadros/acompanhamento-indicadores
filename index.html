@@ -25,7 +25,7 @@
         <div class="max-w-7xl mx-auto px-4 py-4 flex flex-col lg:flex-row justify-between items-center gap-4">
             <div class="text-center lg:text-left w-full lg:w-auto">
                 <h1 class="text-lg lg:text-xl font-bold tracking-tight">Simulador Financeiro</h1>
-                <p class="text-[11px] text-indigo-200 mt-0.5">Gestão Estratégica</p>
+                <p class="text-[11px] text-indigo-200 mt-0.5">Gestão Estratégica &bull; Áthos</p>
             </div>
             <nav class="flex gap-1 bg-indigo-950 p-1 rounded-xl w-full lg:w-auto overflow-x-auto no-scrollbar scroll-smooth whitespace-nowrap snap-x">
                 <button onclick="switchTab('dash')" id="btn-dash" class="tab-btn snap-center px-4 py-2.5 text-xs lg:text-sm font-semibold rounded-lg bg-indigo-600 text-white shadow-xs cursor-pointer">Dashboard</button>
@@ -145,12 +145,12 @@
         <div id="tab-lanc" class="tab-content hidden max-w-3xl mx-auto space-y-6">
             <div class="bg-white p-5 rounded-2xl shadow-xs border border-slate-100">
                 <h2 class="text-sm font-bold text-slate-700 mb-1">📥 Importar Planilha do Excel (.xlsx / .xls)</h2>
-                <p class="text-xs text-slate-400 mb-4">Arraste ou selecione a planilha cheia do sistema. O simulador processará as abas de Receitas e Despesas ao mesmo tempo.</p>
+                <p class="text-xs text-slate-400 mb-4">Arraste ou selecione o arquivo consolidade da clínica. O motor filtrará automaticamente apenas as abas de Receitas e Despesas.</p>
                 <div class="w-full">
                     <label for="file-uploader" class="flex flex-col items-center justify-center w-full h-28 border-2 border-slate-200 border-dashed rounded-xl cursor-pointer bg-slate-50 hover:bg-slate-100 transition-all p-4 text-center">
                         <svg class="w-6 h-6 mb-2 text-slate-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12"></path></svg>
-                        <p class="text-xs text-slate-500 font-semibold">Toque para selecionar a Planilha Excel (.xlsx)</p>
-                        <input type="file" id="file-uploader" accept=".xlsx, .xls, .csv" class="hidden" onchange="importFile(this)" />
+                        <p class="text-xs text-slate-500 font-semibold">Toque para selecionar o Excel da Clínica</p>
+                        <input type="file" id="file-uploader" accept=".xlsx, .xls" class="hidden" onchange="importFile(this)" />
                     </label>
                 </div>
             </div>
@@ -292,8 +292,8 @@
         const nomesMeses = ['Janeiro', 'Fevereiro', 'Março', 'Abril', 'Maio', 'Junho', 'Julho', 'Agosto', 'Setembro', 'Outubro', 'Novembro', 'Dezembro'];
         const nomesCurtos = ['Jan', 'Fev', 'Mar', 'Abr', 'Mai', 'Jun', 'Jul', 'Ago', 'Set', 'Out', 'Nov', 'Dez'];
 
-        // PARSER SEGURO v14 - SISTEMA ANTIFALHAS DE LEITURA
-        let lancamentos = JSON.parse(localStorage.getItem('simulador_lancamentos_v14')) || [
+        // CONTROLE DE ARMAZENAMENTO v15 - FILTRAGEM ABSOLUTA DE ABAS STRUTURAIS
+        let lancamentos = JSON.parse(localStorage.getItem('simulador_lancamentos_v15')) || [
             { id: '8Itjnat1UwZOqqmhnZIh', data: '2026-06-08', tipo: 'receita', sala: 'sala1', desc: 'Receita avulsa - Recarga gás', valor: 200.00 },
             { id: 'FPSqPHBXckuuCvrSo0TM', data: '2026-05-17', tipo: 'receita', sala: 'sala1', desc: 'Estorno cartao - Estorno de 1 caixa de rodapé', valor: 309.54 },
             { id: 'Fm2VHpe47l9GNOAqsBqQ', data: '2026-06-17', tipo: 'receita', sala: 'sala2', desc: 'Andressa Alves Santos - Locação Áthos II', valor: 40.00 },
@@ -304,7 +304,7 @@
             { id: '0Ow7s8v44HmAVrfVccJ7', data: '2026-05-20', tipo: 'investimento', sala: '-', desc: 'Estofados Obra (Serviços)', valor: 500.00 }
         ];
 
-        let config = JSON.parse(localStorage.getItem('simulador_config_v14')) || {
+        let config = JSON.parse(localStorage.getItem('simulador_config_v15')) || {
             metrica: 'horas',
             capacidade: 320,
             preco: 60,
@@ -402,43 +402,22 @@
             if (cat === 'fixo' || cat.includes('operacional') || cat.includes('recorrente')) {
                 return 'despesa';
             }
-            
             const opexSubcategorias = ['energia', 'iptu', 'internet', 'telefone', 'agua', 'taxas', 'impostos', 'aluguel', 'condominio', 'limpeza'];
-            if (opexSubcategorias.some(item => sub.includes(item))) {
-                return 'despesa';
-            }
+            if (opexSubcategorias.some(item => sub.includes(item))) return 'despesa';
 
-            const opexKeywords = [
-                'enel', 'coelce', 'cagece', 'algar', 'claro', 'vivo', 'tim', 'oi', 'net',
-                'aluguel', 'condominio', 'iptu', 'contador', 'contabilidade',
-                'simplesnacional', 'das', 'fgts', 'inss', 'darf', 'tarifa', 'banco', 'bancaria'
-            ];
-            if (opexKeywords.some(kw => desc.includes(kw))) {
-                return 'despesa';
-            }
+            const opexKeywords = ['enel', 'coelce', 'cagece', 'algar', 'claro', 'vivo', 'tim', 'oi', 'net', 'aluguel', 'condominio', 'iptu', 'contador', 'contabilidade', 'simplesnacional', 'das', 'fgts', 'inss', 'darf'];
+            if (opexKeywords.some(kw => desc.includes(kw))) return 'despesa';
 
             const capexSubcategorias = ['despesasobra', 'obra', 'investimento', 'imobilizado', 'moveis', 'equipamentos'];
-            if (capexSubcategorias.some(item => sub.includes(item))) {
-                return 'investimento';
-            }
+            if (capexSubcategorias.some(item => sub.includes(item))) return 'investimento';
 
-            const capexKeywords = [
-                'obra', 'reforma', 'santiago', 'construcao', 'pedreiro', 'pintor', 'maodeobra',
-                'gesso', 'tinta', 'madeira', 'fio', 'cimento', 'tijolo', 'rodape', 'frete', 'ferragem',
-                'cadeira', 'poltrona', 'diva', 'mesa', 'aparador', 'armario', 'estofado', 'sofa',
-                'tapete', 'cortina', 'luminaria', 'lampada', 'led', 'espelho', 'quadro', 'decoracao',
-                'arcondicionado', 'climario', 'split', 'compressor', 'autoclave', 'computador', 'notebook',
-                'impressora', 'cafeteira', 'frigobar', 'microondas', 'tv', 'temu', 'shein', 'aliexpress', 'shopee', 'amazon', 
-                'mercadolivre', 'americanas', 'leroy', 'magalu', 'freitas'
-            ];
-            if (capexKeywords.some(kw => desc.includes(kw))) {
-                return 'investimento';
-            }
+            const capexKeywords = ['obra', 'reforma', 'santiago', 'construcao', 'pedreiro', 'pintor', 'maodeobra', 'gesso', 'tinta', 'madeira', 'fio', 'cimento', 'tijolo', 'rodape', 'frete', 'ferragem', 'cadeira', 'poltrona', 'diva', 'mesa', 'aparador', 'armario', 'estofado', 'sofa', 'tapete', 'cortina', 'luminaria', 'arcondicionado', 'climario', 'computador', 'notebook', 'tv', 'leroy', 'mercadolivre'];
+            if (capexKeywords.some(kw => desc.includes(kw))) return 'investimento';
 
             return 'despesa';
         }
 
-        // NOVO MOTOR SÓLIDO POR ACCESSO DIRETO COM CAMADA TRY-CATCH ANTI-TRAVAMENTOS
+        // MOTOR DE IMPORTAÇÃO COM BLOQUEIO DE SEGURANÇA CONTRA ABAS DE CONSULTA/ESTRUTURAIS
         function importFile(input) {
             const file = input.files[0]; if (!file) return;
             const reader = new FileReader();
@@ -448,15 +427,21 @@
                     const data = new Uint8Array(e.target.result);
                     const workbook = XLSX.read(data, { type: 'array', cellDates: true });
                     
-                    let countImported = 0; let countDuplicated = 0;
+                    let countImported = 0;
                     let sheetsProcessed = [];
 
                     workbook.SheetNames.forEach(sheetName => {
                         try {
-                            const nameLower = sheetName.toLowerCase().trim();
+                            const nameLower = sheetName.toLowerCase().trim().normalize("NFD").replace(/[\u0300-\u036f]/g, "");
+                            
+                            // BARREIRA DE INTEGRIDADE: Ignora abas de configuração, listagem de profissionais ou locações brutas
+                            if (nameLower.includes('locac') || nameLower.includes('profission') || nameLower.includes('sala')) {
+                                console.log(`Aba estrutural ignorada de forma segura: ${sheetName}`);
+                                return; 
+                            }
+
                             const worksheet = workbook.Sheets[sheetName];
                             const jsonData = XLSX.utils.sheet_to_json(worksheet, { raw: true });
-                            
                             if (!jsonData || jsonData.length === 0) return;
 
                             const normalizedRows = jsonData.map(row => {
@@ -466,19 +451,26 @@
                             });
 
                             const firstRowKeys = Object.keys(normalizedRows[0] || {});
-                            let isReceitaSheet = nameLower.includes('receita') || firstRowKeys.includes('profissional');
-                            let isDespesaSheet = nameLower.includes('despesa') || firstRowKeys.includes('descricao');
+                            
+                            // Validação estrita por assinatura de colunas financeiras reais
+                            let isReceitaSheet = nameLower.includes('receita') || (firstRowKeys.includes('profissional') && firstRowKeys.includes('valorfinal'));
+                            let isDespesaSheet = nameLower.includes('despesa') || (firstRowKeys.includes('descricao') && firstRowKeys.includes('subcategoria'));
 
                             if (isReceitaSheet) {
                                 sheetsProcessed.push(sheetName);
                                 normalizedRows.forEach(row => {
+                                    if (!row['profissional'] && !row['valor'] && !row['valorfinal']) return; // Pula linhas em branco
+                                    
                                     let rawId = (row['id'] || '').toString().trim() || ('rec-' + Date.now() + '-' + Math.random());
                                     let normalizedDateStr = normalizeDate(row['vencimento'] || row['data']);
                                     let profissional = row['profissional'] || 'Receita Avulsa';
                                     let observacao = row['observacao'] || row['obs'] || '';
                                     
+                                    // Puxa estritamente o Valor Final real ou o Valor Base correspondente da planilha
                                     let valorFinalRaw = (row['valorfinal'] !== undefined && row['valorfinal'] !== "") ? row['valorfinal'] : row['valor'];
                                     let valor = parseRawValue(valorFinalRaw);
+                                    if(valor === 0) return; // Evita qualquer inserção zerada involuntária
+                                    
                                     let desc = profissional + (observacao ? ' - ' + observacao : '');
                                     
                                     let sala = 'sala1';
@@ -487,7 +479,7 @@
                                         sala = 'sala2';
                                     }
                                     
-                                    if (lancamentos.some(l => l.id === rawId)) { countDuplicated++; return; }
+                                    if (lancamentos.some(l => l.id === rawId)) return;
                                     lancamentos.push({ id: rawId, data: normalizedDateStr, tipo: 'receita', sala: sala, desc: desc, valor: valor });
                                     countImported++;
                                 });
@@ -495,37 +487,39 @@
                             else if (isDespesaSheet) {
                                 sheetsProcessed.push(sheetName);
                                 normalizedRows.forEach(row => {
+                                    if (!row['descricao'] && !row['valor']) return;
+                                    
                                     let rawId = (row['id'] || '').toString().trim() || ('desp-' + Date.now() + '-' + Math.random());
                                     let normalizedDateStr = normalizeDate(row['vencimento'] || row['data']);
                                     let descricao = row['descricao'] || row['desc'] || 'Despesa';
                                     let categoria = row['categoria'] || '';
                                     let subcategoria = row['subcategoria'] || '';
-                                    let valorRaw = row['valor'];
                                     
-                                    let valor = parseRawValue(valorRaw);
+                                    let valor = parseRawValue(row['valor']);
+                                    if(valor === 0) return; 
+                                    
                                     let tipo = processarClassificacaoDespesa(descricao, categoria, subcategoria);
                                     
-                                    if (lancamentos.some(l => l.id === rawId)) { countDuplicated++; return; }
+                                    if (lancamentos.some(l => l.id === rawId)) return;
                                     lancamentos.push({ id: rawId, data: normalizedDateStr, tipo: tipo, sala: '-', desc: descricao + (subcategoria ? ' (' + subcategoria + ')' : ''), valor: valor });
                                     countImported++;
                                 });
                             }
                         } catch (sheetErr) {
-                            console.error("Erro ao processar aba específica do Excel:", sheetErr);
+                            console.error("Erro interno na leitura de registros da aba:", sheetErr);
                         }
                     });
 
                     if (sheetsProcessed.length === 0) {
-                        alert("Não foi possível processar o arquivo. Verifique se as abas contêm as colunas estruturais padrão.");
+                        alert("Não foram encontradas abas válidas de 'Receitas' ou 'Despesas' para importação.");
                         return;
                     }
 
-                    localStorage.setItem('simulador_lancamentos_v14', JSON.stringify(lancamentos));
-                    triggerToast(`Planilha integrada! Abas mapeadas: ${sheetsProcessed.join(', ')}. Registros novos: ${countImported}.`, "📥");
+                    localStorage.setItem('simulador_lancamentos_v15', JSON.stringify(lancamentos));
+                    triggerToast(`Planilha Áthos integrada! Abas processadas: ${sheetsProcessed.join(', ')}. Registros: +${countImported}.`, "📥");
                     renderApp(); switchTab('dash');
                 } catch (globalErr) {
-                    console.error("Erro fatal na leitura do arquivo Excel:", globalErr);
-                    alert("Erro interno ao ler o Excel. Certifique-se de que o arquivo não está corrompido.");
+                    alert("Erro estrutural no processamento do Excel. Verifique a formatação das tabelas.");
                 }
             };
             reader.readAsArrayBuffer(file);
@@ -649,7 +643,7 @@
             if(valor <= 0) { alert("Insira um valor acima de R$ 0,00"); return; }
             let manualId = 'manual-' + Date.now();
             lancamentos.push({ id: manualId, data, tipo: selectedType, sala, desc, valor });
-            localStorage.setItem('simulador_lancamentos_v14', JSON.stringify(lancamentos));
+            localStorage.setItem('simulador_lancamentos_v15', JSON.stringify(lancamentos));
 
             document.getElementById('lanc-desc').value = '';
             document.getElementById('lanc-valor').value = '';
@@ -659,7 +653,7 @@
 
         function deleteLancamento(id) {
             lancamentos = lancamentos.filter(item => item.id !== id);
-            localStorage.setItem('simulador_lancamentos_v14', JSON.stringify(lancamentos));
+            localStorage.setItem('simulador_lancamentos_v15', JSON.stringify(lancamentos));
             triggerToast("Registro removido.", "🔴"); renderApp();
         }
 
@@ -839,14 +833,14 @@
             config.preco = parseFloat(document.getElementById('cfg-preco').value) || 60;
             config.custoFixo = parseFloat(document.getElementById('cfg-custofixo').value) || 0;
             config.custoVariavel = parseFloat(document.getElementById('cfg-custovariavel').value) || 0;
-            localStorage.setItem('simulador_config_v14', JSON.stringify(config));
+            localStorage.setItem('simulador_config_v15', JSON.stringify(config));
             triggerToast("Parâmetros operacionais salvos!", "⚙️");
             renderApp(); switchTab('dash');
         }
 
         function clearData() {
             if(confirm("Deseja apagar todos os dados locais?")) {
-                lancamentos = []; localStorage.setItem('simulador_lancamentos_v14', JSON.stringify(lancamentos));
+                lancamentos = []; localStorage.setItem('simulador_lancamentos_v15', JSON.stringify(lancamentos));
                 triggerToast("Banco de dados resetado.", "🧹"); renderApp();
             }
         }
