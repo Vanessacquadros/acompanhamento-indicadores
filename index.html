@@ -292,8 +292,8 @@
         const nomesMeses = ['Janeiro', 'Fevereiro', 'Março', 'Abril', 'Maio', 'Junho', 'Julho', 'Agosto', 'Setembro', 'Outubro', 'Novembro', 'Dezembro'];
         const nomesCurtos = ['Jan', 'Fev', 'Mar', 'Abr', 'Mai', 'Jun', 'Jul', 'Ago', 'Set', 'Out', 'Nov', 'Dez'];
 
-        // CONTROLE DE ARMAZENAMENTO v16 - ENGINE DE BISSECÇÃO PARA CÁLCULO DE TIR REAL SÓLIDA
-        let lancamentos = JSON.parse(localStorage.getItem('simulador_lancamentos_v16')) || [
+        // CONTROLE DE ARMAZENAMENTO v17 - CÁLCULOS ALINHADOS DE RETORNO (TIR/ROI)
+        let lancamentos = JSON.parse(localStorage.getItem('simulador_lancamentos_v17')) || [
             { id: '8Itjnat1UwZOqqmhnZIh', data: '2026-06-08', tipo: 'receita', sala: 'sala1', desc: 'Receita avulsa - Recarga gás', valor: 200.00 },
             { id: 'FPSqPHBXckuuCvrSo0TM', data: '2026-05-17', tipo: 'receita', sala: 'sala1', desc: 'Estorno cartao - Estorno de 1 caixa de rodapé', valor: 309.54 },
             { id: 'Fm2VHpe47l9GNOAqsBqQ', data: '2026-06-17', tipo: 'receita', sala: 'sala2', desc: 'Andressa Alves Santos - Locação Áthos II', valor: 40.00 },
@@ -304,7 +304,7 @@
             { id: '0Ow7s8v44HmAVrfVccJ7', data: '2026-05-20', tipo: 'investimento', sala: '-', desc: 'Estofados Obra (Serviços)', valor: 500.00 }
         ];
 
-        let config = JSON.parse(localStorage.getItem('simulador_config_v16')) || {
+        let config = JSON.parse(localStorage.getItem('simulador_config_v17')) || {
             metrica: 'horas',
             capacidade: 320,
             preco: 60,
@@ -510,8 +510,8 @@
                         return;
                     }
 
-                    localStorage.setItem('simulador_lancamentos_v16', JSON.stringify(lancamentos));
-                    triggerToast(`Planilha Áthos integrada! Novas linhas inclusas: ${countImported}.`, "📥");
+                    localStorage.setItem('simulador_lancamentos_v17', JSON.stringify(lancamentos));
+                    triggerToast(`Planilha Áthos integrada com sucesso!`, "📥");
                     renderApp(); switchTab('dash');
                 } catch (globalErr) {
                     alert("Erro estrutural no processamento do Excel.");
@@ -638,7 +638,7 @@
             if(valor <= 0) { alert("Insira um valor acima de R$ 0,00"); return; }
             let manualId = 'manual-' + Date.now();
             lancamentos.push({ id: manualId, data, tipo: selectedType, sala, desc, valor });
-            localStorage.setItem('simulador_lancamentos_v16', JSON.stringify(lancamentos));
+            localStorage.setItem('simulador_lancamentos_v17', JSON.stringify(lancamentos));
 
             document.getElementById('lanc-desc').value = '';
             document.getElementById('lanc-valor').value = '';
@@ -648,7 +648,7 @@
 
         function deleteLancamento(id) {
             lancamentos = lancamentos.filter(item => item.id !== id);
-            localStorage.setItem('simulador_lancamentos_v16', JSON.stringify(lancamentos));
+            localStorage.setItem('simulador_lancamentos_v17', JSON.stringify(lancamentos));
             triggerToast("Registro removido.", "🔴"); renderApp();
         }
 
@@ -658,9 +658,12 @@
             return parseFloat(cleanVal) || 0;
         }
 
-        // ALGORITMO DE BISSECÇÃO DE ALTA PRECISÃO (TOTALMENTE ANTI-NAN / ANTI-TRAVAMENTO)
+        // MOTOR DE BISSECÇÃO - INTEGRADO E SEGURO CONTRA TAXAS NEGATIVAS OU DEFICITÁRIAS
         function calcularTIRReal(investimento, lucroMensal, meses) {
-            if (investimento <= 0 || lucroMensal <= 0) return 0;
+            if (investimento <= 0) return 0;
+            
+            // SE O LUCRO DO PERÍODO FOR MENOR OU IGUAL A ZERO, HÁ PERDA TOTAL DO APORTE NO HORIZONTE DE SIMULAÇÃO
+            if (lucroMensal <= 0) return -100.0;
 
             function calcularVPL(r) {
                 let vpl = -investimento;
@@ -670,10 +673,10 @@
                 return vpl;
             }
 
-            let low = -0.99;  // Limite inferior (-99% de retorno)
-            let high = 15.0; // Limite superior (+1500% de retorno)
+            let low = -0.999; 
+            let high = 20.0;  
 
-            if (calcularVPL(low) < 0) return low * 100;
+            if (calcularVPL(low) < 0) return -100.0;
             if (calcularVPL(high) > 0) return high * 100;
 
             for (let i = 0; i < 80; i++) {
@@ -778,21 +781,29 @@
             document.getElementById('sum-operacional').innerText = formatCurrency(resultadoOperacional);
             document.getElementById('sum-liquido').innerText = formatCurrency(fluxoCaixaLiquido);
 
-            let totalInvestidoGeral = lancamentos.filter(i => i.tipo === 'investimento').reduce((acc, i) => acc + i.valor, 0);
             let lucroMensalMedioReal = resultadoOperacional / qtdMesesSelecionados;
 
-            if (totalInvestidoGeral > 0 && lucroMensalMedioReal !== 0) {
-                document.getElementById('kpi-payback').innerText = lucroMensalMedioReal > 0 ? (totalInvestidoGeral / lucroMensalMedioReal).toFixed(1) + ' meses' : 'Déficit Ativo';
-                document.getElementById('kpi-roi').innerText = ((lucroMensalMedioReal * 12) / totalInvestidoGeral * 100).toFixed(1) + '%';
+            // ANÁLISE COMPATÍVEL BASEADA NO ESCOPO INTEGRAL FILTRADO DO PERÍODO ACTIVO
+            if (totalInvestido > 0) {
+                document.getElementById('kpi-payback').innerText = lucroMensalMedioReal > 0 ? (totalInvestido / lucroMensalMedioReal).toFixed(1) + ' meses' : 'Déficit Ativo';
                 
-                // Dispara o motor robusto de TIR
-                let tirCalculada = calcularTIRReal(totalInvestidoGeral, lucroMensalMedioReal, 12);
+                // ROI ANUAL PROJETADO: (Lucro Mensal Médio do Período * 12) / Investimento realizado no período selecionado
+                let roiAnualCalculado = ((lucroMensalMedioReal * 12) / totalInvestido) * 100;
+                let roiEl = document.getElementById('kpi-roi');
+                roiEl.innerText = roiAnualCalculado.toFixed(1) + '%';
+                
+                // TIR MENSAL CALCULADA POR PROJEÇÃO COM BASE NO ESCOPO ATIVO
+                let tirCalculada = calcularTIRReal(totalInvestido, lucroMensalMedioReal, 12);
                 let tirEl = document.getElementById('kpi-tir');
                 tirEl.innerText = tirCalculada.toFixed(1) + '%';
-                if(tirCalculada < 0) { tirEl.className = "text-xl lg:text-2xl font-bold text-rose-600 block mt-1.5"; } 
-                else { tirEl.className = "text-xl lg:text-2xl font-bold text-emerald-600 block mt-1.5"; }
+                
+                if (tirCalculada < 0) { 
+                    tirEl.className = "text-xl lg:text-2xl font-bold text-rose-600 block mt-1.5"; 
+                } else { 
+                    tirEl.className = "text-xl lg:text-2xl font-bold text-emerald-600 block mt-1.5"; 
+                }
             } else {
-                document.getElementById('kpi-payback').innerText = '0.0 meses';
+                document.getElementById('kpi-payback').innerText = 'Sem Invest.';
                 document.getElementById('kpi-roi').innerText = '0.0%';
                 document.getElementById('kpi-tir').innerText = '0.0%';
                 document.getElementById('kpi-tir').className = "text-xl lg:text-2xl font-bold text-slate-500 block mt-1.5";
@@ -847,14 +858,14 @@
             config.preco = parseFloat(document.getElementById('cfg-preco').value) || 60;
             config.custoFixo = parseFloat(document.getElementById('cfg-custofixo').value) || 0;
             config.custoVariavel = parseFloat(document.getElementById('cfg-custovariavel').value) || 0;
-            localStorage.setItem('simulador_config_v15', JSON.stringify(config));
+            localStorage.setItem('simulador_config_v17', JSON.stringify(config));
             triggerToast("Parâmetros operacionais salvos!", "⚙️");
             renderApp(); switchTab('dash');
         }
 
         function clearData() {
             if(confirm("Deseja apagar todos os dados locais?")) {
-                lancamentos = []; localStorage.setItem('simulador_lancamentos_v16', JSON.stringify(lancamentos));
+                lancamentos = []; localStorage.setItem('simulador_lancamentos_v17', JSON.stringify(lancamentos));
                 triggerToast("Banco de dados resetado.", "🧹"); renderApp();
             }
         }
