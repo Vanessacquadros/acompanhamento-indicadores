@@ -374,8 +374,8 @@
         const nomesMeses = ['Janeiro', 'Fevereiro', 'Março', 'Abril', 'Maio', 'Junho', 'Julho', 'Agosto', 'Setembro', 'Outubro', 'Novembro', 'Dezembro'];
         const nomesCurtos = ['Jan', 'Fev', 'Mar', 'Abr', 'Mai', 'Jun', 'Jul', 'Ago', 'Set', 'Out', 'Nov', 'Dez'];
 
-        // CONTROLE DE ARMAZENAMENTO v23 - CUSTO VARIÁVEL AUTOMÁTICO
-        let lancamentos = JSON.parse(localStorage.getItem('simulador_lancamentos_v23')) || [
+        // CONTROLE DE ARMAZENAMENTO v24 - ROBUSTEZ NA ABA CONFIG
+        let lancamentos = JSON.parse(localStorage.getItem('simulador_lancamentos_v24')) || [
             { id: '8Itjnat1UwZOqqmhnZIh', data: '2026-06-08', tipo: 'receita', sala: 'sala1', desc: 'Receita avulsa - Recarga gás', valor: 200.00 },
             { id: 'FPSqPHBXckuuCvrSo0TM', data: '2026-05-17', tipo: 'receita', sala: 'sala1', desc: 'Estorno cartao - Estorno de 1 caixa de rodapé', valor: 309.54 },
             { id: 'Fm2VHpe47l9GNOAqsBqQ', data: '2026-06-17', tipo: 'receita', sala: 'sala2', desc: 'Andressa Alves Santos - Locação Áthos II', valor: 40.00 },
@@ -386,13 +386,13 @@
             { id: '0Ow7s8v44HmAVrfVccJ7', data: '2026-05-20', tipo: 'investimento', sala: '-', desc: 'Estofados Obra (Serviços)', valor: 500.00 }
         ];
 
-        let pacotes = JSON.parse(localStorage.getItem('simulador_pacotes_v23')) || [
+        let pacotes = JSON.parse(localStorage.getItem('simulador_pacotes_v24')) || [
             { id: 0, nome: 'Áthos Continuidade', tipo: 'Pacote Mensal', horas: 10, valor: 300.00, desc: '10h/mês — cobrança recorrente' },
             { id: 1, nome: 'Áthos Essencial', tipo: 'Pacote Mensal', horas: 5, valor: 175.00, desc: '5h/mês — cobrança recorrente' },
             { id: 2, nome: 'Áthos Singular', tipo: 'Pacote Mensal', horas: 1, valor: 40.00, desc: '1h/mês — cobrança recorrente' }
         ];
 
-        let config = JSON.parse(localStorage.getItem('simulador_config_v23')) || {
+        let config = JSON.parse(localStorage.getItem('simulador_config_v24')) || {
             metrica: 'horas',
             capacidade: 528, 
             preco: 35.00,    
@@ -404,7 +404,8 @@
         let chartInstance = null;
 
         document.addEventListener("DOMContentLoaded", () => {
-            document.getElementById('lanc-data').valueAsDate = new Date();
+            const lancDataEl = document.getElementById('lanc-data');
+            if(lancDataEl) lancDataEl.valueAsDate = new Date();
             renderDropdownCheckboxes();
             atualizarCustosAutomaticosSemanticamente();
             renderPacotesUI();
@@ -474,7 +475,7 @@
                 desc: `${horas}h/mês — cobrança recorrente`
             };
 
-            localStorage.setItem('simulador_pacotes_v23', JSON.stringify(pacotes));
+            localStorage.setItem('simulador_pacotes_v24', JSON.stringify(pacotes));
             renderPacotesUI();
             fecharModalPacote();
             triggerToast("Pacote atualizado com sucesso!", "✏️");
@@ -492,7 +493,7 @@
             config.preco = Math.round(mediaPonderada * 100) / 100;
             const precoInput = document.getElementById('cfg-preco');
             if(precoInput) precoInput.value = config.preco;
-            localStorage.setItem('simulador_config_v23', JSON.stringify(config));
+            localStorage.setItem('simulador_config_v24', JSON.stringify(config));
         }
 
         function isDespesaFixaPorDescricao(descricao, categoria, subcategoria) {
@@ -544,16 +545,16 @@
             let qtdMesesVariaveis = mesesComVariavel.size;
             let custoVariavelTotalMensal = qtdMesesVariaveis > 0 ? (totalVariavel / qtdMesesVariaveis) : 0;
             
-            // Custo variável por hora/turno (dividido pela capacidade mensal total, ex: 528h)
             let capacidadeMensal = config.capacidade || 528;
-            let custoVariavelUnitario = capacidadeMensal > 0 ? (custoVariavelTotalMensal / (capacidadeMensal / 2)) : 10; // por hora/sala
+            let custoVariavelUnitario = capacidadeMensal > 0 ? (custoVariavelTotalMensal / (capacidadeMensal / 2)) : 10;
             config.custoVariavel = Math.max(Math.round(custoVariavelUnitario * 100) / 100, 1.00);
 
-            localStorage.setItem('simulador_config_v23', JSON.stringify(config));
+            localStorage.setItem('simulador_config_v24', JSON.stringify(config));
         }
 
         function triggerToast(msg, icon = "ℹ️") {
             const toast = document.getElementById('toast-notification');
+            if(!toast) return;
             document.getElementById('toast-icon').innerText = icon;
             document.getElementById('toast-message').innerText = msg;
             toast.classList.remove('hidden');
@@ -735,9 +736,9 @@
                         return;
                     }
 
-                    localStorage.setItem('simulador_lancamentos_v23', JSON.stringify(lancamentos));
+                    localStorage.setItem('simulador_lancamentos_v24', JSON.stringify(lancamentos));
                     atualizarCustosAutomaticosSemanticamente();
-                    triggerToast(`Planilha integrada e custos calculados!`, "📥");
+                    triggerToast(`Planilha integrada com sucesso!`, "📥");
                     renderApp(); switchTab('dash');
                 } catch (globalErr) {
                     alert("Erro estrutural no processamento do Excel.");
@@ -748,11 +749,13 @@
 
         function toggleDropdown(event) {
             event.stopPropagation();
-            document.getElementById('dropdown-menu').classList.toggle('hidden');
+            const menu = document.getElementById('dropdown-menu');
+            if(menu) menu.classList.toggle('hidden');
         }
 
         function renderDropdownCheckboxes() {
             const container = document.getElementById('dropdown-checkboxes-container');
+            if(!container) return;
             container.innerHTML = '';
             nomesMeses.forEach((mes, idx) => {
                 const label = document.createElement('label');
@@ -767,7 +770,7 @@
 
         function onCheckboxChange(idx) {
             const chk = document.getElementById(`chk-mes-${idx}`);
-            if (chk.checked) { if (!mesesAtivos.includes(idx)) mesesAtivos.push(idx); } 
+            if (chk && chk.checked) { if (!mesesAtivos.includes(idx)) mesesAtivos.push(idx); } 
             else { mesesAtivos = mesesAtivos.filter(m => m !== idx); }
             mesesAtivos.sort((a, b) => a - b);
             updateDropdownLabel(); renderApp();
@@ -784,6 +787,7 @@
 
         function updateDropdownLabel() {
             const labelEl = document.getElementById('dropdown-label');
+            if(!labelEl) return;
             if (mesesAtivos.length === 12) labelEl.innerText = "Todos os meses";
             else if (mesesAtivos.length === 0) labelEl.innerText = "Nenhum selecionado";
             else if (mesesAtivos.length <= 2) labelEl.innerText = mesesAtivos.map(m => nomesCurtos[m]).join(', ');
@@ -800,37 +804,51 @@
             const lblVar = document.getElementById('lbl-cfg-custovariavel');
 
             if(config.metrica === 'turnos') {
-                btnTurnos.className = "h-9 text-xs font-semibold rounded-lg text-center bg-white text-indigo-900 shadow-xs cursor-pointer w-full";
-                btnHoras.className = "h-9 text-xs font-semibold rounded-lg text-center text-slate-500 hover:text-slate-700 cursor-pointer w-full";
-                lblCap.innerText = "Capacidade Mensal (Qtd. Turnos)";
-                lblPreco.innerText = "Preço de Venda Médio por Turno (R$)";
-                lblVar.innerText = "Custo Variável Operacional Médio por Turno (R$)";
+                if(btnTurnos) btnTurnos.className = "h-9 text-xs font-semibold rounded-lg text-center bg-white text-indigo-900 shadow-xs cursor-pointer w-full";
+                if(btnHoras) btnHoras.className = "h-9 text-xs font-semibold rounded-lg text-center text-slate-500 hover:text-slate-700 cursor-pointer w-full";
+                if(lblCap) lblCap.innerText = "Capacidade Mensal (Qtd. Turnos)";
+                if(lblPreco) lblPreco.innerText = "Preço de Venda Médio por Turno (R$)";
+                if(lblVar) lblVar.innerText = "Custo Variável Operacional Médio por Turno (R$)";
             } else {
-                btnHoras.className = "h-9 text-xs font-semibold rounded-lg text-center bg-white text-indigo-900 shadow-xs cursor-pointer w-full";
-                btnTurnos.className = "h-9 text-xs font-semibold rounded-lg text-center text-slate-500 hover:text-slate-700 cursor-pointer w-full";
-                lblCap.innerText = "Capacidade Mensal (Qtd. Horas)";
-                lblPreco.innerText = "Preço de Venda Médio por Hora (R$)";
-                lblVar.innerText = "Custo Variável Operacional Médio por Hora (R$)";
+                if(btnHoras) btnHoras.className = "h-9 text-xs font-semibold rounded-lg text-center bg-white text-indigo-900 shadow-xs cursor-pointer w-full";
+                if(btnTurnos) btnTurnos.className = "h-9 text-xs font-semibold rounded-lg text-center text-slate-500 hover:text-slate-700 cursor-pointer w-full";
+                if(lblCap) lblCap.innerText = "Capacidade Mensal (Qtd. Horas)";
+                if(lblPreco) lblPreco.innerText = "Preço de Venda Médio por Hora (R$)";
+                if(lblVar) lblVar.innerText = "Custo Variável Operacional Médio por Hora (R$)";
             }
-            document.getElementById('cfg-capacidade').value = config.capacidade;
-            document.getElementById('cfg-preco').value = config.preco;
-            document.getElementById('cfg-custofixo').value = config.custoFixo;
-            document.getElementById('cfg-custovariavel').value = config.custoVariavel;
+            const capInput = document.getElementById('cfg-capacidade');
+            const precoInput = document.getElementById('cfg-preco');
+            const fixoInput = document.getElementById('cfg-custofixo');
+            const varInput = document.getElementById('cfg-custovariavel');
+
+            if(capInput) capInput.value = config.capacidade;
+            if(precoInput) precoInput.value = config.preco;
+            if(fixoInput) fixoInput.value = config.custoFixo;
+            if(varInput) varInput.value = config.custoVariavel;
         }
 
         function switchTab(tabId) {
-            if (tabId === 'config') {
-                atualizarCustosAutomaticosSemanticamente();
-                renderPacotesUI();
-                updateMetricaUI();
+            try {
+                if (tabId === 'config') {
+                    atualizarCustosAutomaticosSemanticamente();
+                    renderPacotesUI();
+                    updateMetricaUI();
+                }
+                document.querySelectorAll('.tab-content').forEach(el => el.classList.add('hidden'));
+                document.querySelectorAll('.tab-btn').forEach(el => {
+                    el.className = "tab-btn snap-center px-4 py-2.5 text-xs lg:text-sm font-semibold rounded-lg text-indigo-200 hover:text-white cursor-pointer";
+                });
+                
+                const targetTab = document.getElementById(`tab-${tabId}`);
+                const targetBtn = document.getElementById(`btn-${tabId}`);
+                
+                if(targetTab) targetTab.classList.remove('hidden');
+                if(targetBtn) targetBtn.className = "tab-btn snap-center px-4 py-2.5 text-xs lg:text-sm font-semibold rounded-lg bg-indigo-600 text-white shadow-xs cursor-pointer";
+                
+                if (tabId === 'dash') setTimeout(renderApp, 5);
+            } catch (err) {
+                console.error("Erro ao alternar aba:", err);
             }
-            document.querySelectorAll('.tab-content').forEach(el => el.classList.add('hidden'));
-            document.querySelectorAll('.tab-btn').forEach(el => {
-                el.className = "tab-btn snap-center px-4 py-2.5 text-xs lg:text-sm font-semibold rounded-lg text-indigo-200 hover:text-white cursor-pointer";
-            });
-            document.getElementById(`tab-${tabId}`).classList.remove('hidden');
-            document.getElementById(`btn-${tabId}`).className = "tab-btn snap-center px-4 py-2.5 text-xs lg:text-sm font-semibold rounded-lg bg-indigo-600 text-white shadow-xs cursor-pointer";
-            if (tabId === 'dash') setTimeout(renderApp, 5);
         }
 
         function setFormType(type) {
@@ -839,15 +857,16 @@
                 el.className = "type-btn h-14 border border-slate-200 rounded-xl flex items-center px-4 gap-3 font-semibold text-sm transition-all text-slate-600 hover:bg-slate-50 cursor-pointer";
             });
             const btn = document.getElementById(`btn-type-${type}`);
+            const salaBlock = document.getElementById('sala-selector-block');
             if(type === 'receita') {
-                btn.className = "type-btn h-14 border rounded-xl flex items-center px-4 gap-3 font-semibold text-sm transition-all bg-emerald-50 border-emerald-500 text-emerald-800 cursor-pointer";
-                document.getElementById('sala-selector-block').classList.remove('hidden');
+                if(btn) btn.className = "type-btn h-14 border rounded-xl flex items-center px-4 gap-3 font-semibold text-sm transition-all bg-emerald-50 border-emerald-500 text-emerald-800 cursor-pointer";
+                if(salaBlock) salaBlock.classList.remove('hidden');
             } else if(type === 'despesa') {
-                btn.className = "type-btn h-14 border rounded-xl flex items-center px-4 gap-3 font-semibold text-sm transition-all bg-rose-50 border-rose-500 text-rose-800 cursor-pointer";
-                document.getElementById('sala-selector-block').classList.add('hidden'); selectedSala = '-';
+                if(btn) btn.className = "type-btn h-14 border rounded-xl flex items-center px-4 gap-3 font-semibold text-sm transition-all bg-rose-50 border-rose-500 text-rose-800 cursor-pointer";
+                if(salaBlock) salaBlock.classList.add('hidden'); selectedSala = '-';
             } else {
-                btn.className = "type-btn h-14 border rounded-xl flex items-center px-4 gap-3 font-semibold text-sm transition-all bg-indigo-50 border-indigo-500 text-indigo-800 cursor-pointer";
-                document.getElementById('sala-selector-block').classList.add('hidden'); selectedSala = '-';
+                if(btn) btn.className = "type-btn h-14 border rounded-xl flex items-center px-4 gap-3 font-semibold text-sm transition-all bg-indigo-50 border-indigo-500 text-indigo-800 cursor-pointer";
+                if(salaBlock) salaBlock.classList.add('hidden'); selectedSala = '-';
             }
         }
 
@@ -856,7 +875,8 @@
             document.querySelectorAll('.sala-btn').forEach(el => {
                 el.className = "sala-btn h-11 border border-slate-200 rounded-xl font-semibold text-sm transition-all text-slate-600 hover:bg-slate-50 cursor-pointer text-center w-full";
             });
-            document.getElementById(`btn-${sala}`).className = "sala-btn h-11 border rounded-xl font-semibold text-sm transition-all bg-indigo-50 border-indigo-500 text-indigo-800 cursor-pointer text-center w-full";
+            const targetSalaBtn = document.getElementById(`btn-${sala}`);
+            if(targetSalaBtn) targetSalaBtn.className = "sala-btn h-11 border rounded-xl font-semibold text-sm transition-all bg-indigo-50 border-indigo-500 text-indigo-800 cursor-pointer text-center w-full";
         }
 
         function saveLancamento(e) {
@@ -871,7 +891,7 @@
             let isFixo = selectedType === 'despesa' ? isDespesaFixaPorDescricao(desc, '', '') : false;
             
             lancamentos.push({ id: manualId, data, tipo: selectedType, sala, desc, valor, isFixo });
-            localStorage.setItem('simulador_lancamentos_v23', JSON.stringify(lancamentos));
+            localStorage.setItem('simulador_lancamentos_v24', JSON.stringify(lancamentos));
             atualizarCustosAutomaticosSemanticamente();
 
             document.getElementById('lanc-desc').value = '';
@@ -882,7 +902,7 @@
 
         function deleteLancamento(id) {
             lancamentos = lancamentos.filter(item => item.id !== id);
-            localStorage.setItem('simulador_lancamentos_v23', JSON.stringify(lancamentos));
+            localStorage.setItem('simulador_lancamentos_v24', JSON.stringify(lancamentos));
             atualizarCustosAutomaticosSemanticamente();
             triggerToast("Registro removido.", "🔴"); renderApp();
         }
@@ -951,7 +971,8 @@
             const mobileContainer = document.getElementById('mobile-cards-container');
             if (tbody) tbody.innerHTML = ''; if (mobileContainer) mobileContainer.innerHTML = '';
             
-            const filtroAno = document.getElementById('dash-filtro-ano').value;
+            const filtroAnoEl = document.getElementById('dash-filtro-ano');
+            const filtroAno = filtroAnoEl ? filtroAnoEl.value : '2026';
             const sorted = [...lancamentos].sort((a,b) => new Date(b.data) - new Date(a.data));
             
             let sala1Tot = 0; let sala2Tot = 0;
@@ -1011,8 +1032,10 @@
                 if (mobileContainer) mobileContainer.classList.remove('hidden');
             }
 
-            document.getElementById('faturamento-sala1').innerText = formatCurrency(sala1Tot);
-            document.getElementById('faturamento-sala2').innerText = formatCurrency(sala2Tot);
+            const fatSala1El = document.getElementById('faturamento-sala1');
+            const fatSala2El = document.getElementById('faturamento-sala2');
+            if(fatSala1El) fatSala1El.innerText = formatCurrency(sala1Tot);
+            if(fatSala2El) fatSala2El.innerText = formatCurrency(sala2Tot);
             
             let totalReceitas = sala1Tot + sala2Tot;
             const qtdMesesSelecionados = mesesAtivos.length || 1;
@@ -1024,18 +1047,25 @@
 
             const unidadesBreakEven = custoFixoAcumulado / margemContribuicaoUnitaria;
             let faturamentoMinimoRequerido = unidadesBreakEven * config.preco;
-            document.getElementById('kpi-break-even').innerText = formatCurrency(faturamentoMinimoRequerido);
+            
+            const kpiBreakEven = document.getElementById('kpi-break-even');
+            if(kpiBreakEven) kpiBreakEven.innerText = formatCurrency(faturamentoMinimoRequerido);
 
             let capacidadAjustadaPeriodo = config.capacidade * qtdMesesSelecionados;
             const ocuPct = capacidadAjustadaPeriodo > 0 ? (unidadesBreakEven / capacidadAjustadaPeriodo) * 100 : 0;
-            document.getElementById('kpi-ponto-eq').innerText = ocuPct.toFixed(1) + '%';
-            document.getElementById('lbl-metrica-eq').innerText = `Eq. em ${config.metrica === 'turnos' ? 'Turnos' : 'Horas'}`;
+            
+            const kpiPontoEq = document.getElementById('kpi-ponto-eq');
+            const lblMetricaEq = document.getElementById('lbl-metrica-eq');
+            if(kpiPontoEq) kpiPontoEq.innerText = ocuPct.toFixed(1) + '%';
+            if(lblMetricaEq) lblMetricaEq.innerText = `Eq. em ${config.metrica === 'turnos' ? 'Turnos' : 'Horas'}`;
 
             let resultadoOperacional = totalReceitas - totalDespesas;
             let fluxoCaixaLiquido = resultadoOperacional - totalInvestido;
 
-            document.getElementById('sum-operacional').innerText = formatCurrency(resultadoOperacional);
-            document.getElementById('sum-liquido').innerText = formatCurrency(fluxoCaixaLiquido);
+            const sumOp = document.getElementById('sum-operacional');
+            const sumLiq = document.getElementById('sum-liquido');
+            if(sumOp) sumOp.innerText = formatCurrency(resultadoOperacional);
+            if(sumLiq) sumLiq.innerText = formatCurrency(fluxoCaixaLiquido);
 
             let vetorFluxoCaixaMensal = [];
             mesesAtivos.forEach(idx => {
@@ -1056,33 +1086,38 @@
                 let paybackRes = calcularPaybackAcumulado(vetorFluxoCaixaMensal);
                 let paybackEl = document.getElementById('kpi-payback');
                 
-                if (paybackRes.atingiuRetorno && paybackRes.mesesAteRetorno !== null) {
-                    paybackEl.innerText = paybackRes.mesesAteRetorno.toFixed(1) + ' meses';
-                    paybackEl.className = "text-xl lg:text-2xl font-bold text-emerald-600 block mt-1.5";
-                } else {
-                    paybackEl.innerText = 'Déficit Ativo';
-                    paybackEl.className = "text-xl lg:text-2xl font-bold text-rose-600 block mt-1.5";
+                if (paybackEl) {
+                    if (paybackRes.atingiuRetorno && paybackRes.mesesAteRetorno !== null) {
+                        paybackEl.innerText = paybackRes.mesesAteRetorno.toFixed(1) + ' meses';
+                        paybackEl.className = "text-xl lg:text-2xl font-bold text-emerald-600 block mt-1.5";
+                    } else {
+                        paybackEl.innerText = 'Déficit Ativo';
+                        paybackEl.className = "text-xl lg:text-2xl font-bold text-rose-600 block mt-1.5";
+                    }
                 }
                 
                 let lucroMensalMedioReal = resultadoOperacional / qtdMesesSelecionados;
                 let roiAnualCalculado = ((lucroMensalMedioReal * 12) / totalInvestido) * 100;
-                document.getElementById('kpi-roi').innerText = roiAnualCalculado.toFixed(1) + '%';
+                const kpiRoi = document.getElementById('kpi-roi');
+                if(kpiRoi) kpiRoi.innerText = roiAnualCalculado.toFixed(1) + '%';
                 
                 let tirCalculada = calcularTIRCronologica(vetorFluxoCaixaMensal);
                 let tirEl = document.getElementById('kpi-tir');
-                tirEl.innerText = tirCalculada.toFixed(1) + '%';
-                
-                if (tirCalculada < 0) { 
-                    tirEl.className = "text-xl lg:text-2xl font-bold text-rose-600 block mt-1.5"; 
-                } else { 
-                    tirEl.className = "text-xl lg:text-2xl font-bold text-emerald-600 block mt-1.5"; 
+                if(tirEl) {
+                    tirEl.innerText = tirCalculada.toFixed(1) + '%';
+                    if (tirCalculada < 0) { 
+                        tirEl.className = "text-xl lg:text-2xl font-bold text-rose-600 block mt-1.5"; 
+                    } else { 
+                        tirEl.className = "text-xl lg:text-2xl font-bold text-emerald-600 block mt-1.5"; 
+                    }
                 }
             } else {
-                document.getElementById('kpi-payback').innerText = 'Sem Invest.';
-                document.getElementById('kpi-payback').className = "text-xl lg:text-2xl font-bold text-slate-800 block mt-1.5";
-                document.getElementById('kpi-roi').innerText = '0.0%';
-                document.getElementById('kpi-tir').innerText = '0.0%';
-                document.getElementById('kpi-tir').className = "text-xl lg:text-2xl font-bold text-slate-500 block mt-1.5";
+                const paybackEl = document.getElementById('kpi-payback');
+                const kpiRoi = document.getElementById('kpi-roi');
+                const tirEl = document.getElementById('kpi-tir');
+                if(paybackEl) { paybackEl.innerText = 'Sem Invest.'; paybackEl.className = "text-xl lg:text-2xl font-bold text-slate-800 block mt-1.5"; }
+                if(kpiRoi) kpiRoi.innerText = '0.0%';
+                if(tirEl) { tirEl.innerText = '0.0%'; tirEl.className = "text-xl lg:text-2xl font-bold text-slate-500 block mt-1.5"; }
             }
             renderCharts();
         }
@@ -1093,7 +1128,8 @@
 
         function renderCharts() {
             const ctx = document.getElementById('mainChart'); if(!ctx) return;
-            const filtroAno = document.getElementById('dash-filtro-ano').value;
+            const filtroAnoEl = document.getElementById('dash-filtro-ano');
+            const filtroAno = filtroAnoEl ? filtroAnoEl.value : '2026';
             let labelsFiltradas = []; let receitasData = []; let despesasData = []; let lucrosData = [];
 
             nomesCurtos.forEach((mes, idx) => {
@@ -1130,17 +1166,22 @@
         }
 
         function saveConfig() {
-            config.capacidade = parseInt(document.getElementById('cfg-capacidade').value) || 528;
-            config.preco = parseFloat(document.getElementById('cfg-preco').value) || 35.00;
-            config.custoVariavel = parseFloat(document.getElementById('cfg-custovariavel').value) || 0;
-            localStorage.setItem('simulador_config_v23', JSON.stringify(config));
+            const capEl = document.getElementById('cfg-capacidade');
+            const precoEl = document.getElementById('cfg-preco');
+            const varEl = document.getElementById('cfg-custovariavel');
+            
+            if(capEl) config.capacidade = parseInt(capEl.value) || 528;
+            if(precoEl) config.preco = parseFloat(precoEl.value) || 35.00;
+            if(varEl) config.custoVariavel = parseFloat(varEl.value) || 0;
+            
+            localStorage.setItem('simulador_config_v24', JSON.stringify(config));
             triggerToast("Parâmetros operacionais salvos!", "⚙️");
             renderApp(); switchTab('dash');
         }
 
         function clearData() {
             if(confirm("Deseja apagar todos os dados locais?")) {
-                lancamentos = []; localStorage.setItem('simulador_lancamentos_v23', JSON.stringify(lancamentos));
+                lancamentos = []; localStorage.setItem('simulador_lancamentos_v24', JSON.stringify(lancamentos));
                 atualizarCustosAutomaticosSemanticamente();
                 triggerToast("Banco de dados resetado.", "🧹"); renderApp();
             }
