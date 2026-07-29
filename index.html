@@ -21,6 +21,31 @@
         <span id="toast-message">Notificação</span>
     </div>
 
+    <!-- MODAL DE EDIÇÃO DE PACOTE -->
+    <div id="modal-pacote" class="hidden fixed inset-0 bg-slate-900/50 backdrop-blur-xs z-50 flex items-center justify-center p-4">
+        <div class="bg-white rounded-2xl max-w-sm w-full p-6 shadow-2xl border border-slate-100 space-y-4">
+            <h3 id="modal-titulo" class="text-sm font-bold text-slate-800">Editar Pacote</h3>
+            <div class="space-y-3">
+                <div class="flex flex-col gap-1">
+                    <label class="text-[10px] font-bold uppercase text-slate-400">Nome do Pacote</label>
+                    <input type="text" id="edit-pacote-nome" class="h-11 px-3 border border-slate-200 rounded-xl text-sm bg-slate-50 font-semibold text-slate-700">
+                </div>
+                <div class="flex flex-col gap-1">
+                    <label class="text-[10px] font-bold uppercase text-slate-400">Franquia (Horas/Mês)</label>
+                    <input type="number" id="edit-pacote-horas" class="h-11 px-3 border border-slate-200 rounded-xl text-sm bg-slate-50 font-semibold text-slate-700">
+                </div>
+                <div class="flex flex-col gap-1">
+                    <label class="text-[10px] font-bold uppercase text-slate-400">Valor (R$)</label>
+                    <input type="text" id="edit-pacote-valor" oninput="handleCurrencyInput(this)" class="h-11 px-3 border border-slate-200 rounded-xl text-sm bg-slate-50 font-bold text-slate-700">
+                </div>
+            </div>
+            <div class="flex gap-2 pt-2">
+                <button type="button" onclick="fecharModalPacote()" class="flex-1 h-11 border border-slate-200 text-slate-600 font-semibold rounded-xl text-xs hover:bg-slate-50 cursor-pointer">Cancelar</button>
+                <button type="button" onclick="salvarPacoteEditado()" class="flex-1 h-11 bg-indigo-600 text-white font-semibold rounded-xl text-xs hover:bg-indigo-700 cursor-pointer shadow-xs">Salvar</button>
+            </div>
+        </div>
+    </div>
+
     <header class="bg-indigo-900 text-white shadow-md sticky top-0 z-30">
         <div class="max-w-7xl mx-auto px-4 py-4 flex flex-col lg:flex-row justify-between items-center gap-4">
             <div class="text-center lg:text-left w-full lg:w-auto">
@@ -242,30 +267,15 @@
 
         <div id="tab-config" class="tab-content hidden max-w-4xl mx-auto space-y-6">
             <div class="bg-white p-5 rounded-2xl shadow-xs border border-slate-100 space-y-5">
-                <div>
-                    <h2 class="text-sm font-bold text-slate-700 mb-1">Planos e Pacotes de Horas (Áthos)</h2>
-                    <p class="text-xs text-slate-400">Valores unitários e pacotes recorrentes ativos para precificação e capacidade.</p>
+                <div class="flex justify-between items-center">
+                    <div>
+                        <h2 class="text-sm font-bold text-slate-700 mb-1">Planos e Pacotes de Horas (Áthos)</h2>
+                        <p class="text-xs text-slate-400">Valores unitários e pacotes recorrentes ativos para precificação e capacidade.</p>
+                    </div>
                 </div>
                 
-                <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
-                    <div class="p-4 border border-slate-200 rounded-2xl bg-slate-50/50 space-y-2">
-                        <span class="text-[10px] font-bold uppercase text-slate-400 block">Pacote Mensal</span>
-                        <h4 class="text-sm font-bold text-slate-800">Áthos Continuidade</h4>
-                        <p class="text-xs text-slate-500">10h/mês &bull; Cobrança recorrente</p>
-                        <div class="text-lg font-black text-indigo-600 pt-1">R$ 300,00 <span class="text-xs font-normal text-slate-400">/mês</span></div>
-                    </div>
-                    <div class="p-4 border border-slate-200 rounded-2xl bg-slate-50/50 space-y-2">
-                        <span class="text-[10px] font-bold uppercase text-slate-400 block">Pacote Mensal</span>
-                        <h4 class="text-sm font-bold text-slate-800">Áthos Essencial</h4>
-                        <p class="text-xs text-slate-500">5h/mês &bull; Cobrança recorrente</p>
-                        <div class="text-lg font-black text-indigo-600 pt-1">R$ 175,00 <span class="text-xs font-normal text-slate-400">/mês</span></div>
-                    </div>
-                    <div class="p-4 border border-slate-200 rounded-2xl bg-slate-50/50 space-y-2">
-                        <span class="text-[10px] font-bold uppercase text-slate-400 block">Pacote Mensal</span>
-                        <h4 class="text-sm font-bold text-slate-800">Áthos Singular</h4>
-                        <p class="text-xs text-slate-500">1h/mês &bull; Cobrança recorrente</p>
-                        <div class="text-lg font-black text-indigo-600 pt-1">R$ 40,00 <span class="text-xs font-normal text-slate-400">/hora</span></div>
-                    </div>
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-4" id="pacotes-container">
+                    <!-- Gerado dinamicamente via JS para permitir edição -->
                 </div>
 
                 <div class="pt-4 border-t border-slate-100">
@@ -324,7 +334,7 @@
                         <div class="flex flex-col gap-1">
                             <label id="lbl-cfg-preco" class="text-[10px] font-bold uppercase text-slate-500">Preço de Venda Médio (R$)</label>
                             <input type="number" step="0.01" id="cfg-preco" class="h-11 px-3 border border-slate-200 rounded-xl text-sm bg-slate-50 focus:bg-white focus:outline-hidden w-full font-bold text-slate-700">
-                            <span class="text-[10px] text-slate-400">Média ponderada dos planos (Continuidade, Essencial e Singular).</span>
+                            <span class="text-[10px] text-slate-400">Atualizado automaticamente pela média ponderada dos pacotes editados.</span>
                         </div>
                     </div>
 
@@ -361,8 +371,8 @@
         const nomesMeses = ['Janeiro', 'Fevereiro', 'Março', 'Abril', 'Maio', 'Junho', 'Julho', 'Agosto', 'Setembro', 'Outubro', 'Novembro', 'Dezembro'];
         const nomesCurtos = ['Jan', 'Fev', 'Mar', 'Abr', 'Mai', 'Jun', 'Jul', 'Ago', 'Set', 'Out', 'Nov', 'Dez'];
 
-        // CONTROLE DE ARMAZENAMENTO v21 - PLANOS E TURNOS FIXOS INTEGRADOS
-        let lancamentos = JSON.parse(localStorage.getItem('simulador_lancamentos_v21')) || [
+        // CONTROLE DE ARMAZENAMENTO v22 - PACOTES EDITÁVEIS
+        let lancamentos = JSON.parse(localStorage.getItem('simulador_lancamentos_v22')) || [
             { id: '8Itjnat1UwZOqqmhnZIh', data: '2026-06-08', tipo: 'receita', sala: 'sala1', desc: 'Receita avulsa - Recarga gás', valor: 200.00 },
             { id: 'FPSqPHBXckuuCvrSo0TM', data: '2026-05-17', tipo: 'receita', sala: 'sala1', desc: 'Estorno cartao - Estorno de 1 caixa de rodapé', valor: 309.54 },
             { id: 'Fm2VHpe47l9GNOAqsBqQ', data: '2026-06-17', tipo: 'receita', sala: 'sala2', desc: 'Andressa Alves Santos - Locação Áthos II', valor: 40.00 },
@@ -373,20 +383,28 @@
             { id: '0Ow7s8v44HmAVrfVccJ7', data: '2026-05-20', tipo: 'investimento', sala: '-', desc: 'Estofados Obra (Serviços)', valor: 500.00 }
         ];
 
-        let config = JSON.parse(localStorage.getItem('simulador_config_v21')) || {
+        let pacotes = JSON.parse(localStorage.getItem('simulador_pacotes_v22')) || [
+            { id: 0, nome: 'Áthos Continuidade', tipo: 'Pacote Mensal', horas: 10, valor: 300.00, desc: '10h/mês — cobrança recorrente' },
+            { id: 1, nome: 'Áthos Essencial', tipo: 'Pacote Mensal', horas: 5, valor: 175.00, desc: '5h/mês — cobrança recorrente' },
+            { id: 2, nome: 'Áthos Singular', tipo: 'Pacote Mensal', horas: 1, valor: 40.00, desc: '1h/mês — cobrança recorrente' }
+        ];
+
+        let config = JSON.parse(localStorage.getItem('simulador_config_v22')) || {
             metrica: 'horas',
-            capacidade: 528, // 12h/dia * 22 dias * 2 salas
-            preco: 35.00,    // Média ponderada dos pacotes (Áthos Continuidade R$30, Essencial R$35, Singular R$40)
+            capacidade: 528, 
+            preco: 35.00,    
             custoFixo: 0,
             custoVariavel: 10
         };
 
+        let editingPackageId = null;
         let chartInstance = null;
 
         document.addEventListener("DOMContentLoaded", () => {
             document.getElementById('lanc-data').valueAsDate = new Date();
             renderDropdownCheckboxes();
             atualizarCustoFixoSemanticamente();
+            renderPacotesUI();
             updateMetricaUI();
             renderApp();
 
@@ -398,6 +416,82 @@
                 }
             });
         });
+
+        function renderPacotesUI() {
+            const container = document.getElementById('pacotes-container');
+            if(!container) return;
+            container.innerHTML = '';
+            
+            pacotes.forEach((p, idx) => {
+                let card = document.createElement('div');
+                card.className = "p-4 border border-slate-200 rounded-2xl bg-slate-50/50 space-y-2 flex flex-col justify-between";
+                let valorUnitario = p.horas > 0 ? (p.valor / p.horas) : p.valor;
+                card.innerHTML = `
+                    <div class="space-y-1">
+                        <span class="text-[10px] font-bold uppercase text-slate-400 block">${p.tipo}</span>
+                        <h4 class="text-sm font-bold text-slate-800">${p.nome}</h4>
+                        <p class="text-xs text-slate-500">${p.horas}h/mês &bull; Cobrança recorrente</p>
+                        <div class="text-lg font-black text-indigo-600 pt-1">${formatCurrency(p.valor)} <span class="text-xs font-normal text-slate-400">${p.horas > 1 ? '/mês' : '/hora'}</span></div>
+                    </div>
+                    <button onclick="abrirModalPacote(${idx})" class="mt-2 w-full h-9 bg-white border border-slate-200 hover:bg-slate-100 font-semibold text-slate-700 rounded-xl text-xs cursor-pointer shadow-2xs">Editar</button>
+                `;
+                container.appendChild(card);
+            });
+            atualizarPrecoMedioPonderado();
+        }
+
+        function abrirModalPacote(idx) {
+            editingPackageId = idx;
+            let p = pacotes[idx];
+            document.getElementById('edit-pacote-nome').value = p.nome;
+            document.getElementById('edit-pacote-horas').value = p.horas;
+            
+            let valStr = p.valor.toFixed(2).replace('.', ',');
+            valStr = valStr.replace(/(\d)(?=(\d{3})+(?!\d))/g, "$1.");
+            document.getElementById('edit-pacote-valor').value = 'R$ ' + valStr;
+            
+            document.getElementById('modal-pacote').classList.remove('hidden');
+        }
+
+        function fecharModalPacote() {
+            document.getElementById('modal-pacote').classList.add('hidden');
+            editingPackageId = null;
+        }
+
+        function salvarPacoteEditado() {
+            if (editingPackageId === null) return;
+            let nome = document.getElementById('edit-pacote-nome').value;
+            let horas = parseInt(document.getElementById('edit-pacote-horas').value) || 1;
+            let valor = parseCurrencyToFloat(document.getElementById('edit-pacote-valor').value);
+
+            pacotes[editingPackageId] = {
+                ...pacotes[editingPackageId],
+                nome,
+                horas,
+                valor,
+                desc: `${horas}h/mês — cobrança recorrente`
+            };
+
+            localStorage.setItem('simulador_pacotes_v22', JSON.stringify(pacotes));
+            renderPacotesUI();
+            fecharModalPacote();
+            triggerToast("Pacote atualizado com sucesso!", "✏️");
+            renderApp();
+        }
+
+        function atualizarPrecoMedioPonderado() {
+            if (pacotes.length === 0) return;
+            let somaValorPorHora = 0;
+            pacotes.forEach(p => {
+                let vph = p.horas > 0 ? (p.valor / p.horas) : p.valor;
+                somaValorPorHora += vph;
+            });
+            let mediaPonderada = somaValorPorHora / pacotes.length;
+            config.preco = Math.round(mediaPonderada * 100) / 100;
+            const precoInput = document.getElementById('cfg-preco');
+            if(precoInput) precoInput.value = config.preco;
+            localStorage.setItem('simulador_config_v22', JSON.stringify(config));
+        }
 
         function isDespesaFixaPorDescricao(descricao, categoria, subcategoria) {
             const text = `${descricao} ${categoria} ${subcategoria}`.toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "");
@@ -429,7 +523,7 @@
             } else {
                 config.custoFixo = 0;
             }
-            localStorage.setItem('simulador_config_v21', JSON.stringify(config));
+            localStorage.setItem('simulador_config_v22', JSON.stringify(config));
         }
 
         function triggerToast(msg, icon = "ℹ️") {
@@ -615,9 +709,9 @@
                         return;
                     }
 
-                    localStorage.setItem('simulador_lancamentos_v21', JSON.stringify(lancamentos));
+                    localStorage.setItem('simulador_lancamentos_v22', JSON.stringify(lancamentos));
                     atualizarCustoFixoSemanticamente();
-                    triggerToast(`Planilha integrada e custos fixos identificados!`, "📥");
+                    triggerToast(`Planilha integrada com sucesso!`, "📥");
                     renderApp(); switchTab('dash');
                 } catch (globalErr) {
                     alert("Erro estrutural no processamento do Excel.");
@@ -701,6 +795,7 @@
         function switchTab(tabId) {
             if (tabId === 'config') {
                 atualizarCustoFixoSemanticamente();
+                renderPacotesUI();
                 updateMetricaUI();
             }
             document.querySelectorAll('.tab-content').forEach(el => el.classList.add('hidden'));
@@ -750,18 +845,18 @@
             let isFixo = selectedType === 'despesa' ? isDespesaFixaPorDescricao(desc, '', '') : false;
             
             lancamentos.push({ id: manualId, data, tipo: selectedType, sala, desc, valor, isFixo });
-            localStorage.setItem('simulador_lancamentos_v21', JSON.stringify(lancamentos));
+            localStorage.setItem('simulador_lancamentos_v22', JSON.stringify(lancamentos));
             atualizarCustoFixoSemanticamente();
 
             document.getElementById('lanc-desc').value = '';
             document.getElementById('lanc-valor').value = '';
-            triggerToast("Lançamento adicionado e custos recalculados!", "🟢");
+            triggerToast("Lançamento adicionado com sucesso!", "🟢");
             renderApp(); switchTab('dash');
         }
 
         function deleteLancamento(id) {
             lancamentos = lancamentos.filter(item => item.id !== id);
-            localStorage.setItem('simulador_lancamentos_v21', JSON.stringify(lancamentos));
+            localStorage.setItem('simulador_lancamentos_v22', JSON.stringify(lancamentos));
             atualizarCustoFixoSemanticamente();
             triggerToast("Registro removido.", "🔴"); renderApp();
         }
@@ -1012,14 +1107,14 @@
             config.capacidade = parseInt(document.getElementById('cfg-capacidade').value) || 528;
             config.preco = parseFloat(document.getElementById('cfg-preco').value) || 35.00;
             config.custoVariavel = parseFloat(document.getElementById('cfg-custovariavel').value) || 0;
-            localStorage.setItem('simulador_config_v21', JSON.stringify(config));
+            localStorage.setItem('simulador_config_v22', JSON.stringify(config));
             triggerToast("Parâmetros operacionais salvos!", "⚙️");
             renderApp(); switchTab('dash');
         }
 
         function clearData() {
             if(confirm("Deseja apagar todos os dados locais?")) {
-                lancamentos = []; localStorage.setItem('simulador_lancamentos_v21', JSON.stringify(lancamentos));
+                lancamentos = []; localStorage.setItem('simulador_lancamentos_v22', JSON.stringify(lancamentos));
                 atualizarCustoFixoSemanticamente();
                 triggerToast("Banco de dados resetado.", "🧹"); renderApp();
             }
