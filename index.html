@@ -240,10 +240,70 @@
             </div>
         </div>
 
-        <div id="tab-config" class="tab-content hidden max-w-md mx-auto">
+        <div id="tab-config" class="tab-content hidden max-w-4xl mx-auto space-y-6">
+            <div class="bg-white p-5 rounded-2xl shadow-xs border border-slate-100 space-y-5">
+                <div>
+                    <h2 class="text-sm font-bold text-slate-700 mb-1">Planos e Pacotes de Horas (Áthos)</h2>
+                    <p class="text-xs text-slate-400">Valores unitários e pacotes recorrentes ativos para precificação e capacidade.</p>
+                </div>
+                
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+                    <div class="p-4 border border-slate-200 rounded-2xl bg-slate-50/50 space-y-2">
+                        <span class="text-[10px] font-bold uppercase text-slate-400 block">Pacote Mensal</span>
+                        <h4 class="text-sm font-bold text-slate-800">Áthos Continuidade</h4>
+                        <p class="text-xs text-slate-500">10h/mês &bull; Cobrança recorrente</p>
+                        <div class="text-lg font-black text-indigo-600 pt-1">R$ 300,00 <span class="text-xs font-normal text-slate-400">/mês</span></div>
+                    </div>
+                    <div class="p-4 border border-slate-200 rounded-2xl bg-slate-50/50 space-y-2">
+                        <span class="text-[10px] font-bold uppercase text-slate-400 block">Pacote Mensal</span>
+                        <h4 class="text-sm font-bold text-slate-800">Áthos Essencial</h4>
+                        <p class="text-xs text-slate-500">5h/mês &bull; Cobrança recorrente</p>
+                        <div class="text-lg font-black text-indigo-600 pt-1">R$ 175,00 <span class="text-xs font-normal text-slate-400">/mês</span></div>
+                    </div>
+                    <div class="p-4 border border-slate-200 rounded-2xl bg-slate-50/50 space-y-2">
+                        <span class="text-[10px] font-bold uppercase text-slate-400 block">Pacote Mensal</span>
+                        <h4 class="text-sm font-bold text-slate-800">Áthos Singular</h4>
+                        <p class="text-xs text-slate-500">1h/mês &bull; Cobrança recorrente</p>
+                        <div class="text-lg font-black text-indigo-600 pt-1">R$ 40,00 <span class="text-xs font-normal text-slate-400">/hora</span></div>
+                    </div>
+                </div>
+
+                <div class="pt-4 border-t border-slate-100">
+                    <h3 class="text-xs font-bold uppercase text-slate-400 mb-3">Turnos Fixos e Janelas de Operação</h3>
+                    <div class="overflow-x-auto">
+                        <table class="w-full text-left border-collapse text-xs">
+                            <thead>
+                                <tr class="bg-slate-50 text-slate-400 font-bold uppercase border-b border-slate-200">
+                                    <th class="p-3">Turno</th>
+                                    <th class="p-3">Dias</th>
+                                    <th class="p-3">Horário</th>
+                                </tr>
+                            </thead>
+                            <tbody class="divide-y divide-slate-100 text-slate-700 font-medium">
+                                <tr>
+                                    <td class="p-3 font-bold text-slate-800">Turno Manhã</td>
+                                    <td class="p-3">Seg-Sex</td>
+                                    <td class="p-3">08h–12h (4h/dia)</td>
+                                </tr>
+                                <tr>
+                                    <td class="p-3 font-bold text-slate-800">Turno Tarde</td>
+                                    <td class="p-3">Seg-Sex</td>
+                                    <td class="p-3">13h–17h (4h/dia)</td>
+                                </tr>
+                                <tr>
+                                    <td class="p-3 font-bold text-slate-800">Turno Noite</td>
+                                    <td class="p-3">Seg-Sex</td>
+                                    <td class="p-3">17h30–21h30 (4h/dia)</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+
             <div class="bg-white p-5 rounded-2xl shadow-xs border border-slate-100">
-                <h2 class="text-sm font-bold text-slate-700 mb-1">Parâmetros Operacionais Estratégicos</h2>
-                <p class="text-xs text-slate-400 mb-5">Identificação automática de custos fixos por descrição das despesas.</p>
+                <h2 class="text-sm font-bold text-slate-700 mb-1">Parâmetros Operacionais & Capacidade</h2>
+                <p class="text-xs text-slate-400 mb-5">Ajuste os parâmetros de cálculo e capacidade baseada nos turnos ativos.</p>
                 
                 <div class="space-y-5">
                     <div>
@@ -254,31 +314,36 @@
                         </div>
                     </div>
 
-                    <div class="flex flex-col gap-1">
-                        <label id="lbl-cfg-capacidade" class="text-[10px] font-bold uppercase text-slate-500">Capacidade Total Mensal</label>
-                        <input type="number" id="cfg-capacidade" class="h-11 px-3 border border-slate-200 rounded-xl text-sm bg-slate-50 focus:bg-white focus:outline-hidden w-full">
-                    </div>
-                    
-                    <div class="flex flex-col gap-1">
-                        <label id="lbl-cfg-preco" class="text-[10px] font-bold uppercase text-slate-500">Preço de Venda Estimado (R$)</label>
-                        <input type="number" step="0.01" id="cfg-preco" class="h-11 px-3 border border-slate-200 rounded-xl text-sm bg-slate-50 focus:bg-white focus:outline-hidden w-full">
-                    </div>
-
-                    <div class="flex flex-col gap-1">
-                        <div class="flex justify-between items-center">
-                            <label for="cfg-custofixo" class="text-[10px] font-bold uppercase text-slate-500 cursor-pointer">Custo Fixo Base Mensal (R$)</label>
-                            <span class="text-[10px] text-emerald-600 font-semibold bg-emerald-50 px-2 py-0.5 rounded-md">Identificado por Descrição</span>
+                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                        <div class="flex flex-col gap-1">
+                            <label id="lbl-cfg-capacidade" class="text-[10px] font-bold uppercase text-slate-500">Capacidade Total Mensal (2 Salas)</label>
+                            <input type="number" id="cfg-capacidade" class="h-11 px-3 border border-slate-200 rounded-xl text-sm bg-slate-50 focus:bg-white focus:outline-hidden w-full font-bold text-slate-700">
+                            <span class="text-[10px] text-slate-400">Total de horas/turnos disponíveis nas 2 salas (Ex: 12h/dia * 22 dias * 2 salas = 528h).</span>
                         </div>
-                        <input type="number" step="0.01" id="cfg-custofixo" class="h-11 px-3 border border-slate-200 rounded-xl text-sm bg-slate-50 focus:bg-white focus:outline-hidden w-full font-bold text-slate-700" readonly title="Identificado automaticamente pelas despesas fixas (Aluguel, Condomínio, IPTU, Energia, Internet, Água, etc.)">
-                        <span class="text-[10px] text-slate-400">Média mensal calculada estritamente com base nas despesas fixas reconhecidas.</span>
+                        
+                        <div class="flex flex-col gap-1">
+                            <label id="lbl-cfg-preco" class="text-[10px] font-bold uppercase text-slate-500">Preço de Venda Médio (R$)</label>
+                            <input type="number" step="0.01" id="cfg-preco" class="h-11 px-3 border border-slate-200 rounded-xl text-sm bg-slate-50 focus:bg-white focus:outline-hidden w-full font-bold text-slate-700">
+                            <span class="text-[10px] text-slate-400">Média ponderada dos planos (Continuidade, Essencial e Singular).</span>
+                        </div>
                     </div>
 
-                    <div class="flex flex-col gap-1">
-                        <label id="lbl-cfg-custovariavel" class="text-[10px] font-bold uppercase text-slate-500">Custo Variável Operacional Médio (R$)</label>
-                        <input type="number" step="0.01" id="cfg-custovariavel" class="h-11 px-3 border border-slate-200 rounded-xl text-sm bg-slate-50 focus:bg-white focus:outline-hidden w-full">
+                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                        <div class="flex flex-col gap-1">
+                            <div class="flex justify-between items-center">
+                                <label for="cfg-custofixo" class="text-[10px] font-bold uppercase text-slate-500 cursor-pointer">Custo Fixo Base Mensal (R$)</label>
+                                <span class="text-[10px] text-emerald-600 font-semibold bg-emerald-50 px-2 py-0.5 rounded-md">Automático via Upload</span>
+                            </div>
+                            <input type="number" step="0.01" id="cfg-custofixo" class="h-11 px-3 border border-slate-200 rounded-xl text-sm bg-slate-50 focus:bg-white focus:outline-hidden w-full font-bold text-slate-700" readonly title="Identificado automaticamente pelas despesas fixas">
+                        </div>
+
+                        <div class="flex flex-col gap-1">
+                            <label id="lbl-cfg-custovariavel" class="text-[10px] font-bold uppercase text-slate-500">Custo Variável Operacional Médio (R$)</label>
+                            <input type="number" step="0.01" id="cfg-custovariavel" class="h-11 px-3 border border-slate-200 rounded-xl text-sm bg-slate-50 focus:bg-white focus:outline-hidden w-full font-bold text-slate-700">
+                        </div>
                     </div>
                     
-                    <button onclick="saveConfig()" class="w-full h-12 bg-indigo-600 hover:bg-indigo-700 text-white font-semibold rounded-xl text-sm shadow-xs transition-all mt-2 cursor-pointer">Salvar Parâmetros</button>
+                    <button onclick="saveConfig()" class="w-full h-12 bg-indigo-600 hover:bg-indigo-700 text-white font-semibold rounded-xl text-sm shadow-xs transition-all mt-2 cursor-pointer">Salvar Parâmetros Operacionais</button>
                 </div>
             </div>
         </div>
@@ -296,8 +361,8 @@
         const nomesMeses = ['Janeiro', 'Fevereiro', 'Março', 'Abril', 'Maio', 'Junho', 'Julho', 'Agosto', 'Setembro', 'Outubro', 'Novembro', 'Dezembro'];
         const nomesCurtos = ['Jan', 'Fev', 'Mar', 'Abr', 'Mai', 'Jun', 'Jul', 'Ago', 'Set', 'Out', 'Nov', 'Dez'];
 
-        // CONTROLE DE ARMAZENAMENTO v20 - IDENTIFICAÇÃO SEMÂNTICA DE CUSTOS FIXOS
-        let lancamentos = JSON.parse(localStorage.getItem('simulador_lancamentos_v20')) || [
+        // CONTROLE DE ARMAZENAMENTO v21 - PLANOS E TURNOS FIXOS INTEGRADOS
+        let lancamentos = JSON.parse(localStorage.getItem('simulador_lancamentos_v21')) || [
             { id: '8Itjnat1UwZOqqmhnZIh', data: '2026-06-08', tipo: 'receita', sala: 'sala1', desc: 'Receita avulsa - Recarga gás', valor: 200.00 },
             { id: 'FPSqPHBXckuuCvrSo0TM', data: '2026-05-17', tipo: 'receita', sala: 'sala1', desc: 'Estorno cartao - Estorno de 1 caixa de rodapé', valor: 309.54 },
             { id: 'Fm2VHpe47l9GNOAqsBqQ', data: '2026-06-17', tipo: 'receita', sala: 'sala2', desc: 'Andressa Alves Santos - Locação Áthos II', valor: 40.00 },
@@ -308,10 +373,10 @@
             { id: '0Ow7s8v44HmAVrfVccJ7', data: '2026-05-20', tipo: 'investimento', sala: '-', desc: 'Estofados Obra (Serviços)', valor: 500.00 }
         ];
 
-        let config = JSON.parse(localStorage.getItem('simulador_config_v20')) || {
+        let config = JSON.parse(localStorage.getItem('simulador_config_v21')) || {
             metrica: 'horas',
-            capacidade: 320,
-            preco: 60,
+            capacidade: 528, // 12h/dia * 22 dias * 2 salas
+            preco: 35.00,    // Média ponderada dos pacotes (Áthos Continuidade R$30, Essencial R$35, Singular R$40)
             custoFixo: 0,
             custoVariavel: 10
         };
@@ -336,7 +401,6 @@
 
         function isDespesaFixaPorDescricao(descricao, categoria, subcategoria) {
             const text = `${descricao} ${categoria} ${subcategoria}`.toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "");
-            // Palavras-chave que caracterizam custos fixos operacionais em clínicas
             const fixedKeywords = ['aluguel', 'condominio', 'iptu', 'enel', 'coelce', 'energia', 'algar', 'claro', 'vivo', 'tim', 'oi', 'net', 'internet', 'telefone', 'agua', 'gelagua', 'contador', 'contabilidade', 'seguro'];
             return fixedKeywords.some(kw => text.includes(kw));
         }
@@ -348,7 +412,6 @@
 
             lancamentos.forEach(item => {
                 if (item.tipo === 'despesa') {
-                    // Atualiza ou valida a flag isFixo com base na descrição atual
                     item.isFixo = isDespesaFixaPorDescricao(item.desc, '', '');
                     if (item.isFixo) {
                         let d = new Date(item.data + 'T00:00:00');
@@ -366,7 +429,7 @@
             } else {
                 config.custoFixo = 0;
             }
-            localStorage.setItem('simulador_config_v20', JSON.stringify(config));
+            localStorage.setItem('simulador_config_v21', JSON.stringify(config));
         }
 
         function triggerToast(msg, icon = "ℹ️") {
@@ -552,9 +615,9 @@
                         return;
                     }
 
-                    localStorage.setItem('simulador_lancamentos_v20', JSON.stringify(lancamentos));
+                    localStorage.setItem('simulador_lancamentos_v21', JSON.stringify(lancamentos));
                     atualizarCustoFixoSemanticamente();
-                    triggerToast(`Planilha integrada e custos fixos identificados por descrição!`, "📥");
+                    triggerToast(`Planilha integrada e custos fixos identificados!`, "📥");
                     renderApp(); switchTab('dash');
                 } catch (globalErr) {
                     alert("Erro estrutural no processamento do Excel.");
@@ -687,18 +750,18 @@
             let isFixo = selectedType === 'despesa' ? isDespesaFixaPorDescricao(desc, '', '') : false;
             
             lancamentos.push({ id: manualId, data, tipo: selectedType, sala, desc, valor, isFixo });
-            localStorage.setItem('simulador_lancamentos_v20', JSON.stringify(lancamentos));
+            localStorage.setItem('simulador_lancamentos_v21', JSON.stringify(lancamentos));
             atualizarCustoFixoSemanticamente();
 
             document.getElementById('lanc-desc').value = '';
             document.getElementById('lanc-valor').value = '';
-            triggerToast("Lançamento adicionado e custos fixos recalculados!", "🟢");
+            triggerToast("Lançamento adicionado e custos recalculados!", "🟢");
             renderApp(); switchTab('dash');
         }
 
         function deleteLancamento(id) {
             lancamentos = lancamentos.filter(item => item.id !== id);
-            localStorage.setItem('simulador_lancamentos_v20', JSON.stringify(lancamentos));
+            localStorage.setItem('simulador_lancamentos_v21', JSON.stringify(lancamentos));
             atualizarCustoFixoSemanticamente();
             triggerToast("Registro removido.", "🔴"); renderApp();
         }
@@ -946,17 +1009,17 @@
         }
 
         function saveConfig() {
-            config.capacidade = parseInt(document.getElementById('cfg-capacidade').value) || 320;
-            config.preco = parseFloat(document.getElementById('cfg-preco').value) || 60;
+            config.capacidade = parseInt(document.getElementById('cfg-capacidade').value) || 528;
+            config.preco = parseFloat(document.getElementById('cfg-preco').value) || 35.00;
             config.custoVariavel = parseFloat(document.getElementById('cfg-custovariavel').value) || 0;
-            localStorage.setItem('simulador_config_v20', JSON.stringify(config));
+            localStorage.setItem('simulador_config_v21', JSON.stringify(config));
             triggerToast("Parâmetros operacionais salvos!", "⚙️");
             renderApp(); switchTab('dash');
         }
 
         function clearData() {
             if(confirm("Deseja apagar todos os dados locais?")) {
-                lancamentos = []; localStorage.setItem('simulador_lancamentos_v20', JSON.stringify(lancamentos));
+                lancamentos = []; localStorage.setItem('simulador_lancamentos_v21', JSON.stringify(lancamentos));
                 atualizarCustoFixoSemanticamente();
                 triggerToast("Banco de dados resetado.", "🧹"); renderApp();
             }
