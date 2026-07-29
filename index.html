@@ -145,7 +145,7 @@
         <div id="tab-lanc" class="tab-content hidden max-w-3xl mx-auto space-y-6">
             <div class="bg-white p-5 rounded-2xl shadow-xs border border-slate-100">
                 <h2 class="text-sm font-bold text-slate-700 mb-1">📥 Importar Planilha do Excel (.xlsx / .xls)</h2>
-                <p class="text-xs text-slate-400 mb-4">Arraste ou selecione o arquivo consolidado da clínica. O motor filtrará automaticamente apenas as abas de Receitas e Despesas.</p>
+                <p class="text-xs text-slate-400 mb-4">Arraste ou selecione o arquivo consolidado da clínica. O motor identificará os custos fixos semanticamente pela descrição.</p>
                 <div class="w-full">
                     <label for="file-uploader" class="flex flex-col items-center justify-center w-full h-28 border-2 border-slate-200 border-dashed rounded-xl cursor-pointer bg-slate-50 hover:bg-slate-100 transition-all p-4 text-center">
                         <svg class="w-6 h-6 mb-2 text-slate-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12"></path></svg>
@@ -188,7 +188,7 @@
                         </div>
                         <div class="flex flex-col gap-1">
                             <label for="lanc-desc" class="text-[10px] font-bold uppercase text-slate-400 cursor-pointer">Descrição / Notas</label>
-                            <input type="text" id="lanc-desc" required placeholder="Ex: Turno Dr. Silva" class="h-11 px-3 border border-slate-200 rounded-xl text-sm bg-slate-50 focus:bg-white focus:outline-hidden w-full">
+                            <input type="text" id="lanc-desc" required placeholder="Ex: Aluguel / Enel / IPTU" class="h-11 px-3 border border-slate-200 rounded-xl text-sm bg-slate-50 focus:bg-white focus:outline-hidden w-full">
                         </div>
                         <div class="flex flex-col gap-1">
                             <label for="lanc-valor" class="text-[10px] font-bold uppercase text-slate-400 cursor-pointer">Valor (R$)</label>
@@ -243,7 +243,7 @@
         <div id="tab-config" class="tab-content hidden max-w-md mx-auto">
             <div class="bg-white p-5 rounded-2xl shadow-xs border border-slate-100">
                 <h2 class="text-sm font-bold text-slate-700 mb-1">Parâmetros Operacionais Estratégicos</h2>
-                <p class="text-xs text-slate-400 mb-5">Configure as métricas financeiras essenciais da sua clínica.</p>
+                <p class="text-xs text-slate-400 mb-5">Identificação automática de custos fixos por descrição das despesas.</p>
                 
                 <div class="space-y-5">
                     <div>
@@ -265,8 +265,12 @@
                     </div>
 
                     <div class="flex flex-col gap-1">
-                        <label for="cfg-custofixo" class="text-[10px] font-bold uppercase text-slate-500 cursor-pointer">Estrutura de Custo Fixo Base Mensal (R$)</label>
-                        <input type="number" step="0.01" id="cfg-custofixo" class="h-11 px-3 border border-slate-200 rounded-xl text-sm bg-slate-50 focus:bg-white focus:outline-hidden w-full">
+                        <div class="flex justify-between items-center">
+                            <label for="cfg-custofixo" class="text-[10px] font-bold uppercase text-slate-500 cursor-pointer">Custo Fixo Base Mensal (R$)</label>
+                            <span class="text-[10px] text-emerald-600 font-semibold bg-emerald-50 px-2 py-0.5 rounded-md">Identificado por Descrição</span>
+                        </div>
+                        <input type="number" step="0.01" id="cfg-custofixo" class="h-11 px-3 border border-slate-200 rounded-xl text-sm bg-slate-50 focus:bg-white focus:outline-hidden w-full font-bold text-slate-700" readonly title="Identificado automaticamente pelas despesas fixas (Aluguel, Condomínio, IPTU, Energia, Internet, Água, etc.)">
+                        <span class="text-[10px] text-slate-400">Média mensal calculada estritamente com base nas despesas fixas reconhecidas.</span>
                     </div>
 
                     <div class="flex flex-col gap-1">
@@ -292,23 +296,23 @@
         const nomesMeses = ['Janeiro', 'Fevereiro', 'Março', 'Abril', 'Maio', 'Junho', 'Julho', 'Agosto', 'Setembro', 'Outubro', 'Novembro', 'Dezembro'];
         const nomesCurtos = ['Jan', 'Fev', 'Mar', 'Abr', 'Mai', 'Jun', 'Jul', 'Ago', 'Set', 'Out', 'Nov', 'Dez'];
 
-        // CONTROLE DE ARMAZENAMENTO v18 - MOTOR FP&A CRONOLÓGICO MENSAL EXATO
-        let lancamentos = JSON.parse(localStorage.getItem('simulador_lancamentos_v18')) || [
+        // CONTROLE DE ARMAZENAMENTO v20 - IDENTIFICAÇÃO SEMÂNTICA DE CUSTOS FIXOS
+        let lancamentos = JSON.parse(localStorage.getItem('simulador_lancamentos_v20')) || [
             { id: '8Itjnat1UwZOqqmhnZIh', data: '2026-06-08', tipo: 'receita', sala: 'sala1', desc: 'Receita avulsa - Recarga gás', valor: 200.00 },
             { id: 'FPSqPHBXckuuCvrSo0TM', data: '2026-05-17', tipo: 'receita', sala: 'sala1', desc: 'Estorno cartao - Estorno de 1 caixa de rodapé', valor: 309.54 },
             { id: 'Fm2VHpe47l9GNOAqsBqQ', data: '2026-06-17', tipo: 'receita', sala: 'sala2', desc: 'Andressa Alves Santos - Locação Áthos II', valor: 40.00 },
             { id: 'pOUrAZjqHpjL7gusj8cs', data: '2026-06-25', tipo: 'receita', sala: 'sala2', desc: 'Andressa Alves Santos - Locação Áthos II', valor: 40.00 },
-            { id: '04QGu29zSkFzPGnNQIvQ', data: '2026-06-15', tipo: 'despesa', sala: '-', desc: 'Enel (Energia)', valor: 226.31 },
+            { id: '04QGu29zSkFzPGnNQIvQ', data: '2026-06-15', tipo: 'despesa', sala: '-', desc: 'Enel (Energia)', valor: 226.31, isFixo: true },
             { id: '0BN9iiHb19AeU0oPiRa2', data: '2026-04-17', tipo: 'investimento', sala: '-', desc: 'Compras - Santiago (Serviços)', valor: 301.06 },
             { id: '0I1Jxi8SbC4DbSxaKPp7', data: '2026-06-10', tipo: 'investimento', sala: '-', desc: 'Carrinho Aparador (Compras)', valor: 42.33 },
             { id: '0Ow7s8v44HmAVrfVccJ7', data: '2026-05-20', tipo: 'investimento', sala: '-', desc: 'Estofados Obra (Serviços)', valor: 500.00 }
         ];
 
-        let config = JSON.parse(localStorage.getItem('simulador_config_v18')) || {
+        let config = JSON.parse(localStorage.getItem('simulador_config_v20')) || {
             metrica: 'horas',
             capacidade: 320,
             preco: 60,
-            custoFixo: 3500,
+            custoFixo: 0,
             custoVariavel: 10
         };
 
@@ -317,6 +321,7 @@
         document.addEventListener("DOMContentLoaded", () => {
             document.getElementById('lanc-data').valueAsDate = new Date();
             renderDropdownCheckboxes();
+            atualizarCustoFixoSemanticamente();
             updateMetricaUI();
             renderApp();
 
@@ -328,6 +333,41 @@
                 }
             });
         });
+
+        function isDespesaFixaPorDescricao(descricao, categoria, subcategoria) {
+            const text = `${descricao} ${categoria} ${subcategoria}`.toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "");
+            // Palavras-chave que caracterizam custos fixos operacionais em clínicas
+            const fixedKeywords = ['aluguel', 'condominio', 'iptu', 'enel', 'coelce', 'energia', 'algar', 'claro', 'vivo', 'tim', 'oi', 'net', 'internet', 'telefone', 'agua', 'gelagua', 'contador', 'contabilidade', 'seguro'];
+            return fixedKeywords.some(kw => text.includes(kw));
+        }
+
+        function atualizarCustoFixoSemanticamente() {
+            let despesasFixasPorMes = {};
+            let mesesComDespesaFixa = new Set();
+            let totalFixas = 0;
+
+            lancamentos.forEach(item => {
+                if (item.tipo === 'despesa') {
+                    // Atualiza ou valida a flag isFixo com base na descrição atual
+                    item.isFixo = isDespesaFixaPorDescricao(item.desc, '', '');
+                    if (item.isFixo) {
+                        let d = new Date(item.data + 'T00:00:00');
+                        let key = d.getFullYear() + '-' + d.getMonth();
+                        despesasFixasPorMes[key] = (despesasFixasPorMes[key] || 0) + item.valor;
+                        totalFixas += item.valor;
+                        mesesComDespesaFixa.add(key);
+                    }
+                }
+            });
+
+            let qtdMeses = mesesComDespesaFixa.size;
+            if (qtdMeses > 0) {
+                config.custoFixo = Math.round((totalFixas / qtdMeses) * 100) / 100;
+            } else {
+                config.custoFixo = 0;
+            }
+            localStorage.setItem('simulador_config_v20', JSON.stringify(config));
+        }
 
         function triggerToast(msg, icon = "ℹ️") {
             const toast = document.getElementById('toast-notification');
@@ -494,9 +534,11 @@
                                     if(valor === 0) return; 
                                     
                                     let tipo = processarClassificacaoDespesa(descricao, categoria, subcategoria);
+                                    let descCompleta = descricao + (subcategoria ? ' (' + subcategoria + ')' : '');
+                                    let isFixo = isDespesaFixaPorDescricao(descCompleta, categoria, subcategoria);
                                     
                                     if (lancamentos.some(l => l.id === rawId)) return;
-                                    lancamentos.push({ id: rawId, data: normalizedDateStr, tipo: tipo, sala: '-', desc: descricao + (subcategoria ? ' (' + subcategoria + ')' : ''), valor: valor });
+                                    lancamentos.push({ id: rawId, data: normalizedDateStr, tipo: tipo, sala: '-', desc: descCompleta, valor: valor, isFixo: isFixo });
                                     countImported++;
                                 });
                             }
@@ -510,8 +552,9 @@
                         return;
                     }
 
-                    localStorage.setItem('simulador_lancamentos_v18', JSON.stringify(lancamentos));
-                    triggerToast(`Planilha Áthos integrada com sucesso!`, "📥");
+                    localStorage.setItem('simulador_lancamentos_v20', JSON.stringify(lancamentos));
+                    atualizarCustoFixoSemanticamente();
+                    triggerToast(`Planilha integrada e custos fixos identificados por descrição!`, "📥");
                     renderApp(); switchTab('dash');
                 } catch (globalErr) {
                     alert("Erro estrutural no processamento do Excel.");
@@ -593,6 +636,10 @@
         }
 
         function switchTab(tabId) {
+            if (tabId === 'config') {
+                atualizarCustoFixoSemanticamente();
+                updateMetricaUI();
+            }
             document.querySelectorAll('.tab-content').forEach(el => el.classList.add('hidden'));
             document.querySelectorAll('.tab-btn').forEach(el => {
                 el.className = "tab-btn snap-center px-4 py-2.5 text-xs lg:text-sm font-semibold rounded-lg text-indigo-200 hover:text-white cursor-pointer";
@@ -637,18 +684,22 @@
 
             if(valor <= 0) { alert("Insira um valor acima de R$ 0,00"); return; }
             let manualId = 'manual-' + Date.now();
-            lancamentos.push({ id: manualId, data, tipo: selectedType, sala, desc, valor });
-            localStorage.setItem('simulador_lancamentos_v18', JSON.stringify(lancamentos));
+            let isFixo = selectedType === 'despesa' ? isDespesaFixaPorDescricao(desc, '', '') : false;
+            
+            lancamentos.push({ id: manualId, data, tipo: selectedType, sala, desc, valor, isFixo });
+            localStorage.setItem('simulador_lancamentos_v20', JSON.stringify(lancamentos));
+            atualizarCustoFixoSemanticamente();
 
             document.getElementById('lanc-desc').value = '';
             document.getElementById('lanc-valor').value = '';
-            triggerToast("Lançamento adicionado manualmente!", "🟢");
+            triggerToast("Lançamento adicionado e custos fixos recalculados!", "🟢");
             renderApp(); switchTab('dash');
         }
 
         function deleteLancamento(id) {
             lancamentos = lancamentos.filter(item => item.id !== id);
-            localStorage.setItem('simulador_lancamentos_v18', JSON.stringify(lancamentos));
+            localStorage.setItem('simulador_lancamentos_v20', JSON.stringify(lancamentos));
+            atualizarCustoFixoSemanticamente();
             triggerToast("Registro removido.", "🔴"); renderApp();
         }
 
@@ -658,12 +709,8 @@
             return parseFloat(cleanVal) || 0;
         }
 
-        // MOTOR FP&A: CÁLCULO DE TIR E PAYBACK SOBRE O VETOR DE FLUXO DE CAIXA MENSAL CRONOLÓGICO REAL
         function calcularTIRCronologica(cashFlows) {
-            // cashFlows é um array de saldos líquidos mensais reais [CF1, CF2, ..., CFn]
             if (!cashFlows || cashFlows.length === 0) return 0;
-            
-            // Verifica se há pelo menos um investimento inicial (negativo) e retornos positivos
             let hasNegative = cashFlows.some(cf => cf < 0);
             let hasPositive = cashFlows.some(cf => cf > 0);
             if (!hasNegative || !hasPositive) return 0;
@@ -687,7 +734,6 @@
                 let vplMid = calcularVPL(mid);
 
                 if (Math.abs(vplMid) < 1e-5) return mid * 100;
-
                 if (vplMid > 0) { low = mid; } 
                 else { high = mid; }
             }
@@ -695,24 +741,25 @@
         }
 
         function calcularPaybackAcumulado(cashFlows) {
-            // cashFlows cronológico do período ativo
             let acumulado = 0;
             let mesesAteRetorno = null;
+            let atingiuRetorno = false;
 
             for (let i = 0; i < cashFlows.length; i++) {
                 let anterior = acumulado;
                 acumulado += cashFlows[i];
                 if (acumulado >= 0 && anterior < 0) {
-                    // Interpolação linear exata dentro do mês
                     let fracao = Math.abs(anterior) / cashFlows[i];
                     mesesAteRetorno = i + fracao;
+                    atingiuRetorno = true;
                     break;
                 } else if (acumulado >= 0 && i === 0 && cashFlows[0] >= 0) {
                     mesesAteRetorno = 0;
+                    atingiuRetorno = true;
                     break;
                 }
             }
-            return mesesAteRetorno;
+            return { atingiuRetorno, mesesAteRetorno };
         }
 
         function renderApp() {
@@ -786,6 +833,7 @@
             let totalReceitas = sala1Tot + sala2Tot;
             const qtdMesesSelecionados = mesesAtivos.length || 1;
             
+            atualizarCustoFixoSemanticamente();
             let custoFixoAcumulado = config.custoFixo * qtdMesesSelecionados;
             let margemContribuicaoUnitaria = config.preco - config.custoVariavel;
             if(margemContribuicaoUnitaria <= 0) margemContribuicaoUnitaria = config.preco || 1; 
@@ -805,7 +853,6 @@
             document.getElementById('sum-operacional').innerText = formatCurrency(resultadoOperacional);
             document.getElementById('sum-liquido').innerText = formatCurrency(fluxoCaixaLiquido);
 
-            // CONSTRUÇÃO DO VETOR DE FLUXO DE CAIXA MENSAL CRONOLÓGICO PARA O PERÍODO ATIVO
             let vetorFluxoCaixaMensal = [];
             mesesAtivos.forEach(idx => {
                 let rMes = 0; let dMes = 0; let iMes = 0;
@@ -817,27 +864,26 @@
                         if(item.tipo === 'investimento') iMes += item.valor;
                     }
                 });
-                // Fluxo líquido do mês = Receitas - Despesas - Investimentos
                 let cfMes = (rMes - dMes) - iMes;
                 vetorFluxoCaixaMensal.push(cfMes);
             });
 
             if (totalInvestido > 0) {
-                // Payback Acumulado Dinâmico
-                let mesesPayback = calcularPaybackAcumulado(vetorFluxoCaixaMensal);
+                let paybackRes = calcularPaybackAcumulado(vetorFluxoCaixaMensal);
                 let paybackEl = document.getElementById('kpi-payback');
-                if (mesesPayback !== null) {
-                    paybackEl.innerText = mesesPayback.toFixed(1) + ' meses';
+                
+                if (paybackRes.atingiuRetorno && paybackRes.mesesAteRetorno !== null) {
+                    paybackEl.innerText = paybackRes.mesesAteRetorno.toFixed(1) + ' meses';
+                    paybackEl.className = "text-xl lg:text-2xl font-bold text-emerald-600 block mt-1.5";
                 } else {
                     paybackEl.innerText = 'Déficit Ativo';
+                    paybackEl.className = "text-xl lg:text-2xl font-bold text-rose-600 block mt-1.5";
                 }
                 
-                // ROI Anualizado com base no resultado operacional do período
                 let lucroMensalMedioReal = resultadoOperacional / qtdMesesSelecionados;
                 let roiAnualCalculado = ((lucroMensalMedioReal * 12) / totalInvestido) * 100;
                 document.getElementById('kpi-roi').innerText = roiAnualCalculado.toFixed(1) + '%';
                 
-                // TIR Mensal calculada com o vetor cronológico real
                 let tirCalculada = calcularTIRCronologica(vetorFluxoCaixaMensal);
                 let tirEl = document.getElementById('kpi-tir');
                 tirEl.innerText = tirCalculada.toFixed(1) + '%';
@@ -849,6 +895,7 @@
                 }
             } else {
                 document.getElementById('kpi-payback').innerText = 'Sem Invest.';
+                document.getElementById('kpi-payback').className = "text-xl lg:text-2xl font-bold text-slate-800 block mt-1.5";
                 document.getElementById('kpi-roi').innerText = '0.0%';
                 document.getElementById('kpi-tir').innerText = '0.0%';
                 document.getElementById('kpi-tir').className = "text-xl lg:text-2xl font-bold text-slate-500 block mt-1.5";
@@ -901,16 +948,16 @@
         function saveConfig() {
             config.capacidade = parseInt(document.getElementById('cfg-capacidade').value) || 320;
             config.preco = parseFloat(document.getElementById('cfg-preco').value) || 60;
-            config.custoFixo = parseFloat(document.getElementById('cfg-custofixo').value) || 0;
             config.custoVariavel = parseFloat(document.getElementById('cfg-custovariavel').value) || 0;
-            localStorage.setItem('simulador_config_v18', JSON.stringify(config));
+            localStorage.setItem('simulador_config_v20', JSON.stringify(config));
             triggerToast("Parâmetros operacionais salvos!", "⚙️");
             renderApp(); switchTab('dash');
         }
 
         function clearData() {
             if(confirm("Deseja apagar todos os dados locais?")) {
-                lancamentos = []; localStorage.setItem('simulador_lancamentos_v18', JSON.stringify(lancamentos));
+                lancamentos = []; localStorage.setItem('simulador_lancamentos_v20', JSON.stringify(lancamentos));
+                atualizarCustoFixoSemanticamente();
                 triggerToast("Banco de dados resetado.", "🧹"); renderApp();
             }
         }
