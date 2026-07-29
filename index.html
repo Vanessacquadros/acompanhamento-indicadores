@@ -8,7 +8,7 @@
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
     <style>
-        @import url('https://fonts.googleapis.com/css2?family=Inter:wght=300;400;500;600;700&display=swap');
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
         body { font-family: 'Inter', sans-serif; -webkit-tap-highlight-color: transparent; }
         .no-scrollbar::-webkit-scrollbar { display: none; }
         .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
@@ -89,12 +89,12 @@
                     <span class="text-[10px] text-slate-400 block mt-0.5">Break-Even Período</span>
                 </div>
                 <div class="bg-white p-4 rounded-2xl shadow-xs border border-slate-100 col-span-1">
-                    <span class="text-[10px] font-bold text-slate-400 uppercase tracking-wider block">Payback Estimado</span>
+                    <span class="text-[10px] font-bold text-slate-400 uppercase tracking-wider block">Payback Acumulado</span>
                     <span id="kpi-payback" class="text-xl lg:text-2xl font-bold text-slate-800 block mt-1.5">0 meses</span>
                     <span class="text-[10px] text-slate-400 block mt-0.5">Retorno Investimento</span>
                 </div>
                 <div class="bg-white p-4 rounded-2xl shadow-xs border border-slate-100 col-span-1">
-                    <span class="text-[10px] font-bold text-slate-400 uppercase tracking-wider block">ROI Anual Projetado</span>
+                    <span class="text-[10px] font-bold text-slate-400 uppercase tracking-wider block">ROI Anualizado</span>
                     <span id="kpi-roi" class="text-xl lg:text-2xl font-bold text-slate-800 block mt-1.5">0.0%</span>
                     <span class="text-[10px] text-slate-400 block mt-0.5">Taxa de Retorno s/ Cap.</span>
                 </div>
@@ -292,8 +292,8 @@
         const nomesMeses = ['Janeiro', 'Fevereiro', 'Março', 'Abril', 'Maio', 'Junho', 'Julho', 'Agosto', 'Setembro', 'Outubro', 'Novembro', 'Dezembro'];
         const nomesCurtos = ['Jan', 'Fev', 'Mar', 'Abr', 'Mai', 'Jun', 'Jul', 'Ago', 'Set', 'Out', 'Nov', 'Dez'];
 
-        // CONTROLE DE ARMAZENAMENTO v17 - CÁLCULOS ALINHADOS DE RETORNO (TIR/ROI)
-        let lancamentos = JSON.parse(localStorage.getItem('simulador_lancamentos_v17')) || [
+        // CONTROLE DE ARMAZENAMENTO v18 - MOTOR FP&A CRONOLÓGICO MENSAL EXATO
+        let lancamentos = JSON.parse(localStorage.getItem('simulador_lancamentos_v18')) || [
             { id: '8Itjnat1UwZOqqmhnZIh', data: '2026-06-08', tipo: 'receita', sala: 'sala1', desc: 'Receita avulsa - Recarga gás', valor: 200.00 },
             { id: 'FPSqPHBXckuuCvrSo0TM', data: '2026-05-17', tipo: 'receita', sala: 'sala1', desc: 'Estorno cartao - Estorno de 1 caixa de rodapé', valor: 309.54 },
             { id: 'Fm2VHpe47l9GNOAqsBqQ', data: '2026-06-17', tipo: 'receita', sala: 'sala2', desc: 'Andressa Alves Santos - Locação Áthos II', valor: 40.00 },
@@ -304,7 +304,7 @@
             { id: '0Ow7s8v44HmAVrfVccJ7', data: '2026-05-20', tipo: 'investimento', sala: '-', desc: 'Estofados Obra (Serviços)', valor: 500.00 }
         ];
 
-        let config = JSON.parse(localStorage.getItem('simulador_config_v17')) || {
+        let config = JSON.parse(localStorage.getItem('simulador_config_v18')) || {
             metrica: 'horas',
             capacidade: 320,
             preco: 60,
@@ -510,7 +510,7 @@
                         return;
                     }
 
-                    localStorage.setItem('simulador_lancamentos_v17', JSON.stringify(lancamentos));
+                    localStorage.setItem('simulador_lancamentos_v18', JSON.stringify(lancamentos));
                     triggerToast(`Planilha Áthos integrada com sucesso!`, "📥");
                     renderApp(); switchTab('dash');
                 } catch (globalErr) {
@@ -638,7 +638,7 @@
             if(valor <= 0) { alert("Insira um valor acima de R$ 0,00"); return; }
             let manualId = 'manual-' + Date.now();
             lancamentos.push({ id: manualId, data, tipo: selectedType, sala, desc, valor });
-            localStorage.setItem('simulador_lancamentos_v17', JSON.stringify(lancamentos));
+            localStorage.setItem('simulador_lancamentos_v18', JSON.stringify(lancamentos));
 
             document.getElementById('lanc-desc').value = '';
             document.getElementById('lanc-valor').value = '';
@@ -648,7 +648,7 @@
 
         function deleteLancamento(id) {
             lancamentos = lancamentos.filter(item => item.id !== id);
-            localStorage.setItem('simulador_lancamentos_v17', JSON.stringify(lancamentos));
+            localStorage.setItem('simulador_lancamentos_v18', JSON.stringify(lancamentos));
             triggerToast("Registro removido.", "🔴"); renderApp();
         }
 
@@ -658,37 +658,61 @@
             return parseFloat(cleanVal) || 0;
         }
 
-        // MOTOR DE BISSECÇÃO - INTEGRADO E SEGURO CONTRA TAXAS NEGATIVAS OU DEFICITÁRIAS
-        function calcularTIRReal(investimento, lucroMensal, meses) {
-            if (investimento <= 0) return 0;
+        // MOTOR FP&A: CÁLCULO DE TIR E PAYBACK SOBRE O VETOR DE FLUXO DE CAIXA MENSAL CRONOLÓGICO REAL
+        function calcularTIRCronologica(cashFlows) {
+            // cashFlows é um array de saldos líquidos mensais reais [CF1, CF2, ..., CFn]
+            if (!cashFlows || cashFlows.length === 0) return 0;
             
-            // SE O LUCRO DO PERÍODO FOR MENOR OU IGUAL A ZERO, HÁ PERDA TOTAL DO APORTE NO HORIZONTE DE SIMULAÇÃO
-            if (lucroMensal <= 0) return -100.0;
+            // Verifica se há pelo menos um investimento inicial (negativo) e retornos positivos
+            let hasNegative = cashFlows.some(cf => cf < 0);
+            let hasPositive = cashFlows.some(cf => cf > 0);
+            if (!hasNegative || !hasPositive) return 0;
 
             function calcularVPL(r) {
-                let vpl = -investimento;
-                for (let t = 1; t <= meses; t++) {
-                    vpl += lucroMensal / Math.pow(1 + r, t);
+                let vpl = 0;
+                for (let t = 0; t < cashFlows.length; t++) {
+                    vpl += cashFlows[t] / Math.pow(1 + r, t + 1);
                 }
                 return vpl;
             }
 
-            let low = -0.999; 
-            let high = 20.0;  
+            let low = -0.999;
+            let high = 20.0;
 
             if (calcularVPL(low) < 0) return -100.0;
             if (calcularVPL(high) > 0) return high * 100;
 
-            for (let i = 0; i < 80; i++) {
+            for (let i = 0; i < 100; i++) {
                 let mid = (low + high) / 2;
                 let vplMid = calcularVPL(mid);
 
-                if (Math.abs(vplMid) < 1e-4) return mid * 100;
+                if (Math.abs(vplMid) < 1e-5) return mid * 100;
 
                 if (vplMid > 0) { low = mid; } 
                 else { high = mid; }
             }
             return ((low + high) / 2) * 100;
+        }
+
+        function calcularPaybackAcumulado(cashFlows) {
+            // cashFlows cronológico do período ativo
+            let acumulado = 0;
+            let mesesAteRetorno = null;
+
+            for (let i = 0; i < cashFlows.length; i++) {
+                let anterior = acumulado;
+                acumulado += cashFlows[i];
+                if (acumulado >= 0 && anterior < 0) {
+                    // Interpolação linear exata dentro do mês
+                    let fracao = Math.abs(anterior) / cashFlows[i];
+                    mesesAteRetorno = i + fracao;
+                    break;
+                } else if (acumulado >= 0 && i === 0 && cashFlows[0] >= 0) {
+                    mesesAteRetorno = 0;
+                    break;
+                }
+            }
+            return mesesAteRetorno;
         }
 
         function renderApp() {
@@ -781,19 +805,40 @@
             document.getElementById('sum-operacional').innerText = formatCurrency(resultadoOperacional);
             document.getElementById('sum-liquido').innerText = formatCurrency(fluxoCaixaLiquido);
 
-            let lucroMensalMedioReal = resultadoOperacional / qtdMesesSelecionados;
+            // CONSTRUÇÃO DO VETOR DE FLUXO DE CAIXA MENSAL CRONOLÓGICO PARA O PERÍODO ATIVO
+            let vetorFluxoCaixaMensal = [];
+            mesesAtivos.forEach(idx => {
+                let rMes = 0; let dMes = 0; let iMes = 0;
+                lancamentos.forEach(item => {
+                    const itemDate = new Date(item.data + 'T00:00:00');
+                    if(itemDate.getFullYear().toString() === filtroAno && itemDate.getMonth() === idx) {
+                        if(item.tipo === 'receita') rMes += item.valor;
+                        if(item.tipo === 'despesa') dMes += item.valor;
+                        if(item.tipo === 'investimento') iMes += item.valor;
+                    }
+                });
+                // Fluxo líquido do mês = Receitas - Despesas - Investimentos
+                let cfMes = (rMes - dMes) - iMes;
+                vetorFluxoCaixaMensal.push(cfMes);
+            });
 
-            // ANÁLISE COMPATÍVEL BASEADA NO ESCOPO INTEGRAL FILTRADO DO PERÍODO ACTIVO
             if (totalInvestido > 0) {
-                document.getElementById('kpi-payback').innerText = lucroMensalMedioReal > 0 ? (totalInvestido / lucroMensalMedioReal).toFixed(1) + ' meses' : 'Déficit Ativo';
+                // Payback Acumulado Dinâmico
+                let mesesPayback = calcularPaybackAcumulado(vetorFluxoCaixaMensal);
+                let paybackEl = document.getElementById('kpi-payback');
+                if (mesesPayback !== null) {
+                    paybackEl.innerText = mesesPayback.toFixed(1) + ' meses';
+                } else {
+                    paybackEl.innerText = 'Déficit Ativo';
+                }
                 
-                // ROI ANUAL PROJETADO: (Lucro Mensal Médio do Período * 12) / Investimento realizado no período selecionado
+                // ROI Anualizado com base no resultado operacional do período
+                let lucroMensalMedioReal = resultadoOperacional / qtdMesesSelecionados;
                 let roiAnualCalculado = ((lucroMensalMedioReal * 12) / totalInvestido) * 100;
-                let roiEl = document.getElementById('kpi-roi');
-                roiEl.innerText = roiAnualCalculado.toFixed(1) + '%';
+                document.getElementById('kpi-roi').innerText = roiAnualCalculado.toFixed(1) + '%';
                 
-                // TIR MENSAL CALCULADA POR PROJEÇÃO COM BASE NO ESCOPO ATIVO
-                let tirCalculada = calcularTIRReal(totalInvestido, lucroMensalMedioReal, 12);
+                // TIR Mensal calculada com o vetor cronológico real
+                let tirCalculada = calcularTIRCronologica(vetorFluxoCaixaMensal);
                 let tirEl = document.getElementById('kpi-tir');
                 tirEl.innerText = tirCalculada.toFixed(1) + '%';
                 
@@ -858,14 +903,14 @@
             config.preco = parseFloat(document.getElementById('cfg-preco').value) || 60;
             config.custoFixo = parseFloat(document.getElementById('cfg-custofixo').value) || 0;
             config.custoVariavel = parseFloat(document.getElementById('cfg-custovariavel').value) || 0;
-            localStorage.setItem('simulador_config_v17', JSON.stringify(config));
+            localStorage.setItem('simulador_config_v18', JSON.stringify(config));
             triggerToast("Parâmetros operacionais salvos!", "⚙️");
             renderApp(); switchTab('dash');
         }
 
         function clearData() {
             if(confirm("Deseja apagar todos os dados locais?")) {
-                lancamentos = []; localStorage.setItem('simulador_lancamentos_v17', JSON.stringify(lancamentos));
+                lancamentos = []; localStorage.setItem('simulador_lancamentos_v18', JSON.stringify(lancamentos));
                 triggerToast("Banco de dados resetado.", "🧹"); renderApp();
             }
         }
