@@ -374,8 +374,8 @@
         const nomesMeses = ['Janeiro', 'Fevereiro', 'Março', 'Abril', 'Maio', 'Junho', 'Julho', 'Agosto', 'Setembro', 'Outubro', 'Novembro', 'Dezembro'];
         const nomesCurtos = ['Jan', 'Fev', 'Mar', 'Abr', 'Mai', 'Jun', 'Jul', 'Ago', 'Set', 'Out', 'Nov', 'Dez'];
 
-        // CONTROLE DE ARMAZENAMENTO v26 - CORREÇÃO DO CUSTO VARIÁVEL POR HORA/TURNO
-        let lancamentos = JSON.parse(localStorage.getItem('simulador_lancamentos_v26')) || [
+        // CONTROLE DE ARMAZENAMENTO v27 - DINÂMICA DE CUSTO FIXO MENSAL VS MÉDIA
+        let lancamentos = JSON.parse(localStorage.getItem('simulador_lancamentos_v27')) || [
             { id: '8Itjnat1UwZOqqmhnZIh', data: '2026-06-08', tipo: 'receita', sala: 'sala1', desc: 'Receita avulsa - Recarga gás', valor: 200.00 },
             { id: 'FPSqPHBXckuuCvrSo0TM', data: '2026-05-17', tipo: 'receita', sala: 'sala1', desc: 'Estorno cartao - Estorno de 1 caixa de rodapé', valor: 309.54 },
             { id: 'Fm2VHpe47l9GNOAqsBqQ', data: '2026-06-17', tipo: 'receita', sala: 'sala2', desc: 'Andressa Alves Santos - Locação Áthos II', valor: 40.00 },
@@ -386,18 +386,18 @@
             { id: '0Ow7s8v44HmAVrfVccJ7', data: '2026-05-20', tipo: 'investimento', sala: '-', desc: 'Estofados Obra (Serviços)', valor: 500.00 }
         ];
 
-        let pacotes = JSON.parse(localStorage.getItem('simulador_pacotes_v26')) || [
+        let pacotes = JSON.parse(localStorage.getItem('simulador_pacotes_v27')) || [
             { id: 0, nome: 'Áthos Continuidade', tipo: 'Pacote Mensal', horas: 10, valor: 300.00, desc: '10h/mês — cobrança recorrente' },
             { id: 1, nome: 'Áthos Essencial', tipo: 'Pacote Mensal', horas: 5, valor: 175.00, desc: '5h/mês — cobrança recorrente' },
             { id: 2, nome: 'Áthos Singular', tipo: 'Pacote Mensal', horas: 1, valor: 40.00, desc: '1h/mês — cobrança recorrente' }
         ];
 
-        let config = JSON.parse(localStorage.getItem('simulador_config_v26')) || {
+        let config = JSON.parse(localStorage.getItem('simulador_config_v27')) || {
             metrica: 'horas',
             capacidade: 528, 
             preco: 35.00,    
             custoFixo: 0,
-            custoVariavel: 10
+            custoVariavel: 2.00
         };
 
         let editingPackageId = null;
@@ -475,7 +475,7 @@
                 desc: `${horas}h/mês — cobrança recorrente`
             };
 
-            localStorage.setItem('simulador_pacotes_v26', JSON.stringify(pacotes));
+            localStorage.setItem('simulador_pacotes_v27', JSON.stringify(pacotes));
             renderPacotesUI();
             fecharModalPacote();
             triggerToast("Pacote atualizado com sucesso!", "✏️");
@@ -493,7 +493,7 @@
             config.preco = Math.round(mediaPonderada * 100) / 100;
             const precoInput = document.getElementById('cfg-preco');
             if(precoInput) precoInput.value = config.preco;
-            localStorage.setItem('simulador_config_v26', JSON.stringify(config));
+            localStorage.setItem('simulador_config_v27', JSON.stringify(config));
         }
 
         function isDespesaFixaPorDescricao(descricao, categoria, subcategoria) {
@@ -504,7 +504,6 @@
 
         function isDespesaVariavelPorDescricao(descricao) {
             const text = `${descricao}`.toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "");
-            // Dicionário expandido para insumos de clínica (copa, limpeza, descartáveis, etc.)
             const variableKeywords = ['copa', 'limpeza', 'escritorio', 'material', 'essencias', 'varetas', 'vidros', 'cafe', 'agua', 'filtro', 'descartavel', 'toalha', 'papel', 'sabonete', 'detergente', 'insumo'];
             return variableKeywords.some(kw => text.includes(kw));
         }
@@ -546,12 +545,11 @@
             let qtdMesesVariaveis = mesesComVariavel.size;
             let custoVariavelTotalMensal = qtdMesesVariaveis > 0 ? (totalVariavel / qtdMesesVariaveis) : 0;
             
-            // CORREÇÃO: Divisão pelo total de capacidade mensal da clínica (sem dividir por 2 indevidamente)
             let capacidadeMensal = config.capacidade || 528;
             let custoVariavelUnitario = capacidadeMensal > 0 ? (custoVariavelTotalMensal / capacidadeMensal) : 2.00;
             config.custoVariavel = Math.max(Math.round(custoVariavelUnitario * 100) / 100, 0.50);
 
-            localStorage.setItem('simulador_config_v26', JSON.stringify(config));
+            localStorage.setItem('simulador_config_v27', JSON.stringify(config));
         }
 
         function triggerToast(msg, icon = "ℹ️") {
@@ -738,7 +736,7 @@
                         return;
                     }
 
-                    localStorage.setItem('simulador_lancamentos_v26', JSON.stringify(lancamentos));
+                    localStorage.setItem('simulador_lancamentos_v27', JSON.stringify(lancamentos));
                     atualizarCustosAutomaticosSemanticamente();
                     triggerToast(`Planilha integrada com sucesso!`, "📥");
                     renderApp(); switchTab('dash');
@@ -893,7 +891,7 @@
             let isFixo = selectedType === 'despesa' ? isDespesaFixaPorDescricao(desc, '', '') : false;
             
             lancamentos.push({ id: manualId, data, tipo: selectedType, sala, desc, valor, isFixo });
-            localStorage.setItem('simulador_lancamentos_v26', JSON.stringify(lancamentos));
+            localStorage.setItem('simulador_lancamentos_v27', JSON.stringify(lancamentos));
             atualizarCustosAutomaticosSemanticamente();
 
             document.getElementById('lanc-desc').value = '';
@@ -904,7 +902,7 @@
 
         function deleteLancamento(id) {
             lancamentos = lancamentos.filter(item => item.id !== id);
-            localStorage.setItem('simulador_lancamentos_v26', JSON.stringify(lancamentos));
+            localStorage.setItem('simulador_lancamentos_v27', JSON.stringify(lancamentos));
             atualizarCustosAutomaticosSemanticamente();
             triggerToast("Registro removido.", "🔴"); renderApp();
         }
@@ -981,6 +979,11 @@
             let totalDespesas = 0; let totalInvestido = 0;
             let totalRegistrosExibidos = 0;
 
+            // MELHORIA v27: Se o usuário filtrar exatamente 1 mês, podemos opcionalmente usar o custo fixo real daquele mês ou a média.
+            // Para mantermos consistência gerencial, calculamos o custo fixo do período selecionado de forma dinâmica.
+            let despesasFixasFiltradasTotal = 0;
+            let mesesComDespesaFixaNoFiltro = new Set();
+
             sorted.forEach(item => {
                 const itemDate = new Date(item.data + 'T00:00:00');
                 const itemMes = itemDate.getMonth();
@@ -990,7 +993,13 @@
                     totalRegistrosExibidos++;
                     if(item.tipo === 'receita' && item.sala === 'sala1') sala1Tot += item.valor;
                     if(item.tipo === 'receita' && item.sala === 'sala2') sala2Tot += item.valor;
-                    if(item.tipo === 'despesa') totalDespesas += item.valor;
+                    if(item.tipo === 'despesa') {
+                        totalDespesas += item.valor;
+                        if (item.isFixo) {
+                            despesasFixasFiltradasTotal += item.valor;
+                            mesesComDespesaFixaNoFiltro.add(itemMes);
+                        }
+                    }
                     if(item.tipo === 'investimento') totalInvestido += item.valor;
 
                     if (tbody) {
@@ -1043,7 +1052,10 @@
             const qtdMesesSelecionados = mesesAtivos.length || 1;
             
             atualizarCustosAutomaticosSemanticamente();
-            let custoFixoAcumulado = config.custoFixo * qtdMesesSelecionados;
+            
+            // CORREÇÃO v27: Se houver despesas fixas reais cadastradas no período filtrado, usamos elas para maior precisão mensal!
+            let custoFixoAcumulado = despesasFixasFiltradasTotal > 0 ? despesasFixasFiltradasTotal : (config.custoFixo * qtdMesesSelecionados);
+
             let margemContribuicaoUnitaria = config.preco - config.custoVariavel;
             if(margemContribuicaoUnitaria <= 0) margemContribuicaoUnitaria = config.preco || 1; 
 
@@ -1182,14 +1194,14 @@
             if(precoEl) config.preco = parseFloat(precoEl.value) || 35.00;
             if(varEl) config.custoVariavel = parseFloat(varEl.value) || 0;
             
-            localStorage.setItem('simulador_config_v26', JSON.stringify(config));
+            localStorage.setItem('simulador_config_v27', JSON.stringify(config));
             triggerToast("Parâmetros operacionais salvos!", "⚙️");
             renderApp(); switchTab('dash');
         }
 
         function clearData() {
             if(confirm("Deseja apagar todos os dados locais?")) {
-                lancamentos = []; localStorage.setItem('simulador_lancamentos_v26', JSON.stringify(lancamentos));
+                lancamentos = []; localStorage.setItem('simulador_lancamentos_v27', JSON.stringify(lancamentos));
                 atualizarCustosAutomaticosSemanticamente();
                 triggerToast("Banco de dados resetado.", "🧹"); renderApp();
             }
