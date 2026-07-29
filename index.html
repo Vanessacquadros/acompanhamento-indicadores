@@ -374,8 +374,8 @@
         const nomesMeses = ['Janeiro', 'Fevereiro', 'Março', 'Abril', 'Maio', 'Junho', 'Julho', 'Agosto', 'Setembro', 'Outubro', 'Novembro', 'Dezembro'];
         const nomesCurtos = ['Jan', 'Fev', 'Mar', 'Abr', 'Mai', 'Jun', 'Jul', 'Ago', 'Set', 'Out', 'Nov', 'Dez'];
 
-        // CONTROLE DE ARMAZENAMENTO v24 - ROBUSTEZ NA ABA CONFIG
-        let lancamentos = JSON.parse(localStorage.getItem('simulador_lancamentos_v24')) || [
+        // CONTROLE DE ARMAZENAMENTO v25 - BLINDAGEM DE ABA CONFIG E FLUXO ANUAL DE TIR/PAYBACK
+        let lancamentos = JSON.parse(localStorage.getItem('simulador_lancamentos_v25')) || [
             { id: '8Itjnat1UwZOqqmhnZIh', data: '2026-06-08', tipo: 'receita', sala: 'sala1', desc: 'Receita avulsa - Recarga gás', valor: 200.00 },
             { id: 'FPSqPHBXckuuCvrSo0TM', data: '2026-05-17', tipo: 'receita', sala: 'sala1', desc: 'Estorno cartao - Estorno de 1 caixa de rodapé', valor: 309.54 },
             { id: 'Fm2VHpe47l9GNOAqsBqQ', data: '2026-06-17', tipo: 'receita', sala: 'sala2', desc: 'Andressa Alves Santos - Locação Áthos II', valor: 40.00 },
@@ -386,13 +386,13 @@
             { id: '0Ow7s8v44HmAVrfVccJ7', data: '2026-05-20', tipo: 'investimento', sala: '-', desc: 'Estofados Obra (Serviços)', valor: 500.00 }
         ];
 
-        let pacotes = JSON.parse(localStorage.getItem('simulador_pacotes_v24')) || [
+        let pacotes = JSON.parse(localStorage.getItem('simulador_pacotes_v25')) || [
             { id: 0, nome: 'Áthos Continuidade', tipo: 'Pacote Mensal', horas: 10, valor: 300.00, desc: '10h/mês — cobrança recorrente' },
             { id: 1, nome: 'Áthos Essencial', tipo: 'Pacote Mensal', horas: 5, valor: 175.00, desc: '5h/mês — cobrança recorrente' },
             { id: 2, nome: 'Áthos Singular', tipo: 'Pacote Mensal', horas: 1, valor: 40.00, desc: '1h/mês — cobrança recorrente' }
         ];
 
-        let config = JSON.parse(localStorage.getItem('simulador_config_v24')) || {
+        let config = JSON.parse(localStorage.getItem('simulador_config_v25')) || {
             metrica: 'horas',
             capacidade: 528, 
             preco: 35.00,    
@@ -436,7 +436,7 @@
                         <p class="text-xs text-slate-500">${p.horas}h/mês &bull; Cobrança recorrente</p>
                         <div class="text-lg font-black text-indigo-600 pt-1">${formatCurrency(p.valor)} <span class="text-xs font-normal text-slate-400">${p.horas > 1 ? '/mês' : '/hora'}</span></div>
                     </div>
-                    <button onclick="abrirModalPacote(${idx})" class="mt-2 w-full h-9 bg-white border border-slate-200 hover:bg-slate-100 font-semibold text-slate-700 rounded-xl text-xs cursor-pointer shadow-2xs">Editar</button>
+                    <button type="button" onclick="abrirModalPacote(${idx})" class="mt-2 w-full h-9 bg-white border border-slate-200 hover:bg-slate-100 font-semibold text-slate-700 rounded-xl text-xs cursor-pointer shadow-2xs">Editar</button>
                 `;
                 container.appendChild(card);
             });
@@ -475,7 +475,7 @@
                 desc: `${horas}h/mês — cobrança recorrente`
             };
 
-            localStorage.setItem('simulador_pacotes_v24', JSON.stringify(pacotes));
+            localStorage.setItem('simulador_pacotes_v25', JSON.stringify(pacotes));
             renderPacotesUI();
             fecharModalPacote();
             triggerToast("Pacote atualizado com sucesso!", "✏️");
@@ -493,7 +493,7 @@
             config.preco = Math.round(mediaPonderada * 100) / 100;
             const precoInput = document.getElementById('cfg-preco');
             if(precoInput) precoInput.value = config.preco;
-            localStorage.setItem('simulador_config_v24', JSON.stringify(config));
+            localStorage.setItem('simulador_config_v25', JSON.stringify(config));
         }
 
         function isDespesaFixaPorDescricao(descricao, categoria, subcategoria) {
@@ -549,7 +549,7 @@
             let custoVariavelUnitario = capacidadeMensal > 0 ? (custoVariavelTotalMensal / (capacidadeMensal / 2)) : 10;
             config.custoVariavel = Math.max(Math.round(custoVariavelUnitario * 100) / 100, 1.00);
 
-            localStorage.setItem('simulador_config_v24', JSON.stringify(config));
+            localStorage.setItem('simulador_config_v25', JSON.stringify(config));
         }
 
         function triggerToast(msg, icon = "ℹ️") {
@@ -736,7 +736,7 @@
                         return;
                     }
 
-                    localStorage.setItem('simulador_lancamentos_v24', JSON.stringify(lancamentos));
+                    localStorage.setItem('simulador_lancamentos_v25', JSON.stringify(lancamentos));
                     atualizarCustosAutomaticosSemanticamente();
                     triggerToast(`Planilha integrada com sucesso!`, "📥");
                     renderApp(); switchTab('dash');
@@ -891,7 +891,7 @@
             let isFixo = selectedType === 'despesa' ? isDespesaFixaPorDescricao(desc, '', '') : false;
             
             lancamentos.push({ id: manualId, data, tipo: selectedType, sala, desc, valor, isFixo });
-            localStorage.setItem('simulador_lancamentos_v24', JSON.stringify(lancamentos));
+            localStorage.setItem('simulador_lancamentos_v25', JSON.stringify(lancamentos));
             atualizarCustosAutomaticosSemanticamente();
 
             document.getElementById('lanc-desc').value = '';
@@ -902,7 +902,7 @@
 
         function deleteLancamento(id) {
             lancamentos = lancamentos.filter(item => item.id !== id);
-            localStorage.setItem('simulador_lancamentos_v24', JSON.stringify(lancamentos));
+            localStorage.setItem('simulador_lancamentos_v25', JSON.stringify(lancamentos));
             atualizarCustosAutomaticosSemanticamente();
             triggerToast("Registro removido.", "🔴"); renderApp();
         }
@@ -1067,7 +1067,10 @@
             if(sumOp) sumOp.innerText = formatCurrency(resultadoOperacional);
             if(sumLiq) sumLiq.innerText = formatCurrency(fluxoCaixaLiquido);
 
+            // CORREÇÃO DO FLUXO ANUAL PARA PAYBACK E TIR COM TODOS OS MESES ATIVOS
             let vetorFluxoCaixaMensal = [];
+            let totalInvestidoNoPeriodo = 0;
+
             mesesAtivos.forEach(idx => {
                 let rMes = 0; let dMes = 0; let iMes = 0;
                 lancamentos.forEach(item => {
@@ -1075,14 +1078,17 @@
                     if(itemDate.getFullYear().toString() === filtroAno && itemDate.getMonth() === idx) {
                         if(item.tipo === 'receita') rMes += item.valor;
                         if(item.tipo === 'despesa') dMes += item.valor;
-                        if(item.tipo === 'investimento') iMes += item.valor;
+                        if(item.tipo === 'investimento') {
+                            iMes += item.valor;
+                            totalInvestidoNoPeriodo += item.valor;
+                        }
                     }
                 });
                 let cfMes = (rMes - dMes) - iMes;
                 vetorFluxoCaixaMensal.push(cfMes);
             });
 
-            if (totalInvestido > 0) {
+            if (totalInvestidoNoPeriodo > 0 || totalInvestido > 0) {
                 let paybackRes = calcularPaybackAcumulado(vetorFluxoCaixaMensal);
                 let paybackEl = document.getElementById('kpi-payback');
                 
@@ -1096,8 +1102,9 @@
                     }
                 }
                 
+                let baseInvestimentoCalc = totalInvestidoNoPeriodo > 0 ? totalInvestidoNoPeriodo : totalInvestido;
                 let lucroMensalMedioReal = resultadoOperacional / qtdMesesSelecionados;
-                let roiAnualCalculado = ((lucroMensalMedioReal * 12) / totalInvestido) * 100;
+                let roiAnualCalculado = ((lucroMensalMedioReal * 12) / baseInvestimentoCalc) * 100;
                 const kpiRoi = document.getElementById('kpi-roi');
                 if(kpiRoi) kpiRoi.innerText = roiAnualCalculado.toFixed(1) + '%';
                 
@@ -1174,14 +1181,14 @@
             if(precoEl) config.preco = parseFloat(precoEl.value) || 35.00;
             if(varEl) config.custoVariavel = parseFloat(varEl.value) || 0;
             
-            localStorage.setItem('simulador_config_v24', JSON.stringify(config));
+            localStorage.setItem('simulador_config_v25', JSON.stringify(config));
             triggerToast("Parâmetros operacionais salvos!", "⚙️");
             renderApp(); switchTab('dash');
         }
 
         function clearData() {
             if(confirm("Deseja apagar todos os dados locais?")) {
-                lancamentos = []; localStorage.setItem('simulador_lancamentos_v24', JSON.stringify(lancamentos));
+                lancamentos = []; localStorage.setItem('simulador_lancamentos_v25', JSON.stringify(lancamentos));
                 atualizarCustosAutomaticosSemanticamente();
                 triggerToast("Banco de dados resetado.", "🧹"); renderApp();
             }
