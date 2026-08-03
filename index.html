@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Simulador Financeiro - Gestão Estratégica</title>
+    <title>Simulador Financeiro - Gestão Estratégica &bull; Áthos</title>
     <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
@@ -24,19 +24,19 @@
     <!-- MODAL DE EDIÇÃO DE PACOTE -->
     <div id="modal-pacote" class="hidden fixed inset-0 bg-slate-900/50 backdrop-blur-xs z-50 flex items-center justify-center p-4">
         <div class="bg-white rounded-2xl max-w-sm w-full p-6 shadow-2xl border border-slate-100 space-y-4">
-            <h3 id="modal-titulo" class="text-sm font-bold text-slate-800">Editar Pacote</h3>
+            <h3 class="text-sm font-bold text-slate-800">Editar Pacote / Turno</h3>
             <div class="space-y-3">
                 <div class="flex flex-col gap-1">
                     <label class="text-[10px] font-bold uppercase text-slate-400">Nome do Pacote</label>
-                    <input type="text" id="edit-pacote-nome" class="h-11 px-3 border border-slate-200 rounded-xl text-sm bg-slate-50 font-semibold text-slate-700">
+                    <input type="text" id="edit-pacote-nome" class="h-11 px-3 border border-slate-200 rounded-xl text-sm bg-slate-50 font-semibold text-slate-700 w-full">
                 </div>
                 <div class="flex flex-col gap-1">
                     <label class="text-[10px] font-bold uppercase text-slate-400">Franquia (Horas/Mês)</label>
-                    <input type="number" id="edit-pacote-horas" class="h-11 px-3 border border-slate-200 rounded-xl text-sm bg-slate-50 font-semibold text-slate-700">
+                    <input type="number" id="edit-pacote-horas" class="h-11 px-3 border border-slate-200 rounded-xl text-sm bg-slate-50 font-semibold text-slate-700 w-full">
                 </div>
                 <div class="flex flex-col gap-1">
                     <label class="text-[10px] font-bold uppercase text-slate-400">Valor (R$)</label>
-                    <input type="text" id="edit-pacote-valor" oninput="handleCurrencyInput(this)" class="h-11 px-3 border border-slate-200 rounded-xl text-sm bg-slate-50 font-bold text-slate-700">
+                    <input type="text" id="edit-pacote-valor" oninput="handleCurrencyInput(this)" class="h-11 px-3 border border-slate-200 rounded-xl text-sm bg-slate-50 font-bold text-slate-700 w-full">
                 </div>
             </div>
             <div class="flex gap-2 pt-2">
@@ -50,10 +50,11 @@
         <div class="max-w-7xl mx-auto px-4 py-4 flex flex-col lg:flex-row justify-between items-center gap-4">
             <div class="text-center lg:text-left w-full lg:w-auto">
                 <h1 class="text-lg lg:text-xl font-bold tracking-tight">Simulador Financeiro</h1>
-                <p class="text-[11px] text-indigo-200 mt-0.5">Gestão Estratégica &bull; Áthos</p>
+                <p class="text-[11px] text-indigo-200 mt-0.5">Gestão Estratégica &bull; Clínica Áthos</p>
             </div>
             <nav class="flex gap-1 bg-indigo-950 p-1 rounded-xl w-full lg:w-auto overflow-x-auto no-scrollbar scroll-smooth whitespace-nowrap snap-x">
                 <button onclick="switchTab('dash')" id="btn-dash" class="tab-btn snap-center px-4 py-2.5 text-xs lg:text-sm font-semibold rounded-lg bg-indigo-600 text-white shadow-xs cursor-pointer">Dashboard</button>
+                <button onclick="switchTab('cenarios')" id="btn-cenarios" class="tab-btn snap-center px-4 py-2.5 text-xs lg:text-sm font-semibold rounded-lg text-indigo-200 hover:text-white cursor-pointer">Cenários (What-If)</button>
                 <button onclick="switchTab('lanc')" id="btn-lanc" class="tab-btn snap-center px-4 py-2.5 text-xs lg:text-sm font-semibold rounded-lg text-indigo-200 hover:text-white cursor-pointer">Lançamentos</button>
                 <button onclick="switchTab('extrato')" id="btn-extrato" class="tab-btn snap-center px-4 py-2.5 text-xs lg:text-sm font-semibold rounded-lg text-indigo-200 hover:text-white cursor-pointer">Histórico</button>
                 <button onclick="switchTab('config')" id="btn-config" class="tab-btn snap-center px-4 py-2.5 text-xs lg:text-sm font-semibold rounded-lg text-indigo-200 hover:text-white cursor-pointer">Configurações</button>
@@ -63,8 +64,8 @@
 
     <main class="flex-1 max-w-7xl w-full mx-auto px-4 py-6">
         
+        <!-- DASHBOARD -->
         <div id="tab-dash" class="tab-content space-y-6">
-            
             <div class="bg-white p-5 rounded-2xl shadow-xs border border-slate-100 flex flex-col md:flex-row md:items-end justify-between gap-4">
                 <div class="space-y-1">
                     <h2 class="text-xs font-bold text-slate-400 uppercase tracking-wider">Filtro de Período</h2>
@@ -102,7 +103,7 @@
                 </div>
             </div>
 
-            <!-- KPIs PRINCIPAIS -->
+            <!-- KPIS -->
             <div class="grid grid-cols-2 lg:grid-cols-5 gap-3">
                 <div class="bg-white p-4 rounded-2xl shadow-xs border border-slate-100 col-span-1">
                     <span class="text-[10px] font-bold text-slate-400 uppercase tracking-wider block">Ocupação Mínima</span>
@@ -131,12 +132,12 @@
                 </div>
             </div>
 
-            <!-- CARD DE SIMULAÇÃO DE FATURAMENTO PARA META DE CAPEX -->
+            <!-- SIMULADOR POR TURNOS -->
             <div class="bg-gradient-to-r from-indigo-900 to-indigo-950 text-white p-5 rounded-2xl shadow-md flex flex-col md:flex-row justify-between items-center gap-4">
                 <div class="space-y-1 w-full md:w-auto">
-                    <span class="text-[10px] font-bold uppercase tracking-wider text-indigo-300 block">Simulador de Faturamento Alvo (Meta de Capex)</span>
-                    <h3 class="text-lg font-bold">Quanto faturar para recuperar o investimento no prazo desejado?</h3>
-                    <p class="text-xs text-indigo-200">Calcula a receita mensal necessária para pagar as despesas + amortizar o CAPEX acumulado.</p>
+                    <span class="text-[10px] font-bold uppercase tracking-wider text-indigo-300 block">Simulador por Turnos (Meta de Capex & Despesas)</span>
+                    <h3 class="text-lg font-bold">Quantos turnos alugar para recuperar o investimento?</h3>
+                    <p class="text-xs text-indigo-200">Baseado no maior pacote (10h a R$ 30,00/h = R$ 120,00/turno) e na grade configurada.</p>
                 </div>
                 
                 <div class="flex flex-col sm:flex-row items-center gap-3 w-full md:w-auto">
@@ -151,14 +152,15 @@
                         </select>
                     </div>
                     
-                    <div class="bg-white/10 p-3 rounded-xl border border-indigo-800 flex flex-col justify-center min-w-[200px] w-full sm:w-auto">
-                        <span class="text-[10px] font-bold uppercase text-indigo-300">Faturamento Mensal Alvo</span>
+                    <div class="bg-white/10 p-3 rounded-xl border border-indigo-800 flex flex-col justify-center min-w-[220px] w-full sm:w-auto">
+                        <span class="text-[10px] font-bold uppercase text-indigo-300">Faturamento Alvo por Turnos</span>
                         <span id="kpi-fat-meta" class="text-xl font-black text-emerald-400">R$ 0,00</span>
-                        <span id="kpi-ocu-meta" class="text-[10px] text-indigo-200">Ocupação Necessária: 0.0%</span>
+                        <span id="kpi-turnos-meta" class="text-[10px] text-indigo-200">Meta: 0 turnos/mês</span>
                     </div>
                 </div>
             </div>
 
+            <!-- GRÁFICO E SALAS -->
             <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
                 <div class="bg-white p-5 rounded-2xl shadow-xs border border-slate-100 lg:col-span-2">
                     <h3 class="text-sm font-bold text-slate-700 mb-3">Evolução de Fluxo Misto (Receitas vs. Despesas + Linha de Resultado)</h3>
@@ -196,10 +198,76 @@
             </div>
         </div>
 
+        <!-- CENÁRIOS (WHAT-IF) -->
+        <div id="tab-cenarios" class="tab-content hidden max-w-4xl mx-auto space-y-6">
+            <div class="bg-white p-6 rounded-2xl shadow-xs border border-slate-100 space-y-5">
+                <div class="flex justify-between items-center border-b border-slate-100 pb-4">
+                    <div>
+                        <h2 class="text-base font-bold text-slate-800">🔮 Módulo de Cenários de Sensibilidade (What-If)</h2>
+                        <p class="text-xs text-slate-400 mt-0.5">Simule variações de ocupação, preço e custos para testar a resiliência financeira.</p>
+                    </div>
+                    <button onclick="resetCenarios()" class="h-9 px-3 text-xs font-semibold bg-slate-100 hover:bg-slate-200 text-slate-600 rounded-xl cursor-pointer">Restaurar Padrão</button>
+                </div>
+
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-5">
+                    <div class="p-4 bg-slate-50 border border-slate-200 rounded-2xl space-y-3">
+                        <div class="flex justify-between items-center">
+                            <label class="text-xs font-bold uppercase text-slate-600">Taxa de Ocupação</label>
+                            <span id="lbl-scen-ocupacao" class="text-xs font-black text-indigo-600 bg-indigo-50 px-2 py-0.5 rounded-md">100%</span>
+                        </div>
+                        <input type="range" id="scen-ocupacao" min="20" max="150" step="5" value="100" oninput="calcularCenarios()" class="w-full accent-indigo-600 cursor-pointer">
+                    </div>
+
+                    <div class="p-4 bg-slate-50 border border-slate-200 rounded-2xl space-y-3">
+                        <div class="flex justify-between items-center">
+                            <label class="text-xs font-bold uppercase text-slate-600">Preço do Turno</label>
+                            <span id="lbl-scen-preco" class="text-xs font-black text-indigo-600 bg-indigo-50 px-2 py-0.5 rounded-md">R$ 120,00</span>
+                        </div>
+                        <input type="range" id="scen-preco" min="80" max="180" step="5" value="120" oninput="calcularCenarios()" class="w-full accent-indigo-600 cursor-pointer">
+                    </div>
+
+                    <div class="p-4 bg-slate-50 border border-slate-200 rounded-2xl space-y-3">
+                        <div class="flex justify-between items-center">
+                            <label class="text-xs font-bold uppercase text-slate-600">Custo Fixo Mensal</label>
+                            <span id="lbl-scen-custofixo" class="text-xs font-black text-rose-600 bg-rose-50 px-2 py-0.5 rounded-md">R$ 0,00</span>
+                        </div>
+                        <input type="range" id="scen-custofixo" min="0" max="15000" step="250" value="0" oninput="calcularCenarios()" class="w-full accent-rose-600 cursor-pointer">
+                    </div>
+                </div>
+
+                <div class="bg-gradient-to-br from-slate-900 to-indigo-950 text-white p-6 rounded-2xl shadow-xl space-y-5">
+                    <div class="flex justify-between items-center border-b border-indigo-800/60 pb-3">
+                        <span class="text-xs font-bold uppercase tracking-wider text-indigo-300">Resultado Projetado do Cenário</span>
+                        <span id="scen-status-badge" class="px-3 py-1 rounded-full text-xs font-black bg-emerald-500 text-white">🟢 Operação Saudável</span>
+                    </div>
+
+                    <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
+                        <div class="bg-white/10 p-3.5 rounded-xl border border-indigo-800/40">
+                            <span class="text-[10px] font-bold text-indigo-300 uppercase block">Faturamento Estimado</span>
+                            <span id="scen-res-fat" class="text-lg lg:text-xl font-black text-white mt-1 block">R$ 0,00</span>
+                        </div>
+                        <div class="bg-white/10 p-3.5 rounded-xl border border-indigo-800/40">
+                            <span class="text-[10px] font-bold text-indigo-300 uppercase block">Despesas Totais</span>
+                            <span id="scen-res-desp" class="text-lg lg:text-xl font-black text-rose-400 mt-1 block">R$ 0,00</span>
+                        </div>
+                        <div class="bg-white/10 p-3.5 rounded-xl border border-indigo-800/40">
+                            <span class="text-[10px] font-bold text-indigo-300 uppercase block">Resultado Operacional</span>
+                            <span id="scen-res-op" class="text-lg lg:text-xl font-black text-emerald-400 mt-1 block">R$ 0,00</span>
+                        </div>
+                        <div class="bg-white/10 p-3.5 rounded-xl border border-indigo-800/40">
+                            <span class="text-[10px] font-bold text-indigo-300 uppercase block">Ponto de Equilíbrio (Turnos)</span>
+                            <span id="scen-res-eq" class="text-lg lg:text-xl font-black text-amber-400 mt-1 block">0 turnos</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- LANÇAMENTOS -->
         <div id="tab-lanc" class="tab-content hidden max-w-3xl mx-auto space-y-6">
             <div class="bg-white p-5 rounded-2xl shadow-xs border border-slate-100">
                 <h2 class="text-sm font-bold text-slate-700 mb-1">📥 Importar Planilha do Excel (.xlsx / .xls)</h2>
-                <p class="text-xs text-slate-400 mb-4">Arraste ou selecione o arquivo consolidado da clínica. O motor identificará os custos fixos e variáveis semanticamente.</p>
+                <p class="text-xs text-slate-400 mb-4">Arraste ou selecione o arquivo consolidado da clínica para importação inteligente.</p>
                 <div class="w-full">
                     <label for="file-uploader" class="flex flex-col items-center justify-center w-full h-28 border-2 border-slate-200 border-dashed rounded-xl cursor-pointer bg-slate-50 hover:bg-slate-100 transition-all p-4 text-center">
                         <svg class="w-6 h-6 mb-2 text-slate-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12"></path></svg>
@@ -255,6 +323,7 @@
             </div>
         </div>
 
+        <!-- HISTÓRICO -->
         <div id="tab-extrato" class="tab-content hidden">
             <div class="bg-white rounded-2xl shadow-xs border border-slate-100 overflow-hidden">
                 <div class="p-5 border-b border-slate-100 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
@@ -271,7 +340,7 @@
                 <div id="empty-state" class="hidden p-12 text-center space-y-3">
                     <span class="text-3xl block">📁</span>
                     <h3 class="text-sm font-bold text-slate-700">Nenhum registro encontrado</h3>
-                    <p class="text-xs text-slate-400 max-w-xs mx-auto">Não existem movimentações salvas para os meses ou ano ativos selecionados no momento.</p>
+                    <p class="text-xs text-slate-400 max-w-xs mx-auto">Não existem movimentações salvas para os meses ou ano ativos selecionados.</p>
                 </div>
 
                 <div id="desktop-table-container" class="hidden md:block overflow-x-auto w-full">
@@ -294,117 +363,57 @@
             </div>
         </div>
 
+        <!-- CONFIGURAÇÕES -->
         <div id="tab-config" class="tab-content hidden max-w-4xl mx-auto space-y-6">
-            <div class="bg-white p-5 rounded-2xl shadow-xs border border-slate-100 space-y-5">
-                <div class="flex justify-between items-center">
-                    <div>
-                        <h2 class="text-sm font-bold text-slate-700 mb-1">Planos e Pacotes de Horas (Áthos)</h2>
-                        <p class="text-xs text-slate-400">Valores unitários e pacotes recorrentes ativos para precificação e capacidade.</p>
-                    </div>
-                </div>
-                
-                <div class="grid grid-cols-1 md:grid-cols-3 gap-4" id="pacotes-container">
-                    <!-- Gerado dinamicamente via JS -->
+            <div class="bg-white p-5 rounded-2xl shadow-xs border border-slate-100 space-y-4">
+                <div>
+                    <h2 class="text-sm font-bold text-slate-700 mb-1">⚙️ Grade de Turnos e Disponibilidade Comercial</h2>
+                    <p class="text-xs text-slate-400">Configure os períodos abertos para locação e os horários reservados para uso próprio na Sala 01.</p>
                 </div>
 
-                <div class="pt-4 border-t border-slate-100">
-                    <h3 class="text-xs font-bold uppercase text-slate-400 mb-3">Turnos Fixos e Janelas de Operação</h3>
-                    <div class="overflow-x-auto">
-                        <table class="w-full text-left border-collapse text-xs">
-                            <thead>
-                                <tr class="bg-slate-50 text-slate-400 font-bold uppercase border-b border-slate-200">
-                                    <th class="p-3">Turno</th>
-                                    <th class="p-3">Dias</th>
-                                    <th class="p-3">Horário</th>
-                                </tr>
-                            </thead>
-                            <tbody class="divide-y divide-slate-100 text-slate-700 font-medium">
-                                <tr>
-                                    <td class="p-3 font-bold text-slate-800">Turno Manhã</td>
-                                    <td class="p-3">Seg-Sex</td>
-                                    <td class="p-3">08h–12h (4h/dia)</td>
-                                </tr>
-                                <tr>
-                                    <td class="p-3 font-bold text-slate-800">Turno Tarde</td>
-                                    <td class="p-3">Seg-Sex</td>
-                                    <td class="p-3">13h–17h (4h/dia)</td>
-                                </tr>
-                                <tr>
-                                    <td class="p-3 font-bold text-slate-800">Turno Noite</td>
-                                    <td class="p-3">Seg-Sex</td>
-                                    <td class="p-3">17h30–21h30 (4h/dia)</td>
-                                </tr>
-                            </tbody>
-                        </table>
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-4 pt-2">
+                    <div class="p-4 bg-slate-50 border border-slate-200 rounded-xl space-y-2">
+                        <h4 class="text-xs font-bold uppercase text-indigo-700">Terças e Quartas</h4>
+                        <label class="flex items-center gap-2 text-xs font-medium text-slate-700 cursor-pointer">
+                            <input type="checkbox" id="cfg-uso-terqua" checked onchange="saveTurnosConfig()" class="h-4 w-4 rounded-sm text-indigo-600">
+                            <span>Dona usa Sala 01 (Tarde/Noite)</span>
+                        </label>
+                    </div>
+
+                    <div class="p-4 bg-slate-50 border border-slate-200 rounded-xl space-y-2">
+                        <h4 class="text-xs font-bold uppercase text-indigo-700">Sábados</h4>
+                        <label class="flex items-center gap-2 text-xs font-medium text-slate-700 cursor-pointer">
+                            <input type="checkbox" id="cfg-uso-sabmanha" checked onchange="saveTurnosConfig()" class="h-4 w-4 rounded-sm text-indigo-600">
+                            <span>Dona usa Sala 01 (Sábado Manhã)</span>
+                        </label>
+                    </div>
+
+                    <div class="p-4 bg-indigo-50 border border-indigo-200 rounded-xl space-y-1 flex flex-col justify-center">
+                        <span class="text-[10px] font-bold uppercase text-indigo-600">Turnos Comerciais Totais</span>
+                        <span id="cfg-total-turnos-badge" class="text-xl font-black text-indigo-900">84 turnos/mês</span>
                     </div>
                 </div>
             </div>
 
-            <div class="bg-white p-5 rounded-2xl shadow-xs border border-slate-100">
-                <h2 class="text-sm font-bold text-slate-700 mb-1">Parâmetros Operacionais & Capacidade</h2>
-                <p class="text-xs text-slate-400 mb-5">Ajuste os parâmetros de cálculo e capacidade baseada nos turnos ativos.</p>
-                
-                <div class="space-y-5">
-                    <div>
-                        <label class="block text-[10px] font-bold uppercase text-slate-400 mb-1.5">Métrica de Precificação</label>
-                        <div class="grid grid-cols-2 gap-1 bg-slate-100 p-1 rounded-xl">
-                            <button onclick="setMetrica('horas')" id="btn-m-horas" class="h-9 text-xs font-semibold rounded-lg transition-all text-center cursor-pointer">Por Horas</button>
-                            <button onclick="setMetrica('turnos')" id="btn-m-turnos" class="h-9 text-xs font-semibold rounded-lg transition-all text-center cursor-pointer">Por Turnos</button>
-                        </div>
-                    </div>
-
-                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                        <div class="flex flex-col gap-1">
-                            <label id="lbl-cfg-capacidade" class="text-[10px] font-bold uppercase text-slate-500">Capacidade Total Mensal (2 Salas)</label>
-                            <input type="number" id="cfg-capacidade" class="h-11 px-3 border border-slate-200 rounded-xl text-sm bg-slate-50 focus:bg-white focus:outline-hidden w-full font-bold text-slate-700">
-                            <span class="text-[10px] text-slate-400">Total de horas/turnos disponíveis nas 2 salas (Ex: 12h/dia * 22 dias * 2 salas = 528h).</span>
-                        </div>
-                        
-                        <div class="flex flex-col gap-1">
-                            <label id="lbl-cfg-preco" class="text-[10px] font-bold uppercase text-slate-500">Preço de Venda Médio (R$)</label>
-                            <input type="number" step="0.01" id="cfg-preco" class="h-11 px-3 border border-slate-200 rounded-xl text-sm bg-slate-50 focus:bg-white focus:outline-hidden w-full font-bold text-slate-700">
-                            <span class="text-[10px] text-slate-400">Atualizado automaticamente pela média ponderada dos pacotes editados.</span>
-                        </div>
-                    </div>
-
-                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                        <div class="flex flex-col gap-1">
-                            <div class="flex justify-between items-center">
-                                <label for="cfg-custofixo" class="text-[10px] font-bold uppercase text-slate-500 cursor-pointer">Custo Fixo Base Mensal (R$)</label>
-                                <span class="text-[10px] text-emerald-600 font-semibold bg-emerald-50 px-2 py-0.5 rounded-md">Automático via Upload</span>
-                            </div>
-                            <input type="number" step="0.01" id="cfg-custofixo" class="h-11 px-3 border border-slate-200 rounded-xl text-sm bg-slate-50 focus:bg-white focus:outline-hidden w-full font-bold text-slate-700" readonly title="Identificado automaticamente pelas despesas fixas">
-                        </div>
-
-                        <div class="flex flex-col gap-1">
-                            <div class="flex justify-between items-center">
-                                <label for="cfg-custovariavel" class="text-[10px] font-bold uppercase text-slate-500 cursor-pointer">Custo Variável Operacional Médio (R$)</label>
-                                <span class="text-[10px] text-emerald-600 font-semibold bg-emerald-50 px-2 py-0.5 rounded-md">Automático via Upload</span>
-                            </div>
-                            <input type="number" step="0.01" id="cfg-custovariavel" class="h-11 px-3 border border-slate-200 rounded-xl text-sm bg-slate-50 focus:bg-white focus:outline-hidden w-full font-bold text-slate-700" readonly title="Identificado automaticamente pelas despesas de insumos/copa/limpeza">
-                        </div>
-                    </div>
-                    
-                    <button onclick="saveConfig()" class="w-full h-12 bg-indigo-600 hover:bg-indigo-700 text-white font-semibold rounded-xl text-sm shadow-xs transition-all mt-2 cursor-pointer">Salvar Parâmetros Operacionais</button>
-                </div>
+            <div class="bg-white p-5 rounded-2xl shadow-xs border border-slate-100 space-y-5">
+                <h2 class="text-sm font-bold text-slate-700 mb-1">Planos e Pacotes de Horas (Áthos)</h2>
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-4" id="pacotes-container"></div>
             </div>
         </div>
 
     </main>
 
     <footer class="bg-slate-100 border-t border-slate-200 py-4 text-center text-[10px] lg:text-xs text-slate-400 mt-auto">
-        Simulador Financeiro &bull; Gestão Descentralizada de Clínicas.
+        Simulador Financeiro &bull; Gestão Estratégica de Clínicas.
     </footer>
 
     <script>
-        let selectedType = 'receita';
-        let selectedSala = 'sala1';
+        let selectedType = 'receita', selectedSala = 'sala1';
         let mesesAtivos = [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11]; 
         const nomesMeses = ['Janeiro', 'Fevereiro', 'Março', 'Abril', 'Maio', 'Junho', 'Julho', 'Agosto', 'Setembro', 'Outubro', 'Novembro', 'Dezembro'];
         const nomesCurtos = ['Jan', 'Fev', 'Mar', 'Abr', 'Mai', 'Jun', 'Jul', 'Ago', 'Set', 'Out', 'Nov', 'Dez'];
 
-        // CONTROLE DE ARMAZENAMENTO v31 - CORREÇÃO DE LAYOUT MOBILE PARA FLUXO LÍQUIDO
-        let lancamentos = JSON.parse(localStorage.getItem('simulador_lancamentos_v31')) || [
+        let lancamentos = JSON.parse(localStorage.getItem('simulador_lancamentos_v35')) || [
             { id: '8Itjnat1UwZOqqmhnZIh', data: '2026-06-08', tipo: 'receita', sala: 'sala1', desc: 'Receita avulsa - Recarga gás', valor: 200.00 },
             { id: 'FPSqPHBXckuuCvrSo0TM', data: '2026-05-17', tipo: 'receita', sala: 'sala1', desc: 'Estorno cartao - Estorno de 1 caixa de rodapé', valor: 309.54 },
             { id: 'Fm2VHpe47l9GNOAqsBqQ', data: '2026-06-17', tipo: 'receita', sala: 'sala2', desc: 'Andressa Alves Santos - Locação Áthos II', valor: 40.00 },
@@ -415,61 +424,113 @@
             { id: '0Ow7s8v44HmAVrfVccJ7', data: '2026-05-20', tipo: 'investimento', sala: '-', desc: 'Estofados Obra (Serviços)', valor: 500.00 }
         ];
 
-        let pacotes = JSON.parse(localStorage.getItem('simulador_pacotes_v31')) || [
-            { id: 0, nome: 'Áthos Continuidade', tipo: 'Pacote Mensal', horas: 10, valor: 300.00, desc: '10h/mês — cobrança recorrente' },
-            { id: 1, nome: 'Áthos Essencial', tipo: 'Pacote Mensal', horas: 5, valor: 175.00, desc: '5h/mês — cobrança recorrente' },
-            { id: 2, nome: 'Áthos Singular', tipo: 'Pacote Mensal', horas: 1, valor: 40.00, desc: '1h/mês — cobrança recorrente' }
+        let pacotes = JSON.parse(localStorage.getItem('simulador_pacotes_v35')) || [
+            { id: 0, nome: 'Áthos Continuidade (Maior Turno)', tipo: 'Pacote Mensal', horas: 10, valor: 300.00, desc: '10h/mês — R$ 30,00/h' },
+            { id: 1, nome: 'Áthos Essencial', tipo: 'Pacote Mensal', horas: 5, valor: 175.00, desc: '5h/mês — R$ 35,00/h' },
+            { id: 2, nome: 'Áthos Singular', tipo: 'Pacote Mensal', horas: 1, valor: 40.00, desc: '1h/mês — R$ 40,00/h' }
         ];
 
-        let config = JSON.parse(localStorage.getItem('simulador_config_v31')) || {
-            metrica: 'horas',
-            capacidade: 528, 
-            preco: 35.00,    
-            custoFixo: 0,
-            custoVariavel: 2.00
+        let config = JSON.parse(localStorage.getItem('simulador_config_v35')) || {
+            capacidade: 528, preco: 30.00, custoFixo: 0, custoVariavel: 2.00, usoTerQuia: true, usoSabManha: true
         };
 
         let editingPackageId = null;
         let chartInstance = null;
 
         document.addEventListener("DOMContentLoaded", () => {
-            const lancDataEl = document.getElementById('lanc-data');
-            if(lancDataEl) lancDataEl.valueAsDate = new Date();
+            document.getElementById('lanc-data').valueAsDate = new Date();
             renderDropdownCheckboxes();
             atualizarCustosAutomaticosSemanticamente();
             renderPacotesUI();
-            updateMetricaUI();
+            sincronizarConfigTurnosUI();
             renderApp();
+            
+            const scenFixo = document.getElementById('scen-custofixo');
+            if(scenFixo) { scenFixo.value = config.custoFixo || 2000; calcularCenarios(); }
 
             document.addEventListener('click', (e) => {
-                const menu = document.getElementById('dropdown-menu');
-                const btn = document.getElementById('dropdown-btn');
-                if (menu && btn && !menu.contains(e.target) && !btn.contains(e.target)) {
-                    menu.classList.add('hidden');
-                }
+                const menu = document.getElementById('dropdown-menu'), btn = document.getElementById('dropdown-btn');
+                if (menu && btn && !menu.contains(e.target) && !btn.contains(e.target)) menu.classList.add('hidden');
             });
         });
 
-        function renderPacotesUI() {
-            const container = document.getElementById('pacotes-container');
-            if(!container) return;
-            container.innerHTML = '';
+        function sincronizarConfigTurnosUI() {
+            document.getElementById('cfg-uso-terqua').checked = config.usoTerQuia;
+            document.getElementById('cfg-uso-sabmanha').checked = config.usoSabManha;
+        }
+
+        function saveTurnosConfig() {
+            config.usoTerQuia = document.getElementById('cfg-uso-terqua').checked;
+            config.usoSabManha = document.getElementById('cfg-uso-sabmanha').checked;
+            localStorage.setItem('simulador_config_v35', JSON.stringify(config));
+            renderApp();
+        }
+
+        function calcularTurnosComerciaisDisponiveis() {
+            let turnosTotaisSala = 52, turnosDonaSala1 = 0;
+            if(config.usoTerQuia) turnosDonaSala1 += 16;
+            if(config.usoSabManha) turnosDonaSala1 += 4;
+            let total = Math.max(turnosTotaisSala - turnosDonaSala1, 0) + turnosTotaisSala;
+            document.getElementById('cfg-total-turnos-badge').innerText = `${total} turnos/mês`;
+            return total;
+        }
+
+        function calcularCenarios() {
+            let ocupacaoPct = parseFloat(document.getElementById('scen-ocupacao').value) || 100;
+            let precoTurno = parseFloat(document.getElementById('scen-preco').value) || 120;
+            let custoFixoSimulado = parseFloat(document.getElementById('scen-custofixo').value) || 0;
+
+            document.getElementById('lbl-scen-ocupacao').innerText = ocupacaoPct + '%';
+            document.getElementById('lbl-scen-preco').innerText = formatCurrency(precoTurno);
+            document.getElementById('lbl-scen-custofixo').innerText = formatCurrency(custoFixoSimulado);
+
+            let totalTurnos = calcularTurnosComerciaisDisponiveis();
+            let turnosOcupados = Math.round(totalTurnos * (ocupacaoPct / 100));
+            let fatProj = turnosOcupados * precoTurno;
+            let resultadoOp = fatProj - custoFixoSimulado;
+            let turnosEq = precoTurno > 0 ? Math.ceil(custoFixoSimulado / precoTurno) : 0;
+
+            document.getElementById('scen-res-fat').innerText = formatCurrency(fatProj);
+            document.getElementById('scen-res-desp').innerText = formatCurrency(custoFixoSimulado);
             
+            const resOpEl = document.getElementById('scen-res-op');
+            resOpEl.innerText = formatCurrency(resultadoOp);
+            resOpEl.className = `text-lg lg:text-xl font-black ${resultadoOp >= 0 ? 'text-emerald-400' : 'text-rose-400'} mt-1 block`;
+            document.getElementById('scen-res-eq').innerText = `${turnosEq} turnos`;
+
+            const badge = document.getElementById('scen-status-badge');
+            if (resultadoOp >= 0) {
+                badge.innerText = "🟢 Operação Lucrativa"; badge.className = "px-3 py-1 rounded-full text-xs font-black bg-emerald-500 text-white";
+            } else {
+                badge.innerText = "🔴 Operação em Déficit"; badge.className = "px-3 py-1 rounded-full text-xs font-black bg-rose-500 text-white";
+            }
+        }
+
+        function resetCenarios() {
+            document.getElementById('scen-ocupacao').value = 100;
+            document.getElementById('scen-preco').value = 120;
+            document.getElementById('scen-custofixo').value = config.custoFixo || 2000;
+            calcularCenarios(); triggerToast("Cenários restaurados.", "🔄");
+        }
+
+        function renderPacotesUI() {
+            const container = document.getElementById('pacotes-container'); if(!container) return;
+            container.innerHTML = '';
             pacotes.forEach((p, idx) => {
-                let card = document.createElement('div');
-                card.className = "p-4 border border-slate-200 rounded-2xl bg-slate-50/50 space-y-2 flex flex-col justify-between";
-                card.innerHTML = `
-                    <div class="space-y-1">
-                        <span class="text-[10px] font-bold uppercase text-slate-400 block">${p.tipo}</span>
-                        <h4 class="text-sm font-bold text-slate-800">${p.nome}</h4>
-                        <p class="text-xs text-slate-500">${p.horas}h/mês &bull; Cobrança recorrente</p>
-                        <div class="text-lg font-black text-indigo-600 pt-1">${formatCurrency(p.valor)} <span class="text-xs font-normal text-slate-400">${p.horas > 1 ? '/mês' : '/hora'}</span></div>
-                    </div>
-                    <button type="button" onclick="abrirModalPacote(${idx})" class="mt-2 w-full h-9 bg-white border border-slate-200 hover:bg-slate-100 font-semibold text-slate-700 rounded-xl text-xs cursor-pointer shadow-2xs">Editar</button>
-                `;
-                container.appendChild(card);
+                container.innerHTML += `
+                    <div class="p-4 border border-slate-200 rounded-2xl bg-slate-50/50 space-y-2 flex flex-col justify-between">
+                        <div class="space-y-1">
+                            <span class="text-[10px] font-bold uppercase text-slate-400 block">${p.tipo}</span>
+                            <h4 class="text-sm font-bold text-slate-800">${p.nome}</h4>
+                            <p class="text-xs text-slate-500">${p.horas}h/mês &bull; R$ ${(p.valor/p.horas).toFixed(2)}/h</p>
+                            <div class="text-lg font-black text-indigo-600 pt-1">${formatCurrency(p.valor)}</div>
+                        </div>
+                        <button type="button" onclick="abrirModalPacote(${idx})" class="mt-2 w-full h-9 bg-white border border-slate-200 hover:bg-slate-100 font-semibold text-slate-700 rounded-xl text-xs cursor-pointer">Editar</button>
+                    </div>`;
             });
-            atualizarPrecoMedioPonderado();
+            let maior = pacotes.reduce((prev, curr) => (prev.horas > curr.horas) ? prev : curr, pacotes[0]);
+            config.preco = maior.horas > 0 ? Math.round((maior.valor / maior.horas) * 100) / 100 : 30.00;
+            localStorage.setItem('simulador_config_v35', JSON.stringify(config));
         }
 
         function abrirModalPacote(idx) {
@@ -477,168 +538,59 @@
             let p = pacotes[idx];
             document.getElementById('edit-pacote-nome').value = p.nome;
             document.getElementById('edit-pacote-horas').value = p.horas;
-            
-            let valStr = p.valor.toFixed(2).replace('.', ',');
-            valStr = valStr.replace(/(\d)(?=(\d{3})+(?!\d))/g, "$1.");
-            document.getElementById('edit-pacote-valor').value = 'R$ ' + valStr;
-            
+            document.getElementById('edit-pacote-valor').value = 'R$ ' + p.valor.toFixed(2).replace('.', ',');
             document.getElementById('modal-pacote').classList.remove('hidden');
         }
 
-        function fecharModalPacote() {
-            document.getElementById('modal-pacote').classList.add('hidden');
-            editingPackageId = null;
-        }
+        function fecharModalPacote() { document.getElementById('modal-pacote').classList.add('hidden'); editingPackageId = null; }
 
         function salvarPacoteEditado() {
             if (editingPackageId === null) return;
-            let nome = document.getElementById('edit-pacote-nome').value;
-            let horas = parseInt(document.getElementById('edit-pacote-horas').value) || 1;
-            let valor = parseCurrencyToFloat(document.getElementById('edit-pacote-valor').value);
-
-            pacotes[editingPackageId] = {
-                ...pacotes[editingPackageId],
-                nome,
-                horas,
-                valor,
-                desc: `${horas}h/mês — cobrança recorrente`
-            };
-
-            localStorage.setItem('simulador_pacotes_v31', JSON.stringify(pacotes));
-            renderPacotesUI();
-            fecharModalPacote();
-            triggerToast("Pacote atualizado com sucesso!", "✏️");
-            renderApp();
-        }
-
-        function atualizarPrecoMedioPonderado() {
-            if (pacotes.length === 0) return;
-            let somaValorPorHora = 0;
-            pacotes.forEach(p => {
-                let vph = p.horas > 0 ? (p.valor / p.horas) : p.valor;
-                somaValorPorHora += vph;
-            });
-            let mediaPonderada = somaValorPorHora / pacotes.length;
-            config.preco = Math.round(mediaPonderada * 100) / 100;
-            const precoInput = document.getElementById('cfg-preco');
-            if(precoInput) precoInput.value = config.preco;
-            localStorage.setItem('simulador_config_v31', JSON.stringify(config));
-        }
-
-        function isDespesaFixaPorDescricao(descricao, categoria, subcategoria) {
-            const text = `${descricao} ${categoria} ${subcategoria}`.toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "");
-            const fixedKeywords = ['aluguel', 'condominio', 'iptu', 'enel', 'coelce', 'energia', 'algar', 'claro', 'vivo', 'tim', 'oi', 'net', 'internet', 'telefone', 'agua', 'gelagua', 'contador', 'contabilidade', 'seguro'];
-            return fixedKeywords.some(kw => text.includes(kw));
-        }
-
-        function isDespesaVariavelPorDescricao(descricao) {
-            const text = `${descricao}`.toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "");
-            const variableKeywords = ['copa', 'limpeza', 'escritorio', 'material', 'essencias', 'varetas', 'vidros', 'cafe', 'agua', 'filtro', 'descartavel', 'toalha', 'papel', 'sabonete', 'detergente', 'insumo'];
-            return variableKeywords.some(kw => text.includes(kw));
+            pacotes[editingPackageId].nome = document.getElementById('edit-pacote-nome').value;
+            pacotes[editingPackageId].horas = parseInt(document.getElementById('edit-pacote-horas').value) || 1;
+            pacotes[editingPackageId].valor = parseCurrencyToFloat(document.getElementById('edit-pacote-valor').value);
+            localStorage.setItem('simulador_pacotes_v35', JSON.stringify(pacotes));
+            renderPacotesUI(); fecharModalPacote(); triggerToast("Pacote atualizado!", "✏️"); renderApp();
         }
 
         function atualizarCustosAutomaticosSemanticamente() {
-            let despesasFixasPorMes = {};
-            let mesesComDespesaFixa = new Set();
-            let totalFixas = 0;
-
-            let totalVariavel = 0;
-            let mesesComVariavel = new Set();
-
+            let totalFixas = 0, count = new Set();
             lancamentos.forEach(item => {
                 if (item.tipo === 'despesa') {
-                    let d = new Date(item.data + 'T00:00:00');
-                    let key = d.getFullYear() + '-' + d.getMonth();
-
-                    item.isFixo = isDespesaFixaPorDescricao(item.desc, '', '');
-                    if (item.isFixo) {
-                        despesasFixasPorMes[key] = (despesasFixasPorMes[key] || 0) + item.valor;
-                        totalFixas += item.valor;
-                        mesesComDespesaFixa.add(key);
-                    }
-
-                    if (isDespesaVariavelPorDescricao(item.desc)) {
-                        totalVariavel += item.valor;
-                        mesesComVariavel.add(key);
-                    }
+                    let isFix = ['aluguel', 'condominio', 'enel', 'energia', 'internet', 'agua'].some(kw => item.desc.toLowerCase().includes(kw));
+                    if(isFix) { totalFixas += item.valor; count.add(item.data.substring(0,7)); }
                 }
             });
-
-            let qtdMesesFixos = mesesComDespesaFixa.size;
-            if (qtdMesesFixos > 0) {
-                config.custoFixo = Math.round((totalFixas / qtdMesesFixos) * 100) / 100;
-            } else {
-                config.custoFixo = 0;
-            }
-
-            let qtdMesesVariaveis = mesesComVariavel.size;
-            let custoVariavelTotalMensal = qtdMesesVariaveis > 0 ? (totalVariavel / qtdMesesVariaveis) : 0;
-            
-            let capacidadeMensal = config.capacidade || 528;
-            let custoVariavelUnitario = capacidadeMensal > 0 ? (custoVariavelTotalMensal / capacidadeMensal) : 2.00;
-            config.custoVariavel = Math.max(Math.round(custoVariavelUnitario * 100) / 100, 0.50);
-
-            localStorage.setItem('simulador_config_v31', JSON.stringify(config));
+            config.custoFixo = count.size > 0 ? Math.round(totalFixas / count.size) : 2000;
+            localStorage.setItem('simulador_config_v35', JSON.stringify(config));
         }
 
-        function triggerToast(msg, icon = "ℹ️") {
-            const toast = document.getElementById('toast-notification');
-            if(!toast) return;
-            document.getElementById('toast-icon').innerText = icon;
-            document.getElementById('toast-message').innerText = msg;
-            toast.classList.remove('hidden');
-            setTimeout(() => toast.classList.add('hidden'), 4500);
-        }
-
-        function handleCurrencyInput(input) {
-            let value = input.value.replace(/\D/g, '');
-            if(value === '') { input.value = ''; return; }
-            value = (value / 100).toFixed(2) + '';
-            value = value.replace(".", ",");
-            value = value.replace(/(\d)(?=(\d{3})+(?!\d))/g, "$1.");
-            input.value = 'R$ ' + value;
-        }
-
+        // --- IMPORTAÇÃO INTELIGENTE DE EXCEL ---
         function parseRawValue(val) {
             if (val === undefined || val === null) return 0;
             if (typeof val === 'number') return val;
             let clean = val.toString().trim().replace(/[\xA0\s]/g, '').replace(/R\$/g, '');
             if (clean === '') return 0;
-            
-            if (clean.includes('.') && clean.includes(',')) {
-                clean = clean.replace(/\./g, '').replace(',', '.');
-            } else if (clean.includes(',')) {
-                clean = clean.replace(',', '.');
-            }
+            if (clean.includes('.') && clean.includes(',')) clean = clean.replace(/\./g, '').replace(',', '.');
+            else if (clean.includes(',')) clean = clean.replace(',', '.');
             return parseFloat(clean) || 0;
         }
 
         function normalizeKey(key) {
-            if (!key) return '';
-            return key.toString().toLowerCase().trim()
-                .normalize("NFD").replace(/[\u0300-\u036f]/g, "") 
-                .replace(/[^a-z0-9]/g, ""); 
+            return key ? key.toString().toLowerCase().trim().normalize("NFD").replace(/[\u0300-\u036f]/g, "").replace(/[^a-z0-9]/g, "") : ''; 
         }
 
         function normalizeDate(dateVal) {
             if (!dateVal) return new Date().toISOString().split('T')[0];
             if (dateVal instanceof Date) {
-                let y = dateVal.getFullYear();
-                let m = String(dateVal.getMonth() + 1).padStart(2, '0');
-                let d = String(dateVal.getDate()).padStart(2, '0');
-                return `${y}-${m}-${d}`;
+                return `${dateVal.getFullYear()}-${String(dateVal.getMonth() + 1).padStart(2, '0')}-${String(dateVal.getDate()).padStart(2, '0')}`;
             }
             if (typeof dateVal === 'number' && dateVal > 30000 && dateVal < 60000) {
-                let dateObj = XLSX.SSF.parse_date_code(dateVal);
-                let y = dateObj.y;
-                let m = String(dateObj.m).padStart(2, '0');
-                let d = String(dateObj.d).padStart(2, '0');
-                return `${y}-${m}-${d}`;
+                let obj = XLSX.SSF.parse_date_code(dateVal);
+                return `${obj.y}-${String(obj.m).padStart(2, '0')}-${String(obj.d).padStart(2, '0')}`;
             }
             let str = dateVal.toString().trim();
-            if (/^\d{4}-\d{2}-\d{2}/.test(str)) {
-                return str.split(' ')[0].split('T')[0];
-            }
+            if (/^\d{4}-\d{2}-\d{2}/.test(str)) return str.split(' ')[0].split('T')[0];
             if (str.includes('/')) {
                 let parts = str.split(' ')[0].split('/');
                 if (parts[0].length === 4) return `${parts[0]}-${parts[1].padStart(2, '0')}-${parts[2].padStart(2, '0')}`;
@@ -647,237 +599,252 @@
             return str;
         }
 
-        function processarClassificacaoDespesa(descricao, categoria, subcategoria) {
-            const desc = normalizeKey(descricao);
-            const cat = normalizeKey(categoria);
-            const sub = normalizeKey(subcategoria);
-
-            if (cat === 'fixo' || cat.includes('operacional') || cat.includes('recorrente')) {
-                return 'despesa';
-            }
-            const opexSubcategorias = ['energia', 'iptu', 'internet', 'telefone', 'agua', 'taxas', 'impostos', 'aluguel', 'condominio', 'limpeza'];
-            if (opexSubcategorias.some(item => sub.includes(item))) return 'despesa';
-
-            const opexKeywords = ['enel', 'coelce', 'cagece', 'algar', 'claro', 'vivo', 'tim', 'oi', 'net', 'aluguel', 'condominio', 'iptu', 'contador', 'contabilidade', 'simplesnacional', 'das', 'fgts', 'inss', 'darf'];
-            if (opexKeywords.some(kw => desc.includes(kw))) return 'despesa';
-
-            const capexSubcategorias = ['despesasobra', 'obra', 'investimento', 'imobilizado', 'moveis', 'equipamentos'];
-            if (capexSubcategorias.some(item => sub.includes(item))) return 'investimento';
-
-            const capexKeywords = ['obra', 'reforma', 'santiago', 'construcao', 'pedreiro', 'pintor', 'maodeobra', 'gesso', 'tinta', 'madeira', 'fio', 'cimento', 'tijolo', 'rodape', 'frete', 'ferragem', 'cadeira', 'poltrona', 'diva', 'mesa', 'aparador', 'armario', 'estofado', 'sofa', 'tapete', 'cortina', 'luminaria', 'arcondicionado', 'climario', 'computador', 'notebook', 'tv', 'leroy', 'mercadolivre'];
-            if (capexKeywords.some(kw => desc.includes(kw))) return 'investimento';
-
-            return 'despesa';
-        }
-
         function importFile(input) {
             const file = input.files[0]; if (!file) return;
             const reader = new FileReader();
-
             reader.onload = function(e) {
                 try {
                     const data = new Uint8Array(e.target.result);
                     const workbook = XLSX.read(data, { type: 'array', cellDates: true });
-                    
-                    let countImported = 0;
-                    let sheetsProcessed = [];
+                    let count = 0;
 
                     workbook.SheetNames.forEach(sheetName => {
                         try {
                             const nameLower = sheetName.toLowerCase().trim().normalize("NFD").replace(/[\u0300-\u036f]/g, "");
-                            
-                            if (nameLower.includes('locac') || nameLower.includes('profission') || nameLower.includes('sala')) {
-                                return; 
-                            }
+                            if (nameLower.includes('locac') || nameLower.includes('prof')) return;
 
-                            const worksheet = workbook.Sheets[sheetName];
-                            const jsonData = XLSX.utils.sheet_to_json(worksheet, { raw: true });
-                            if (!jsonData || jsonData.length === 0) return;
+                            const sheet = workbook.Sheets[sheetName];
+                            const rows = XLSX.utils.sheet_to_json(sheet, { raw: true });
+                            if (!rows || rows.length === 0) return;
 
-                            const normalizedRows = jsonData.map(row => {
-                                let normObj = {};
-                                for (let key in row) { normObj[normalizeKey(key)] = row[key]; }
-                                return normObj;
+                            const normalizedRows = rows.map(r => {
+                                let nr = {};
+                                for (let k in r) nr[normalizeKey(k)] = r[k];
+                                return nr;
                             });
 
-                            const firstRowKeys = Object.keys(normalizedRows[0] || {});
-                            
-                            let isReceitaSheet = nameLower.includes('receita') || (firstRowKeys.includes('profissional') && firstRowKeys.includes('valorfinal'));
-                            let isDespesaSheet = nameLower.includes('despesa') || (firstRowKeys.includes('descricao') && firstRowKeys.includes('subcategoria'));
+                            const keys = Object.keys(normalizedRows[0] || {});
+                            let isRec = nameLower.includes('receita') || (keys.includes('profissional') && keys.includes('valor'));
+                            let isDesp = nameLower.includes('despesa') || (keys.includes('descricao') && keys.includes('valor'));
 
-                            if (isReceitaSheet) {
-                                sheetsProcessed.push(sheetName);
-                                normalizedRows.forEach(row => {
-                                    if (!row['profissional'] && !row['valor'] && !row['valorfinal']) return;
-                                    
-                                    let rawId = (row['id'] || '').toString().trim() || ('rec-' + Date.now() + '-' + Math.random());
-                                    let normalizedDateStr = normalizeDate(row['vencimento'] || row['data']);
-                                    let profissional = row['profissional'] || 'Receita Avulsa';
-                                    let observacao = row['observacao'] || row['obs'] || '';
-                                    
-                                    let valorFinalRaw = (row['valorfinal'] !== undefined && row['valorfinal'] !== "") ? row['valorfinal'] : row['valor'];
-                                    let valor = parseRawValue(valorFinalRaw);
-                                    if(valor === 0) return; 
-                                    
-                                    let desc = profissional + (observacao ? ' - ' + observacao : '');
-                                    
-                                    let sala = 'sala1';
-                                    let upperObs = (observacao || '').toString().toUpperCase();
-                                    if (upperObs.includes('ÁTHOS II') || upperObs.includes('ATHOS II') || upperObs.includes('SALA 2') || upperObs.includes('SALA 02')) {
-                                        sala = 'sala2';
+                            if (isRec) {
+                                normalizedRows.forEach(r => {
+                                    let rawId = (r['id'] || '').toString().trim() || ('rec-' + Date.now() + '-' + Math.random());
+                                    let dt = normalizeDate(r['vencimento'] || r['data']);
+                                    let prof = r['profissional'] || 'Receita Avulsa';
+                                    let obs = r['observacao'] || r['obs'] || '';
+                                    let val = parseRawValue(r['valorfinal'] !== undefined && r['valorfinal'] !== "" ? r['valorfinal'] : r['valor']);
+                                    if(val === 0) return;
+                                    let sala = ((obs || '').toString().toUpperCase().includes('ÁTHOS II') || (obs || '').toString().toUpperCase().includes('SALA 2')) ? 'sala2' : 'sala1';
+                                    if (!lancamentos.some(l => l.id === rawId)) {
+                                        lancamentos.push({ id: rawId, data: dt, tipo: 'receita', sala: sala, desc: prof + (obs ? ' - ' + obs : ''), valor: val });
+                                        count++;
                                     }
-                                    
-                                    if (lancamentos.some(l => l.id === rawId)) return;
-                                    lancamentos.push({ id: rawId, data: normalizedDateStr, tipo: 'receita', sala: sala, desc: desc, valor: valor });
-                                    countImported++;
+                                });
+                            } else if (isDesp) {
+                                normalizedRows.forEach(r => {
+                                    let rawId = (r['id'] || '').toString().trim() || ('desp-' + Date.now() + '-' + Math.random());
+                                    let dt = normalizeDate(r['vencimento'] || r['data']);
+                                    let desc = r['descricao'] || r['desc'] || 'Despesa';
+                                    let val = parseRawValue(r['valor']);
+                                    if(val === 0) return;
+                                    let descLow = desc.toLowerCase();
+                                    let tipo = ['obra', 'reforma', 'santiago', 'pedreiro', 'moveis'].some(k => descLow.includes(k)) ? 'investimento' : 'despesa';
+                                    let isFix = ['aluguel', 'condominio', 'enel', 'energia', 'internet', 'agua'].some(k => descLow.includes(k));
+                                    if (!lancamentos.some(l => l.id === rawId)) {
+                                        lancamentos.push({ id: rawId, data: dt, tipo: tipo, sala: '-', desc: desc, valor: val, isFixo: isFix });
+                                        count++;
+                                    }
                                 });
                             }
-                            else if (isDespesaSheet) {
-                                sheetsProcessed.push(sheetName);
-                                normalizedRows.forEach(row => {
-                                    if (!row['descricao'] && !row['valor']) return;
-                                    
-                                    let rawId = (row['id'] || '').toString().trim() || ('desp-' + Date.now() + '-' + Math.random());
-                                    let normalizedDateStr = normalizeDate(row['vencimento'] || row['data']);
-                                    let descricao = row['descricao'] || row['desc'] || 'Despesa';
-                                    let categoria = row['categoria'] || '';
-                                    let subcategoria = row['subcategoria'] || '';
-                                    
-                                    let valor = parseRawValue(row['valor']);
-                                    if(valor === 0) return; 
-                                    
-                                    let tipo = processarClassificacaoDespesa(descricao, categoria, subcategoria);
-                                    let descCompleta = descricao + (subcategoria ? ' (' + subcategoria + ')' : '');
-                                    let isFixo = isDespesaFixaPorDescricao(descCompleta, categoria, subcategoria);
-                                    
-                                    if (lancamentos.some(l => l.id === rawId)) return;
-                                    lancamentos.push({ id: rawId, data: normalizedDateStr, tipo: tipo, sala: '-', desc: descCompleta, valor: valor, isFixo: isFixo });
-                                    countImported++;
-                                });
-                            }
-                        } catch (sheetErr) {
-                            console.error(sheetErr);
-                        }
+                        } catch(err) { console.error(err); }
                     });
 
-                    if (sheetsProcessed.length === 0) {
-                        alert("Não foram encontradas abas válidas de 'Receitas' ou 'Despesas'.");
-                        return;
-                    }
-
-                    localStorage.setItem('simulador_lancamentos_v31', JSON.stringify(lancamentos));
+                    localStorage.setItem('simulador_lancamentos_v35', JSON.stringify(lancamentos));
                     atualizarCustosAutomaticosSemanticamente();
-                    triggerToast(`Planilha integrada com sucesso!`, "📥");
+                    triggerToast(`Planilha integrada com sucesso! (${count} registros)`, "📥");
                     renderApp(); switchTab('dash');
-                } catch (globalErr) {
-                    alert("Erro estrutural no processamento do Excel.");
-                }
+                } catch(err) { alert("Erro ao processar arquivo Excel."); }
             };
             reader.readAsArrayBuffer(file);
         }
 
-        function toggleDropdown(event) {
-            event.stopPropagation();
-            const menu = document.getElementById('dropdown-menu');
-            if(menu) menu.classList.toggle('hidden');
-        }
-
-        function renderDropdownCheckboxes() {
-            const container = document.getElementById('dropdown-checkboxes-container');
-            if(!container) return;
-            container.innerHTML = '';
-            nomesMeses.forEach((mes, idx) => {
-                const label = document.createElement('label');
-                label.className = "flex items-center gap-3 px-3 py-2.5 rounded-lg hover:bg-slate-50 text-sm font-semibold text-slate-700 cursor-pointer w-full select-none";
-                label.innerHTML = `
-                    <input type="checkbox" id="chk-mes-${idx}" ${mesesAtivos.includes(idx) ? 'checked' : ''} onchange="onCheckboxChange(${idx})" class="h-5 w-5 rounded-md border-slate-300 text-indigo-600 focus:ring-indigo-500 cursor-pointer">
-                    <span>${mes}</span>
-                `;
-                container.appendChild(label);
-            });
-        }
-
-        function onCheckboxChange(idx) {
-            const chk = document.getElementById(`chk-mes-${idx}`);
-            if (chk && chk.checked) { if (!mesesAtivos.includes(idx)) mesesAtivos.push(idx); } 
-            else { mesesAtivos = mesesAtivos.filter(m => m !== idx); }
-            mesesAtivos.sort((a, b) => a - b);
-            updateDropdownLabel(); renderApp();
-        }
-
-        function selecionarTodosMeses(status) {
-            mesesAtivos = status ? [0,1,2,3,4,5,6,7,8,9,10,11] : [];
-            nomesMeses.forEach((_, idx) => {
-                const chk = document.getElementById(`chk-mes-${idx}`);
-                if (chk) chk.checked = status;
-            });
-            updateDropdownLabel(); renderApp();
-        }
-
-        function updateDropdownLabel() {
-            const labelEl = document.getElementById('dropdown-label');
-            if(!labelEl) return;
-            if (mesesAtivos.length === 12) labelEl.innerText = "Todos os meses";
-            else if (mesesAtivos.length === 0) labelEl.innerText = "Nenhum selecionado";
-            else if (mesesAtivos.length <= 2) labelEl.innerText = mesesAtivos.map(m => nomesCurtos[m]).join(', ');
-            else labelEl.innerText = `${mesesAtivos.length} meses ativos`;
-        }
-
-        function setMetrica(m) { config.metrica = m; updateMetricaUI(); }
-
-        function updateMetricaUI() {
-            const btnHoras = document.getElementById('btn-m-horas');
-            const btnTurnos = document.getElementById('btn-m-turnos');
-            const lblCap = document.getElementById('lbl-cfg-capacidade');
-            const lblPreco = document.getElementById('lbl-cfg-preco');
-            const lblVar = document.getElementById('lbl-cfg-custovariavel');
-
-            if(config.metrica === 'turnos') {
-                if(btnTurnos) btnTurnos.className = "h-9 text-xs font-semibold rounded-lg text-center bg-white text-indigo-900 shadow-xs cursor-pointer w-full";
-                if(btnHoras) btnHoras.className = "h-9 text-xs font-semibold rounded-lg text-center text-slate-500 hover:text-slate-700 cursor-pointer w-full";
-                if(lblCap) lblCap.innerText = "Capacidade Mensal (Qtd. Turnos)";
-                if(lblPreco) lblPreco.innerText = "Preço de Venda Médio por Turno (R$)";
-                if(lblVar) lblVar.innerText = "Custo Variável Operacional Médio por Turno (R$)";
-            } else {
-                if(btnHoras) btnHoras.className = "h-9 text-xs font-semibold rounded-lg text-center bg-white text-indigo-900 shadow-xs cursor-pointer w-full";
-                if(btnTurnos) btnTurnos.className = "h-9 text-xs font-semibold rounded-lg text-center text-slate-500 hover:text-slate-700 cursor-pointer w-full";
-                if(lblCap) lblCap.innerText = "Capacidade Mensal (Qtd. Horas)";
-                if(lblPreco) lblPreco.innerText = "Preço de Venda Médio por Hora (R$)";
-                if(lblVar) lblVar.innerText = "Custo Variável Operacional Médio por Hora (R$)";
+        // --- CÁLCULOS FINANCEIROS AVANÇADOS ---
+        function calcularTIRCronologica(cashFlows) {
+            if (!cashFlows || cashFlows.length === 0) return 0;
+            let hasNegative = cashFlows.some(cf => cf < 0), hasPositive = cashFlows.some(cf => cf > 0);
+            if (!hasNegative || !hasPositive) return 0;
+            function calcularVPL(r) {
+                let vpl = 0; for (let t = 0; t < cashFlows.length; t++) { vpl += cashFlows[t] / Math.pow(1 + r, t + 1); } return vpl;
             }
-            const capInput = document.getElementById('cfg-capacidade');
-            const precoInput = document.getElementById('cfg-preco');
-            const fixoInput = document.getElementById('cfg-custofixo');
-            const varInput = document.getElementById('cfg-custovariavel');
-
-            if(capInput) capInput.value = config.capacidade;
-            if(precoInput) precoInput.value = config.preco;
-            if(fixoInput) fixoInput.value = config.custoFixo;
-            if(varInput) varInput.value = config.custoVariavel;
+            let low = -0.999, high = 20.0;
+            if (calcularVPL(low) < 0) return -100.0;
+            if (calcularVPL(high) > 0) return high * 100;
+            for (let i = 0; i < 100; i++) {
+                let mid = (low + high) / 2, vplMid = calcularVPL(mid);
+                if (Math.abs(vplMid) < 1e-5) return mid * 100;
+                if (vplMid > 0) low = mid; else high = mid;
+            }
+            return ((low + high) / 2) * 100;
         }
 
-        function switchTab(tabId) {
-            try {
-                if (tabId === 'config') {
-                    atualizarCustosAutomaticosSemanticamente();
-                    renderPacotesUI();
-                    updateMetricaUI();
+        function calcularPaybackAcumulado(cashFlows) {
+            let acumulado = 0, mesesAteRetorno = null, atingiuRetorno = false;
+            for (let i = 0; i < cashFlows.length; i++) {
+                let anterior = acumulado; acumulado += cashFlows[i];
+                if (acumulado >= 0 && anterior < 0) {
+                    mesesAteRetorno = i + (Math.abs(anterior) / cashFlows[i]); atingiuRetorno = true; break;
+                } else if (acumulado >= 0 && i === 0 && cashFlows[0] >= 0) {
+                    mesesAteRetorno = 0; atingiuRetorno = true; break;
                 }
-                document.querySelectorAll('.tab-content').forEach(el => el.classList.add('hidden'));
-                document.querySelectorAll('.tab-btn').forEach(el => {
-                    el.className = "tab-btn snap-center px-4 py-2.5 text-xs lg:text-sm font-semibold rounded-lg text-indigo-200 hover:text-white cursor-pointer";
-                });
-                
-                const targetTab = document.getElementById(`tab-${tabId}`);
-                const targetBtn = document.getElementById(`btn-${tabId}`);
-                
-                if(targetTab) targetTab.classList.remove('hidden');
-                if(targetBtn) targetBtn.className = "tab-btn snap-center px-4 py-2.5 text-xs lg:text-sm font-semibold rounded-lg bg-indigo-600 text-white shadow-xs cursor-pointer";
-                
-                if (tabId === 'dash') setTimeout(renderApp, 5);
-            } catch (err) {
-                console.error("Erro ao alternar aba:", err);
             }
+            return { atingiuRetorno, mesesAteRetorno };
+        }
+
+        // --- RENDERIZAÇÃO DA APLICAÇÃO ---
+        function renderApp() {
+            const filtroAno = document.getElementById('dash-filtro-ano').value;
+            let sala1Tot = 0, sala2Tot = 0, totalDespesas = 0, totalInvestido = 0, countReg = 0;
+            let tbody = document.getElementById('table-body'); if(tbody) tbody.innerHTML = '';
+            let mobileContainer = document.getElementById('mobile-cards-container'); if(mobileContainer) mobileContainer.innerHTML = '';
+
+            const sorted = [...lancamentos].sort((a,b) => new Date(b.data) - new Date(a.data));
+
+            sorted.forEach(item => {
+                let d = new Date(item.data + 'T00:00:00');
+                if (d.getFullYear().toString() === filtroAno && mesesAtivos.includes(d.getMonth())) {
+                    countReg++;
+                    if(item.tipo === 'receita' && item.sala === 'sala1') sala1Tot += item.valor;
+                    if(item.tipo === 'receita' && item.sala === 'sala2') sala2Tot += item.valor;
+                    if(item.tipo === 'despesa') totalDespesas += item.valor;
+                    if(item.tipo === 'investimento') totalInvestido += item.valor;
+
+                    let badge = item.tipo === 'receita' ? '<span class="px-2 py-0.5 text-[10px] font-semibold rounded-sm bg-emerald-50 text-emerald-700">Entrada</span>' : (item.tipo === 'despesa' ? '<span class="px-2 py-0.5 text-[10px] font-semibold rounded-sm bg-rose-50 text-rose-700">Saída</span>' : '<span class="px-2 py-0.5 text-[10px] font-semibold rounded-sm bg-indigo-50 text-indigo-700">Invest.</span>');
+
+                    if(tbody) {
+                        tbody.innerHTML += `
+                            <tr>
+                                <td class="p-4 text-slate-500 whitespace-nowrap">${item.data.split('-').reverse().join('/')}</td>
+                                <td class="p-4">${badge}</td>
+                                <td class="p-4 font-semibold text-slate-600">${item.tipo==='receita'?(item.sala==='sala1'?'Sala 01':'Sala 02'):'Geral'}</td>
+                                <td class="p-4 text-slate-700">${item.desc}</td>
+                                <td class="p-4 text-right font-bold ${item.tipo==='receita'?'text-emerald-600':(item.tipo==='despesa'?'text-rose-600':'text-indigo-600')}">${formatCurrency(item.valor)}</td>
+                                <td class="p-4 text-center"><button onclick="deleteLancamento('${item.id}')" class="text-xs text-rose-500 font-semibold hover:underline cursor-pointer">Remover</button></td>
+                            </tr>`;
+                    }
+                    if(mobileContainer) {
+                        mobileContainer.innerHTML += `
+                            <div class="p-4 space-y-2">
+                                <div class="flex justify-between items-center"><span class="text-xs text-slate-400 font-bold">${item.data.split('-').reverse().join('/')}</span> ${badge}</div>
+                                <div class="text-sm font-bold text-slate-800">${item.desc}</div>
+                                <div class="flex justify-between items-center pt-1"><span class="text-xs text-slate-500">${item.tipo==='receita'?(item.sala==='sala1'?'Sala 01':'Sala 02'):'Geral'}</span> <span class="text-base font-black ${item.tipo==='receita'?'text-emerald-600':(item.tipo==='despesa'?'text-rose-600':'text-indigo-600')}">${formatCurrency(item.valor)}</span></div>
+                            </div>`;
+                    }
+                }
+            });
+
+            document.getElementById('empty-state').classList.toggle('hidden', countReg > 0);
+            document.getElementById('desktop-table-container').classList.toggle('hidden', countReg === 0);
+
+            document.getElementById('faturamento-sala1').innerText = formatCurrency(sala1Tot);
+            document.getElementById('faturamento-sala2').innerText = formatCurrency(sala2Tot);
+
+            let qtdMeses = mesesAtivos.length || 1;
+            atualizarCustosAutomaticosSemanticamente();
+            let baseFixo = Math.max(config.custoFixo * qtdMeses, totalDespesas);
+            let margemU = config.preco - config.custoVariavel;
+            let fatMin = (baseFixo / (margemU > 0 ? margemU : 1)) * config.preco;
+
+            document.getElementById('kpi-break-even').innerText = formatCurrency(fatMin);
+            let ocuMin = (config.capacidade * qtdMeses) > 0 ? ((fatMin / config.preco) / (config.capacidade * qtdMeses)) * 100 : 0;
+            document.getElementById('kpi-ponto-eq').innerText = ocuMin.toFixed(1) + '%';
+
+            let capex = lancamentos.reduce((acc, i) => i.tipo === 'investimento' ? acc + i.valor : acc, 0) || 50000;
+            let mesesPayback = parseInt(document.getElementById('meta-meses-payback').value) || 12;
+            let fatMeta = ((capex / mesesPayback) + (baseFixo / qtdMeses)) / ((config.preco - config.custoVariavel)/config.preco);
+            let turnosMeta = Math.ceil(fatMeta / (config.preco * 4));
+
+            document.getElementById('kpi-fat-meta').innerText = formatCurrency(fatMeta);
+            document.getElementById('kpi-turnos-meta').innerText = `Meta: ${turnosMeta} turnos/mês`;
+
+            let op = (sala1Tot + sala2Tot) - totalDespesas;
+            let liquido = op - totalInvestido;
+
+            document.getElementById('sum-operacional').innerText = formatCurrency(op);
+            document.getElementById('sum-liquido').innerText = formatCurrency(liquido);
+
+            // Payback, ROI e TIR
+            let vetorFluxo = [];
+            mesesAtivos.forEach(idx => {
+                let r = 0, ds = 0, inv = 0;
+                lancamentos.forEach(i => {
+                    let dt = new Date(i.data + 'T00:00:00');
+                    if(dt.getFullYear().toString() === filtroAno && dt.getMonth() === idx) {
+                        if(i.tipo === 'receita') r += i.valor;
+                        if(i.tipo === 'despesa') ds += i.valor;
+                        if(i.tipo === 'investimento') inv += i.valor;
+                    }
+                });
+                vetorFluxo.push((r - ds) - inv);
+            });
+
+            let paybackRes = calcularPaybackAcumulado(vetorFluxo);
+            let pbEl = document.getElementById('kpi-payback');
+            pbEl.innerText = paybackRes.atingiuRetorno ? paybackRes.mesesAteRetorno.toFixed(1) + ' meses' : 'Déficit Ativo';
+            pbEl.className = `text-xl lg:text-2xl font-bold ${paybackRes.atingiuRetorno?'text-emerald-600':'text-rose-600'} block mt-1.5`;
+
+            let roi = (totalInvestido > 0) ? (((op / qtdMeses) * 12) / totalInvestido) * 100 : 0;
+            document.getElementById('kpi-roi').innerText = roi.toFixed(1) + '%';
+
+            let tir = calcularTIRCronologica(vetorFluxo);
+            let tirEl = document.getElementById('kpi-tir');
+            tirEl.innerText = tir.toFixed(1) + '%';
+            tirEl.className = `text-xl lg:text-2xl font-bold ${tir < 0 ? 'text-rose-600' : 'text-emerald-600'} block mt-1.5`;
+
+            renderCharts();
+        }
+
+        function formatCurrency(v) { return v.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' }); }
+
+        function renderCharts() {
+            const ctx = document.getElementById('mainChart'); if(!ctx) return;
+            const filtroAno = document.getElementById('dash-filtro-ano').value;
+            let lbs = [], recs = [], desps = [], lucros = [];
+            nomesCurtos.forEach((m, idx) => {
+                if (mesesAtivos.includes(idx)) {
+                    lbs.push(m); let r = 0, d = 0;
+                    lancamentos.forEach(i => {
+                        let dt = new Date(i.data + 'T00:00:00');
+                        if(dt.getFullYear().toString() === filtroAno && dt.getMonth() === idx) {
+                            if(i.tipo === 'receita') r += i.valor;
+                            if(i.tipo === 'despesa') d += i.valor;
+                        }
+                    });
+                    recs.push(r); desps.push(d); lucros.push(r - d);
+                }
+            });
+            if(chartInstance) chartInstance.destroy();
+            chartInstance = new Chart(ctx, {
+                data: {
+                    labels: lbs,
+                    datasets: [
+                        { type: 'line', label: 'Resultado Líquido', data: lucros, borderColor: '#10b981', backgroundColor: '#10b981', borderWidth: 2.5, pointRadius: 3, tension: 0.15 },
+                        { type: 'bar', label: 'Receitas', data: recs, backgroundColor: '#4f46e5', borderRadius: 4 },
+                        { type: 'bar', label: 'Despesas', data: desps, backgroundColor: '#ef4444', borderRadius: 4 }
+                    ]
+                },
+                options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { position: 'bottom', labels: { boxWidth: 12, font: { size: 11 } } } } }
+            });
+        }
+
+        // --- NAVEGAÇÃO E FORMULÁRIOS ---
+        function switchTab(id) {
+            if(id === 'cenarios') calcularCenarios();
+            document.querySelectorAll('.tab-content').forEach(el => el.classList.add('hidden'));
+            document.querySelectorAll('.tab-btn').forEach(el => el.className = "tab-btn snap-center px-4 py-2.5 text-xs lg:text-sm font-semibold rounded-lg text-indigo-200 hover:text-white cursor-pointer");
+            document.getElementById(`tab-${id}`).classList.remove('hidden');
+            document.getElementById(`btn-${id}`).className = "tab-btn snap-center px-4 py-2.5 text-xs lg:text-sm font-semibold rounded-lg bg-indigo-600 text-white shadow-xs cursor-pointer";
+            if(id === 'dash') renderApp();
         }
 
         function setFormType(type) {
@@ -888,14 +855,11 @@
             const btn = document.getElementById(`btn-type-${type}`);
             const salaBlock = document.getElementById('sala-selector-block');
             if(type === 'receita') {
-                if(btn) btn.className = "type-btn h-14 border rounded-xl flex items-center px-4 gap-3 font-semibold text-sm transition-all bg-emerald-50 border-emerald-500 text-emerald-800 cursor-pointer";
-                if(salaBlock) salaBlock.classList.remove('hidden');
-            } else if(type === 'despesa') {
-                if(btn) btn.className = "type-btn h-14 border rounded-xl flex items-center px-4 gap-3 font-semibold text-sm transition-all bg-rose-50 border-rose-500 text-rose-800 cursor-pointer";
-                if(salaBlock) salaBlock.classList.add('hidden'); selectedSala = '-';
+                btn.className = "type-btn h-14 border rounded-xl flex items-center px-4 gap-3 font-semibold text-sm transition-all bg-emerald-50 border-emerald-500 text-emerald-800 cursor-pointer";
+                salaBlock.classList.remove('hidden');
             } else {
-                if(btn) btn.className = "type-btn h-14 border rounded-xl flex items-center px-4 gap-3 font-semibold text-sm transition-all bg-indigo-50 border-indigo-500 text-indigo-800 cursor-pointer";
-                if(salaBlock) salaBlock.classList.add('hidden'); selectedSala = '-';
+                btn.className = `type-btn h-14 border rounded-xl flex items-center px-4 gap-3 font-semibold text-sm transition-all ${type==='despesa'?'bg-rose-50 border-rose-500 text-rose-800':'bg-indigo-50 border-indigo-500 text-indigo-800'} cursor-pointer`;
+                salaBlock.classList.add('hidden'); selectedSala = '-';
             }
         }
 
@@ -904,359 +868,69 @@
             document.querySelectorAll('.sala-btn').forEach(el => {
                 el.className = "sala-btn h-11 border border-slate-200 rounded-xl font-semibold text-sm transition-all text-slate-600 hover:bg-slate-50 cursor-pointer text-center w-full";
             });
-            const targetSalaBtn = document.getElementById(`btn-${sala}`);
-            if(targetSalaBtn) targetSalaBtn.className = "sala-btn h-11 border rounded-xl font-semibold text-sm transition-all bg-indigo-50 border-indigo-500 text-indigo-800 cursor-pointer text-center w-full";
+            document.getElementById(`btn-${sala}`).className = "sala-btn h-11 border rounded-xl font-semibold text-sm transition-all bg-indigo-50 border-indigo-500 text-indigo-800 cursor-pointer text-center w-full";
         }
+
+        function toggleDropdown(e) { e.stopPropagation(); document.getElementById('dropdown-menu').classList.toggle('hidden'); }
+        function renderDropdownCheckboxes() {
+            const c = document.getElementById('dropdown-checkboxes-container'); if(!c) return;
+            c.innerHTML = '';
+            nomesMeses.forEach((m, idx) => {
+                c.innerHTML += `<label class="flex items-center gap-3 px-3 py-2.5 rounded-lg hover:bg-slate-50 text-sm font-semibold text-slate-700 cursor-pointer w-full"><input type="checkbox" id="chk-mes-${idx}" ${mesesAtivos.includes(idx)?'checked':''} onchange="onCheckboxChange(${idx})" class="h-5 w-5 rounded-md text-indigo-600"><span>${m}</span></label>`;
+            });
+        }
+        function onCheckboxChange(idx) {
+            let chk = document.getElementById(`chk-mes-${idx}`);
+            if(chk.checked) { if(!mesesAtivos.includes(idx)) mesesAtivos.push(idx); } else { mesesAtivos = mesesAtivos.filter(m => m !== idx); }
+            mesesAtivos.sort((a,b)=>a-b); renderApp();
+        }
+        function selecionarTodosMeses(s) { mesesAtivos = s ? [0,1,2,3,4,5,6,7,8,9,10,11] : []; renderDropdownCheckboxes(); renderApp(); }
 
         function saveLancamento(e) {
             e.preventDefault();
-            const data = document.getElementById('lanc-data').value;
-            const desc = document.getElementById('lanc-desc').value;
-            const valor = parseCurrencyToFloat(document.getElementById('lanc-valor').value);
-            const sala = selectedType === 'receita' ? selectedSala : '-';
+            let d = document.getElementById('lanc-data').value;
+            let desc = document.getElementById('lanc-desc').value;
+            let val = parseCurrencyToFloat(document.getElementById('lanc-valor').value);
+            let sala = selectedType === 'receita' ? selectedSala : '-';
+            if(val <= 0) return;
 
-            if(valor <= 0) { alert("Insira um valor acima de R$ 0,00"); return; }
-            let manualId = 'manual-' + Date.now();
-            let isFixo = selectedType === 'despesa' ? isDespesaFixaPorDescricao(desc, '', '') : false;
-            
-            lancamentos.push({ id: manualId, data, tipo: selectedType, sala, desc, valor, isFixo });
-            localStorage.setItem('simulador_lancamentos_v31', JSON.stringify(lancamentos));
-            atualizarCustosAutomaticosSemanticamente();
-
+            lancamentos.push({ id: 'man-' + Date.now(), data: d, tipo: selectedType, sala, desc, valor: val });
+            localStorage.setItem('simulador_lancamentos_v35', JSON.stringify(lancamentos));
             document.getElementById('lanc-desc').value = '';
             document.getElementById('lanc-valor').value = '';
-            triggerToast("Lançamento adicionado com sucesso!", "🟢");
-            renderApp(); switchTab('dash');
+            renderApp(); switchTab('dash'); triggerToast("Lançamento salvo com sucesso!", "🟢");
         }
 
         function deleteLancamento(id) {
-            lancamentos = lancamentos.filter(item => item.id !== id);
-            localStorage.setItem('simulador_lancamentos_v31', JSON.stringify(lancamentos));
-            atualizarCustosAutomaticosSemanticamente();
-            triggerToast("Registro removido.", "🔴"); renderApp();
-        }
-
-        function parseCurrencyToFloat(stringVal) {
-            if(!stringVal) return 0;
-            let cleanVal = stringVal.replace(/[^\d,]/g, '').replace(',', '.');
-            return parseFloat(cleanVal) || 0;
-        }
-
-        function calcularTIRCronologica(cashFlows) {
-            if (!cashFlows || cashFlows.length === 0) return 0;
-            let hasNegative = cashFlows.some(cf => cf < 0);
-            let hasPositive = cashFlows.some(cf => cf > 0);
-            if (!hasNegative || !hasPositive) return 0;
-
-            function calcularVPL(r) {
-                let vpl = 0;
-                for (let t = 0; t < cashFlows.length; t++) {
-                    vpl += cashFlows[t] / Math.pow(1 + r, t + 1);
-                }
-                return vpl;
-            }
-
-            let low = -0.999;
-            let high = 20.0;
-
-            if (calcularVPL(low) < 0) return -100.0;
-            if (calcularVPL(high) > 0) return high * 100;
-
-            for (let i = 0; i < 100; i++) {
-                let mid = (low + high) / 2;
-                let vplMid = calcularVPL(mid);
-
-                if (Math.abs(vplMid) < 1e-5) return mid * 100;
-                if (vplMid > 0) { low = mid; } 
-                else { high = mid; }
-            }
-            return ((low + high) / 2) * 100;
-        }
-
-        function calcularPaybackAcumulado(cashFlows) {
-            let acumulado = 0;
-            let mesesAteRetorno = null;
-            let atingiuRetorno = false;
-
-            for (let i = 0; i < cashFlows.length; i++) {
-                let anterior = acumulado;
-                acumulado += cashFlows[i];
-                if (acumulado >= 0 && anterior < 0) {
-                    let fracao = Math.abs(anterior) / cashFlows[i];
-                    mesesAteRetorno = i + fracao;
-                    atingiuRetorno = true;
-                    break;
-                } else if (acumulado >= 0 && i === 0 && cashFlows[0] >= 0) {
-                    mesesAteRetorno = 0;
-                    atingiuRetorno = true;
-                    break;
-                }
-            }
-            return { atingiuRetorno, mesesAteRetorno };
-        }
-
-        function renderApp() {
-            const tbody = document.getElementById('table-body');
-            const mobileContainer = document.getElementById('mobile-cards-container');
-            if (tbody) tbody.innerHTML = ''; if (mobileContainer) mobileContainer.innerHTML = '';
-            
-            const filtroAnoEl = document.getElementById('dash-filtro-ano');
-            const filtroAno = filtroAnoEl ? filtroAnoEl.value : '2026';
-            const sorted = [...lancamentos].sort((a,b) => new Date(b.data) - new Date(a.data));
-            
-            let sala1Tot = 0; let sala2Tot = 0;
-            let totalDespesas = 0; let totalInvestido = 0;
-            let totalRegistrosExibidos = 0;
-            let despesasFixasReaisPeriodo = 0;
-
-            sorted.forEach(item => {
-                const itemDate = new Date(item.data + 'T00:00:00');
-                const itemMes = itemDate.getMonth();
-                const itemAno = itemDate.getFullYear().toString();
-
-                if (itemAno === filtroAno && mesesAtivos.includes(itemMes)) {
-                    totalRegistrosExibidos++;
-                    if(item.tipo === 'receita' && item.sala === 'sala1') sala1Tot += item.valor;
-                    if(item.tipo === 'receita' && item.sala === 'sala2') sala2Tot += item.valor;
-                    if(item.tipo === 'despesa') {
-                        totalDespesas += item.valor;
-                        if(item.isFixo) {
-                            despesasFixasReaisPeriodo += item.valor;
-                        }
-                    }
-                    if(item.tipo === 'investimento') totalInvestido += item.valor;
-
-                    if (tbody) {
-                        const tr = document.createElement('tr');
-                        let badge = item.tipo === 'receita' ? '<span class="px-2 py-0.5 text-[10px] font-semibold rounded-sm bg-emerald-50 text-emerald-700">Entrada</span>' : (item.tipo === 'despesa' ? '<span class="px-2 py-0.5 text-[10px] font-semibold rounded-sm bg-rose-50 text-rose-700">Saída</span>' : '<span class="px-2 py-0.5 text-[10px] font-semibold rounded-sm bg-indigo-50 text-indigo-700">Invest.</span>');
-                        let orig = item.tipo === 'receita' ? (item.sala === 'sala1' ? 'Sala 01' : 'Sala 02') : 'Geral';
-                        tr.innerHTML = `
-                            <td class="p-4 text-slate-500 whitespace-nowrap">${item.data.split('-').reverse().join('/')}</td>
-                            <td class="p-4">${badge}</td>
-                            <td class="p-4 font-semibold text-slate-600 whitespace-nowrap">${orig}</td>
-                            <td class="p-4 text-slate-700 min-w-[150px]">${item.desc}</td>
-                            <td class="p-4 text-right font-bold whitespace-nowrap ${item.tipo==='receita'?'text-emerald-600':(item.tipo==='despesa'?'text-rose-600':'text-indigo-600')}">${formatCurrency(item.valor)}</td>
-                            <td class="p-4 text-center whitespace-nowrap"><button onclick="deleteLancamento('${item.id}')" class="text-xs text-rose-500 font-semibold hover:text-rose-700 cursor-pointer">Remover</button></td>
-                        `;
-                        tbody.appendChild(tr);
-                    }
-
-                    if (mobileContainer) {
-                        const card = document.createElement('div'); card.className = "p-4 flex flex-col gap-2 bg-white";
-                        let orig = item.tipo === 'receita' ? (item.sala === 'sala1' ? 'Sala 01' : 'Sala 02') : 'Geral';
-                        card.innerHTML = `
-                            <div class="flex justify-between items-center"><span class="text-xs font-bold text-slate-400">${item.data.split('-').reverse().join('/')}</span><span class="text-[10px] font-bold uppercase px-2 py-0.5 rounded-sm ${item.tipo === 'receita' ? 'bg-emerald-50 text-emerald-700' : (item.tipo==='despesa'?'bg-rose-50 text-rose-700':'bg-indigo-50 text-indigo-700')}">${item.tipo}</span></div>
-                            <div class="text-sm font-semibold text-slate-800">${item.desc}</div>
-                            <div class="text-xs text-slate-500">Origem: <span class="font-semibold text-slate-700">${orig}</span></div>
-                            <div class="flex justify-between items-center mt-1 pt-2 border-t border-slate-50"><span class="text-base font-black ${item.tipo==='receita'?'text-emerald-600':(item.tipo==='despesa'?'text-rose-600':'text-indigo-600')}">${formatCurrency(item.valor)}</span><button onclick="deleteLancamento('${item.id}')" class="text-xs font-bold text-rose-500 hover:underline">Remover</button></div>
-                        `;
-                        mobileContainer.appendChild(card);
-                    }
-                }
-            });
-
-            const emptyStateEl = document.getElementById('empty-state');
-            const tableContainerEl = document.getElementById('desktop-table-container');
-            if (totalRegistrosExibidos === 0) {
-                if (emptyStateEl) emptyStateEl.classList.remove('hidden');
-                if (tableContainerEl) tableContainerEl.classList.add('hidden');
-                if (mobileContainer) mobileContainer.classList.add('hidden');
-            } else {
-                if (emptyStateEl) emptyStateEl.classList.add('hidden');
-                if (tableContainerEl) tableContainerEl.classList.remove('hidden');
-                if (mobileContainer) mobileContainer.classList.remove('hidden');
-            }
-
-            const fatSala1El = document.getElementById('faturamento-sala1');
-            const fatSala2El = document.getElementById('faturamento-sala2');
-            if(fatSala1El) fatSala1El.innerText = formatCurrency(sala1Tot);
-            if(fatSala2El) fatSala2El.innerText = formatCurrency(sala2Tot);
-            
-            let totalReceitas = sala1Tot + sala2Tot;
-            const qtdMesesSelecionados = mesesAtivos.length || 1;
-            
-            atualizarCustosAutomaticosSemanticamente();
-            
-            let custoFixoBasePeriodo = config.custoFixo * qtdMesesSelecionados;
-            let baseCustoFixoBreakEven = Math.max(custoFixoBasePeriodo, despesasFixasReaisPeriodo);
-
-            let margemContribuicaoUnitaria = config.preco - config.custoVariavel;
-            if(margemContribuicaoUnitaria <= 0) margemContribuicaoUnitaria = config.preco || 1; 
-
-            const unidadesBreakEven = baseCustoFixoBreakEven / margemContribuicaoUnitaria;
-            let faturamentoMinimoRequerido = unidadesBreakEven * config.preco;
-            
-            const kpiBreakEven = document.getElementById('kpi-break-even');
-            if(kpiBreakEven) kpiBreakEven.innerText = formatCurrency(faturamentoMinimoRequerido);
-
-            let capacidadAjustadaPeriodo = config.capacidade * qtdMesesSelecionados;
-            const ocuPct = capacidadAjustadaPeriodo > 0 ? (unidadesBreakEven / capacidadAjustadaPeriodo) * 100 : 0;
-            
-            const kpiPontoEq = document.getElementById('kpi-ponto-eq');
-            const lblMetricaEq = document.getElementById('lbl-metrica-eq');
-            if(kpiPontoEq) kpiPontoEq.innerText = ocuPct.toFixed(1) + '%';
-            if(lblMetricaEq) lblMetricaEq.innerText = `Eq. em ${config.metrica === 'turnos' ? 'Turnos' : 'Horas'}`;
-
-            let totalCapexGeral = 0;
-            lancamentos.forEach(item => {
-                if(item.tipo === 'investimento') totalCapexGeral += item.valor;
-            });
-            let capexBaseSimulacao = totalCapexGeral > 0 ? totalCapexGeral : 50000.0;
-            
-            const metaMesesSelect = document.getElementById('meta-meses-payback');
-            const mesesMetaPayback = metaMesesSelect ? parseInt(metaMesesSelect.value) || 12 : 12;
-
-            let margemContribuicaoPct = (config.preco - config.custoVariavel) / config.preco;
-            if(margemContribuicaoPct <= 0) margemContribuicaoPct = 0.8;
-
-            let faturamentoMensalMeta = ((capexBaseSimulacao / mesesMetaPayback) + (baseCustoFixoBreakEven / qtdMesesSelecionados)) / margemContribuicaoPct;
-            let unidadesMeta = faturamentoMensalMeta / config.preco;
-            let ocuMetaPct = config.capacidade > 0 ? (unidadesMeta / config.capacidade) * 100 : 0;
-
-            const fatMetaEl = document.getElementById('kpi-fat-meta');
-            const ocuMetaEl = document.getElementById('kpi-ocu-meta');
-            if(fatMetaEl) fatMetaEl.innerText = formatCurrency(faturamentoMensalMeta);
-            if(ocuMetaEl) ocuMetaEl.innerText = `Ocupação Necessária: ${ocuMetaPct.toFixed(1)}% da capacidade`;
-
-            let resultadoOperacional = totalReceitas - totalDespesas;
-            let fluxoCaixaLiquido = resultadoOperacional - totalInvestido;
-
-            const sumOp = document.getElementById('sum-operacional');
-            const sumLiq = document.getElementById('sum-liquido');
-            if(sumOp) sumOp.innerText = formatCurrency(resultadoOperacional);
-            if(sumLiq) sumLiq.innerText = formatCurrency(fluxoCaixaLiquido);
-
-            let vetorFluxoCaixaMensal = [];
-            let totalInvestidoNoPeriodo = 0;
-
-            mesesAtivos.forEach(idx => {
-                let rMes = 0; let dMes = 0; let iMes = 0;
-                lancamentos.forEach(item => {
-                    const itemDate = new Date(item.data + 'T00:00:00');
-                    if(itemDate.getFullYear().toString() === filtroAno && itemDate.getMonth() === idx) {
-                        if(item.tipo === 'receita') rMes += item.valor;
-                        if(item.tipo === 'despesa') dMes += item.valor;
-                        if(item.tipo === 'investimento') {
-                            iMes += item.valor;
-                            totalInvestidoNoPeriodo += item.valor;
-                        }
-                    }
-                });
-                let cfMes = (rMes - dMes) - iMes;
-                vetorFluxoCaixaMensal.push(cfMes);
-            });
-
-            if (totalInvestidoNoPeriodo > 0 || totalInvestido > 0) {
-                let paybackRes = calcularPaybackAcumulado(vetorFluxoCaixaMensal);
-                let paybackEl = document.getElementById('kpi-payback');
-                
-                if (paybackEl) {
-                    if (paybackRes.atingiuRetorno && paybackRes.mesesAteRetorno !== null) {
-                        paybackEl.innerText = paybackRes.mesesAteRetorno.toFixed(1) + ' meses';
-                        paybackEl.className = "text-xl lg:text-2xl font-bold text-emerald-600 block mt-1.5";
-                    } else {
-                        paybackEl.innerText = 'Déficit Ativo';
-                        paybackEl.className = "text-xl lg:text-2xl font-bold text-rose-600 block mt-1.5";
-                    }
-                }
-                
-                let baseInvestimentoCalc = totalInvestidoNoPeriodo > 0 ? totalInvestidoNoPeriodo : totalInvestido;
-                let lucroMensalMedioReal = resultadoOperacional / qtdMesesSelecionados;
-                let roiAnualCalculado = ((lucroMensalMedioReal * 12) / baseInvestimentoCalc) * 100;
-                const kpiRoi = document.getElementById('kpi-roi');
-                if(kpiRoi) kpiRoi.innerText = roiAnualCalculado.toFixed(1) + '%';
-                
-                let tirCalculada = calcularTIRCronologica(vetorFluxoCaixaMensal);
-                let tirEl = document.getElementById('kpi-tir');
-                if(tirEl) {
-                    tirEl.innerText = tirCalculada.toFixed(1) + '%';
-                    if (tirCalculada < 0) { 
-                        tirEl.className = "text-xl lg:text-2xl font-bold text-rose-600 block mt-1.5"; 
-                    } else { 
-                        tirEl.className = "text-xl lg:text-2xl font-bold text-emerald-600 block mt-1.5"; 
-                    }
-                }
-            } else {
-                const paybackEl = document.getElementById('kpi-payback');
-                const kpiRoi = document.getElementById('kpi-roi');
-                const tirEl = document.getElementById('kpi-tir');
-                if(paybackEl) { paybackEl.innerText = 'Sem Invest.'; paybackEl.className = "text-xl lg:text-2xl font-bold text-slate-800 block mt-1.5"; }
-                if(kpiRoi) kpiRoi.innerText = '0.0%';
-                if(tirEl) { tirEl.innerText = '0.0%'; tirEl.className = "text-xl lg:text-2xl font-bold text-slate-500 block mt-1.5"; }
-            }
-            renderCharts();
-        }
-
-        function formatCurrency(val) {
-            return val.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' });
-        }
-
-        function renderCharts() {
-            const ctx = document.getElementById('mainChart'); if(!ctx) return;
-            const filtroAnoEl = document.getElementById('dash-filtro-ano');
-            const filtroAno = filtroAnoEl ? filtroAnoEl.value : '2026';
-            let labelsFiltradas = []; let receitasData = []; let despesasData = []; let lucrosData = [];
-
-            nomesCurtos.forEach((mes, idx) => {
-                if (mesesAtivos.includes(idx)) {
-                    labelsFiltradas.push(mes); let rMes = 0; let dMes = 0;
-                    lancamentos.forEach(item => {
-                        const itemDate = new Date(item.data + 'T00:00:00');
-                        if(itemDate.getFullYear().toString() === filtroAno && itemDate.getMonth() === idx) {
-                            if(item.tipo === 'receita') rMes += item.valor;
-                            if(item.tipo === 'despesa') dMes += item.valor;
-                        }
-                    });
-                    receitasData.push(rMes); despesasData.push(dMes);
-                    lucrosData.push(rMes - dMes);
-                }
-            });
-
-            if(chartInstance) chartInstance.destroy();
-            chartInstance = new Chart(ctx, {
-                data: {
-                    labels: labelsFiltradas,
-                    datasets: [
-                        { type: 'line', label: 'Lucro ou Déficit Real', data: lucrosData, borderColor: '#10b981', backgroundColor: '#10b981', borderWidth: 2.5, pointRadius: 3, tension: 0.15, fill: false },
-                        { type: 'bar', label: 'Receitas', data: receitasData, backgroundColor: '#4f46e5', borderRadius: 4 },
-                        { type: 'bar', label: 'Despesas', data: despesasData, backgroundColor: '#ef4444', borderRadius: 4 }
-                    ]
-                },
-                options: {
-                    responsive: true, maintainAspectRatio: false,
-                    plugins: { legend: { position: 'bottom', labels: { boxWidth: 12, font: { size: 11 } } } },
-                    scales: { y: { beginAtZero: true, ticks: { font: { size: 10 } } }, x: { ticks: { font: { size: 10 } } } }
-                }
-            });
-        }
-
-        function saveConfig() {
-            const capEl = document.getElementById('cfg-capacidade');
-            const precoEl = document.getElementById('cfg-preco');
-            const varEl = document.getElementById('cfg-custovariavel');
-            
-            if(capEl) config.capacidade = parseInt(capEl.value) || 528;
-            if(precoEl) config.preco = parseFloat(precoEl.value) || 35.00;
-            if(varEl) config.custoVariavel = parseFloat(varEl.value) || 0;
-            
-            localStorage.setItem('simulador_config_v31', JSON.stringify(config));
-            triggerToast("Parâmetros operacionais salvos!", "⚙️");
-            renderApp(); switchTab('dash');
+            lancamentos = lancamentos.filter(i => i.id !== id);
+            localStorage.setItem('simulador_lancamentos_v35', JSON.stringify(lancamentos));
+            renderApp(); triggerToast("Registro removido.", "🔴");
         }
 
         function clearData() {
             if(confirm("Deseja apagar todos os dados locais?")) {
-                lancamentos = []; localStorage.setItem('simulador_lancamentos_v31', JSON.stringify(lancamentos));
-                atualizarCustosAutomaticosSemanticamente();
-                triggerToast("Banco de dados resetado.", "🧹"); renderApp();
+                lancamentos = []; localStorage.setItem('simulador_lancamentos_v35', JSON.stringify(lancamentos));
+                renderApp(); triggerToast("Banco limpo.", "🧹");
             }
         }
 
         function exportJSON() {
-            const dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(lancamentos));
-            const downloadAnchor = document.createElement('a'); downloadAnchor.setAttribute("href", dataStr);
-            downloadAnchor.setAttribute("download", "backup_simulador.json"); document.body.appendChild(downloadAnchor);
-            downloadAnchor.click(); downloadAnchor.remove();
+            let a = document.createElement('a'); a.href = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(lancamentos));
+            a.download = "backup_simulador.json"; a.click(); a.remove();
+        }
+
+        function handleCurrencyInput(input) {
+            let v = input.value.replace(/\D/g, ''); if(v === '') { input.value = ''; return; }
+            input.value = 'R$ ' + (v / 100).toFixed(2).replace('.', ',').replace(/(\d)(?=(\d{3})+(?!\d))/g, "$1.");
+        }
+
+        function parseCurrencyToFloat(s) { return s ? parseFloat(s.replace(/[^\d,]/g, '').replace(',', '.')) || 0 : 0; }
+
+        function triggerToast(msg, icon = "ℹ️") {
+            const t = document.getElementById('toast-notification');
+            document.getElementById('toast-icon').innerText = icon;
+            document.getElementById('toast-message').innerText = msg;
+            t.classList.remove('hidden'); setTimeout(() => t.classList.add('hidden'), 4000);
         }
     </script>
 </body>
