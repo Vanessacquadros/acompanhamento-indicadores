@@ -376,8 +376,8 @@
         const nomesMeses = ['Janeiro', 'Fevereiro', 'Março', 'Abril', 'Maio', 'Junho', 'Julho', 'Agosto', 'Setembro', 'Outubro', 'Novembro', 'Dezembro'];
         const nomesCurtos = ['Jan', 'Fev', 'Mar', 'Abr', 'Mai', 'Jun', 'Jul', 'Ago', 'Set', 'Out', 'Nov', 'Dez'];
 
-        // Chaves persistentes definitivas (v42) para que dados não zeussem em novos deploys/links
-        let lancamentos = JSON.parse(localStorage.getItem('simulador_lancamentos_athos_v42')) || [
+        // Chaves de armazenamento persistente otimizadas (v43)
+        let lancamentos = JSON.parse(localStorage.getItem('simulador_lancamentos_athos_v43')) || [
             { id: '8Itjnat1UwZOqqmhnZIh', data: '2026-06-08', tipo: 'receita', sala: 'sala1', desc: 'Receita avulsa - Recarga gás', valor: 200.00 },
             { id: 'FPSqPHBXckuuCvrSo0TM', data: '2026-05-17', tipo: 'receita', sala: 'sala1', desc: 'Estorno cartao - Estorno de 1 caixa de rodapé', valor: 309.54 },
             { id: 'Fm2VHpe47l9GNOAqsBqQ', data: '2026-06-17', tipo: 'receita', sala: 'sala2', desc: 'Andressa Alves Santos - Locação Áthos II', valor: 40.00 },
@@ -388,13 +388,13 @@
             { id: '0Ow7s8v44HmAVrfVccJ7', data: '2026-05-20', tipo: 'investimento', sala: '-', desc: 'Estofados Obra (Serviços)', valor: 500.00 }
         ];
 
-        let pacotes = JSON.parse(localStorage.getItem('simulador_pacotes_athos_v42')) || [
+        let pacotes = JSON.parse(localStorage.getItem('simulador_pacotes_athos_v43')) || [
             { id: 0, nome: 'Áthos Continuidade (Maior Turno)', tipo: 'Pacote Mensal', horas: 10, valor: 300.00, desc: '10h/mês — R$ 30,00/h' },
             { id: 1, nome: 'Áthos Essencial', tipo: 'Pacote Mensal', horas: 5, valor: 175.00, desc: '5h/mês — R$ 35,00/h' },
             { id: 2, nome: 'Áthos Singular', tipo: 'Pacote Mensal', horas: 1, valor: 40.00, desc: '1h/mês — R$ 40,00/h' }
         ];
 
-        let config = JSON.parse(localStorage.getItem('simulador_config_athos_v42')) || {
+        let config = JSON.parse(localStorage.getItem('simulador_config_athos_v43')) || {
             capacidade: 528, preco: 30.00, custoFixo: 0, custoVariavel: 2.00,
             donaSlots: {
                 '1_tarde': true, '1_noite': true,
@@ -431,20 +431,17 @@
         function renderDonaMatrix() {
             const tbody = document.getElementById('dona-matrix-tbody');
             if(!tbody) return;
-            tbody.innerHTML = '';
+            let rowsHtml = '';
             turnosDia.forEach(t => {
-                let tr = document.createElement('tr');
-                tr.innerHTML = `<td class="p-3 text-left font-bold text-slate-700">${t.label}</td>`;
+                rowsHtml += `<tr><td class="p-3 text-left font-bold text-slate-700">${t.label}</td>`;
                 diasSemana.forEach((d, dIdx) => {
                     let key = `${dIdx}_${t.id}`;
                     let checked = config.donaSlots && config.donaSlots[key] ? 'checked' : '';
-                    tr.innerHTML += `
-                        <td class="p-3 text-center">
-                            <input type="checkbox" data-key="${key}" ${checked} onchange="toggleDonaSlot(this)" class="h-4 w-4 rounded-sm text-indigo-600 cursor-pointer">
-                        </td>`;
+                    rowsHtml += `<td class="p-3 text-center"><input type="checkbox" data-key="${key}" ${checked} onchange="toggleDonaSlot(this)" class="h-4 w-4 rounded-sm text-indigo-600 cursor-pointer"></td>`;
                 });
-                tbody.appendChild(tr);
+                rowsHtml += `</tr>`;
             });
+            tbody.innerHTML = rowsHtml;
             calcularTurnosComerciaisDisponiveis();
         }
 
@@ -452,7 +449,7 @@
             let key = checkbox.getAttribute('data-key');
             if(!config.donaSlots) config.donaSlots = {};
             config.donaSlots[key] = checkbox.checked;
-            localStorage.setItem('simulador_config_athos_v42', JSON.stringify(config));
+            localStorage.setItem('simulador_config_athos_v43', JSON.stringify(config));
             renderApp();
         }
 
@@ -479,16 +476,16 @@
 
         function saveConfig() {
             config.capacidade = parseInt(document.getElementById('cfg-capacidade').value) || 528;
-            localStorage.setItem('simulador_config_athos_v42', JSON.stringify(config));
+            localStorage.setItem('simulador_config_athos_v43', JSON.stringify(config));
             triggerToast("Parâmetros operacionais salvos!", "⚙️");
             renderApp();
         }
 
         function renderPacotesUI() {
             const container = document.getElementById('pacotes-container'); if(!container) return;
-            container.innerHTML = '';
+            let html = '';
             pacotes.forEach((p, idx) => {
-                container.innerHTML += `
+                html += `
                     <div class="p-4 border border-slate-200 rounded-2xl bg-slate-50/50 space-y-2 flex flex-col justify-between">
                         <div class="space-y-1">
                             <span class="text-[10px] font-bold uppercase text-slate-400 block">${p.tipo}</span>
@@ -499,6 +496,7 @@
                         <button type="button" onclick="abrirModalPacote(${idx})" class="mt-2 w-full h-9 bg-white border border-slate-200 hover:bg-slate-100 font-semibold text-slate-700 rounded-xl text-xs cursor-pointer shadow-2xs">Editar</button>
                     </div>`;
             });
+            container.innerHTML = html;
             atualizarPrecoMaiorTurno();
         }
 
@@ -518,7 +516,7 @@
             pacotes[editingPackageId].nome = document.getElementById('edit-pacote-nome').value;
             pacotes[editingPackageId].horas = parseInt(document.getElementById('edit-pacote-horas').value) || 1;
             pacotes[editingPackageId].valor = parseCurrencyToFloat(document.getElementById('edit-pacote-valor').value);
-            localStorage.setItem('simulador_pacotes_athos_v42', JSON.stringify(pacotes));
+            localStorage.setItem('simulador_pacotes_athos_v43', JSON.stringify(pacotes));
             renderPacotesUI(); fecharModalPacote(); triggerToast("Pacote atualizado!", "✏️"); renderApp();
         }
 
@@ -529,7 +527,7 @@
             
             const precoInput = document.getElementById('cfg-preco');
             if(precoInput) precoInput.value = config.preco.toFixed(2);
-            localStorage.setItem('simulador_config_athos_v42', JSON.stringify(config));
+            localStorage.setItem('simulador_config_athos_v43', JSON.stringify(config));
         }
 
         function atualizarCustosAutomaticosSemanticamente() {
@@ -541,7 +539,7 @@
                 }
             });
             config.custoFixo = count.size > 0 ? Math.round(totalFixas / count.size) : 2000;
-            localStorage.setItem('simulador_config_athos_v42', JSON.stringify(config));
+            localStorage.setItem('simulador_config_athos_v43', JSON.stringify(config));
         }
 
         // --- IMPORTAÇÃO INTELIGENTE DE EXCEL ---
@@ -639,7 +637,7 @@
                         } catch(err) { console.error(err); }
                     });
 
-                    localStorage.setItem('simulador_lancamentos_athos_v42', JSON.stringify(lancamentos));
+                    localStorage.setItem('simulador_lancamentos_athos_v43', JSON.stringify(lancamentos));
                     atualizarCustosAutomaticosSemanticamente();
                     triggerToast(`Planilha integrada com sucesso! (${count} registros)`, "📥");
                     renderApp(); switchTab('dash');
@@ -680,12 +678,12 @@
             return { atingiuRetorno, mesesAteRetorno };
         }
 
-        // --- RENDERIZAÇÃO DA APLICAÇÃO ---
+        // --- RENDERIZAÇÃO OTIMIZADA DA APLICAÇÃO ---
         function renderApp() {
             const filtroAno = document.getElementById('dash-filtro-ano').value;
             let sala1Tot = 0, sala2Tot = 0, totalDespesas = 0, totalInvestido = 0, countReg = 0;
-            let tbody = document.getElementById('table-body'); if(tbody) tbody.innerHTML = '';
-            let mobileContainer = document.getElementById('mobile-cards-container'); if(mobileContainer) mobileContainer.innerHTML = '';
+            let tableRowsHtml = '';
+            let mobileCardsHtml = '';
 
             const sorted = [...lancamentos].sort((a,b) => new Date(b.data) - new Date(a.data));
 
@@ -700,30 +698,29 @@
 
                     let badge = item.tipo === 'receita' ? '<span class="px-2 py-0.5 text-[10px] font-semibold rounded-sm bg-emerald-50 text-emerald-700">Entrada</span>' : (item.tipo === 'despesa' ? '<span class="px-2 py-0.5 text-[10px] font-semibold rounded-sm bg-rose-50 text-rose-700">Saída</span>' : '<span class="px-2 py-0.5 text-[10px] font-semibold rounded-sm bg-indigo-50 text-indigo-700">Invest.</span>');
 
-                    if(tbody) {
-                        tbody.innerHTML += `
-                            <tr>
-                                <td class="p-4 text-slate-500 whitespace-nowrap">${item.data.split('-').reverse().join('/')}</td>
-                                <td class="p-4">${badge}</td>
-                                <td class="p-4 font-semibold text-slate-600">${item.tipo==='receita'?(item.sala==='sala1'?'Sala 01':'Sala 02'):'Geral'}</td>
-                                <td class="p-4 text-slate-700">${item.desc}</td>
-                                <td class="p-4 text-right font-bold ${item.tipo==='receita'?'text-emerald-600':(item.tipo==='despesa'?'text-rose-600':'text-indigo-600')}">${formatCurrency(item.valor)}</td>
-                                <td class="p-4 text-center"><button onclick="deleteLancamento('${item.id}')" class="text-xs text-rose-500 font-semibold hover:underline cursor-pointer">Remover</button></td>
-                            </tr>`;
-                    }
-                    if(mobileContainer) {
-                        mobileContainer.innerHTML += `
-                            <div class="p-4 space-y-2">
-                                <div class="flex justify-between items-center"><span class="text-xs text-slate-400 font-bold">${item.data.split('-').reverse().join('/')}</span> ${badge}</div>
-                                <div class="text-sm font-bold text-slate-800">${item.desc}</div>
-                                <div class="flex justify-between items-center pt-1"><span class="text-xs text-slate-500">${item.tipo==='receita'?(item.sala==='sala1'?'Sala 01':'Sala 02'):'Geral'}</span> <span class="text-base font-black ${item.tipo==='receita'?'text-emerald-600':(item.tipo==='despesa'?'text-rose-600':'text-indigo-600')}">${formatCurrency(item.valor)}</span></div>
-                            </div>`;
-                    }
+                    tableRowsHtml += `
+                        <tr>
+                            <td class="p-4 text-slate-500 whitespace-nowrap">${item.data.split('-').reverse().join('/')}</td>
+                            <td class="p-4">${badge}</td>
+                            <td class="p-4 font-semibold text-slate-600">${item.tipo==='receita'?(item.sala==='sala1'?'Sala 01':'Sala 02'):'Geral'}</td>
+                            <td class="p-4 text-slate-700">${item.desc}</td>
+                            <td class="p-4 text-right font-bold ${item.tipo==='receita'?'text-emerald-600':(item.tipo==='despesa'?'text-rose-600':'text-indigo-600')}">${formatCurrency(item.valor)}</td>
+                            <td class="p-4 text-center"><button onclick="deleteLancamento('${item.id}')" class="text-xs text-rose-500 font-semibold hover:underline cursor-pointer">Remover</button></td>
+                        </tr>`;
+
+                    mobileCardsHtml += `
+                        <div class="p-4 space-y-2">
+                            <div class="flex justify-between items-center"><span class="text-xs text-slate-400 font-bold">${item.data.split('-').reverse().join('/')}</span> ${badge}</div>
+                            <div class="text-sm font-bold text-slate-800">${item.desc}</div>
+                            <div class="flex justify-between items-center pt-1"><span class="text-xs text-slate-500">${item.tipo==='receita'?(item.sala==='sala1'?'Sala 01':'Sala 02'):'Geral'}</span> <span class="text-base font-black ${item.tipo==='receita'?'text-emerald-600':(item.tipo==='despesa'?'text-rose-600':'text-indigo-600')}">${formatCurrency(item.valor)}</span></div>
+                        </div>`;
                 }
             });
 
             document.getElementById('empty-state').classList.toggle('hidden', countReg > 0);
             document.getElementById('desktop-table-container').classList.toggle('hidden', countReg === 0);
+            document.getElementById('table-body').innerHTML = tableRowsHtml;
+            document.getElementById('mobile-cards-container').innerHTML = mobileCardsHtml;
 
             document.getElementById('faturamento-sala1').innerText = formatCurrency(sala1Tot);
             document.getElementById('faturamento-sala2').innerText = formatCurrency(sala2Tot);
@@ -803,18 +800,26 @@
                     recs.push(r); desps.push(d); lucros.push(r - d);
                 }
             });
-            if(chartInstance) chartInstance.destroy();
-            chartInstance = new Chart(ctx, {
-                data: {
-                    labels: lbs,
-                    datasets: [
-                        { type: 'line', label: 'Resultado Líquido', data: lucros, borderColor: '#10b981', backgroundColor: '#10b981', borderWidth: 2.5, pointRadius: 3, tension: 0.15 },
-                        { type: 'bar', label: 'Receitas', data: recs, backgroundColor: '#4f46e5', borderRadius: 4 },
-                        { type: 'bar', label: 'Despesas', data: desps, backgroundColor: '#ef4444', borderRadius: 4 }
-                    ]
-                },
-                options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { position: 'bottom', labels: { boxWidth: 12, font: { size: 11 } } } } }
-            });
+
+            if(chartInstance) {
+                chartInstance.data.labels = lbs;
+                chartInstance.data.datasets[0].data = lucros;
+                chartInstance.data.datasets[1].data = recs;
+                chartInstance.data.datasets[2].data = desps;
+                chartInstance.update('none'); // Atualização instantânea sem recriar o canvas
+            } else {
+                chartInstance = new Chart(ctx, {
+                    data: {
+                        labels: lbs,
+                        datasets: [
+                            { type: 'line', label: 'Resultado Líquido', data: lucros, borderColor: '#10b981', backgroundColor: '#10b981', borderWidth: 2.5, pointRadius: 3, tension: 0.15 },
+                            { type: 'bar', label: 'Receitas', data: recs, backgroundColor: '#4f46e5', borderRadius: 4 },
+                            { type: 'bar', label: 'Despesas', data: desps, backgroundColor: '#ef4444', borderRadius: 4 }
+                        ]
+                    },
+                    options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { position: 'bottom', labels: { boxWidth: 12, font: { size: 11 } } } } }
+                });
+            }
         }
 
         // --- NAVEGAÇÃO E FORMULÁRIOS ---
@@ -854,10 +859,11 @@
         function toggleDropdown(e) { e.stopPropagation(); document.getElementById('dropdown-menu').classList.toggle('hidden'); }
         function renderDropdownCheckboxes() {
             const c = document.getElementById('dropdown-checkboxes-container'); if(!c) return;
-            c.innerHTML = '';
+            let html = `<div class="flex items-center justify-between border-b border-slate-100 pb-2 pt-1 mb-1 px-2"><button onclick="selecionarTodosMeses(true)" class="text-xs font-bold text-indigo-600 hover:underline cursor-pointer">Marcar todos</button><button onclick="selecionarTodosMeses(false)" class="text-xs font-bold text-slate-400 hover:underline cursor-pointer">Limpar</button></div>`;
             nomesMeses.forEach((m, idx) => {
-                c.innerHTML += `<label class="flex items-center gap-3 px-3 py-2.5 rounded-lg hover:bg-slate-50 text-sm font-semibold text-slate-700 cursor-pointer w-full"><input type="checkbox" id="chk-mes-${idx}" ${mesesAtivos.includes(idx)?'checked':''} onchange="onCheckboxChange(${idx})" class="h-5 w-5 rounded-md text-indigo-600"><span>${m}</span></label>`;
+                html += `<label class="flex items-center gap-3 px-3 py-2.5 rounded-lg hover:bg-slate-50 text-sm font-semibold text-slate-700 cursor-pointer w-full"><input type="checkbox" id="chk-mes-${idx}" ${mesesAtivos.includes(idx)?'checked':''} onchange="onCheckboxChange(${idx})" class="h-5 w-5 rounded-md text-indigo-600"><span>${m}</span></label>`;
             });
+            c.innerHTML = html;
         }
         function onCheckboxChange(idx) {
             let chk = document.getElementById(`chk-mes-${idx}`);
@@ -875,7 +881,7 @@
             if(val <= 0) return;
 
             lancamentos.push({ id: 'man-' + Date.now(), data: d, tipo: selectedType, sala, desc, valor: val });
-            localStorage.setItem('simulador_lancamentos_athos_v42', JSON.stringify(lancamentos));
+            localStorage.setItem('simulador_lancamentos_athos_v43', JSON.stringify(lancamentos));
             document.getElementById('lanc-desc').value = '';
             document.getElementById('lanc-valor').value = '';
             renderApp(); switchTab('dash'); triggerToast("Lançamento salvo com sucesso!", "🟢");
@@ -883,14 +889,14 @@
 
         function deleteLancamento(id) {
             lancamentos = lancamentos.filter(i => i.id !== id);
-            localStorage.setItem('simulador_lancamentos_athos_v42', JSON.stringify(lancamentos));
+            localStorage.setItem('simulador_lancamentos_athos_v43', JSON.stringify(lancamentos));
             renderApp(); triggerToast("Registro removido.", "🔴");
         }
 
         function clearData() {
             if(confirm("Deseja apagar todos os dados locais?")) {
                 lancamentos = []; 
-                localStorage.removeItem('simulador_lancamentos_athos_v42');
+                localStorage.removeItem('simulador_lancamentos_athos_v43');
                 renderApp(); triggerToast("Banco limpo.", "🧹");
             }
         }
