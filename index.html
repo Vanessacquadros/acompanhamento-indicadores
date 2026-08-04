@@ -137,7 +137,7 @@
                 <div class="space-y-1 w-full md:w-auto">
                     <span class="text-[10px] font-bold uppercase tracking-wider text-indigo-300 block">Simulador por Turnos (Meta de Capex & Despesas)</span>
                     <h3 class="text-lg font-bold">Quantos turnos alugar para recuperar o investimento?</h3>
-                    <p class="text-xs text-indigo-200">Baseado no maior pacote (10h a R$ 30,00/h = R$ 120,00/turno) e na grade configurada.</p>
+                    <p class="text-xs text-indigo-200">Baseado no maior pacote (10h) e na grade comercial configurada.</p>
                 </div>
                 
                 <div class="flex flex-col sm:flex-row items-center gap-3 w-full md:w-auto">
@@ -198,46 +198,40 @@
             </div>
         </div>
 
-        <!-- CENÁRIOS (WHAT-IF) -->
+        <!-- CENÁRIOS (WHAT-IF COM FOCO NO PACOTE DE 10H) -->
         <div id="tab-cenarios" class="tab-content hidden max-w-4xl mx-auto space-y-6">
             <div class="bg-white p-6 rounded-2xl shadow-xs border border-slate-100 space-y-5">
                 <div class="flex justify-between items-center border-b border-slate-100 pb-4">
                     <div>
                         <h2 class="text-base font-bold text-slate-800">🔮 Módulo de Cenários de Sensibilidade (What-If)</h2>
-                        <p class="text-xs text-slate-400 mt-0.5">Simule variações de ocupação, preço e custos para testar a resiliência financeira.</p>
+                        <p class="text-xs text-slate-400 mt-0.5">Simule a ocupação (até 100%) e o preço do turno ancorado no Pacote de 10h.</p>
                     </div>
                     <button onclick="resetCenarios()" class="h-9 px-3 text-xs font-semibold bg-slate-100 hover:bg-slate-200 text-slate-600 rounded-xl cursor-pointer">Restaurar Padrão</button>
                 </div>
 
-                <div class="grid grid-cols-1 md:grid-cols-3 gap-5">
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-5">
                     <div class="p-4 bg-slate-50 border border-slate-200 rounded-2xl space-y-3">
                         <div class="flex justify-between items-center">
-                            <label class="text-xs font-bold uppercase text-slate-600">Taxa de Ocupação</label>
-                            <span id="lbl-scen-ocupacao" class="text-xs font-black text-indigo-600 bg-indigo-50 px-2 py-0.5 rounded-md">100%</span>
+                            <label class="text-xs font-bold uppercase text-slate-600">Taxa de Ocupação da Grade</label>
+                            <span id="lbl-scen-ocupacao" class="text-xs font-black text-indigo-600 bg-indigo-50 px-2 py-0.5 rounded-md">80%</span>
                         </div>
-                        <input type="range" id="scen-ocupacao" min="20" max="150" step="5" value="100" oninput="calcularCenarios()" class="w-full accent-indigo-600 cursor-pointer">
+                        <input type="range" id="scen-ocupacao" min="10" max="100" step="5" value="80" oninput="calcularCenarios()" class="w-full accent-indigo-600 cursor-pointer">
+                        <p class="text-[10px] text-slate-400">Percentual de ocupação dos turnos comerciais disponíveis.</p>
                     </div>
 
                     <div class="p-4 bg-slate-50 border border-slate-200 rounded-2xl space-y-3">
                         <div class="flex justify-between items-center">
-                            <label class="text-xs font-bold uppercase text-slate-600">Preço do Turno</label>
+                            <label class="text-xs font-bold uppercase text-slate-600">Preço do Turno (Foco 10h)</label>
                             <span id="lbl-scen-preco" class="text-xs font-black text-indigo-600 bg-indigo-50 px-2 py-0.5 rounded-md">R$ 120,00</span>
                         </div>
                         <input type="range" id="scen-preco" min="80" max="180" step="5" value="120" oninput="calcularCenarios()" class="w-full accent-indigo-600 cursor-pointer">
-                    </div>
-
-                    <div class="p-4 bg-slate-50 border border-slate-200 rounded-2xl space-y-3">
-                        <div class="flex justify-between items-center">
-                            <label class="text-xs font-bold uppercase text-slate-600">Custo Fixo Mensal</label>
-                            <span id="lbl-scen-custofixo" class="text-xs font-black text-rose-600 bg-rose-50 px-2 py-0.5 rounded-md">R$ 0,00</span>
-                        </div>
-                        <input type="range" id="scen-custofixo" min="0" max="15000" step="250" value="0" oninput="calcularCenarios()" class="w-full accent-rose-600 cursor-pointer">
+                        <p id="lbl-scen-ancora" class="text-[10px] text-indigo-600 font-semibold">Ancorado no Pacote de 10h (R$ 30,00/h &times; 4h)</p>
                     </div>
                 </div>
 
                 <div class="bg-gradient-to-br from-slate-900 to-indigo-950 text-white p-6 rounded-2xl shadow-xl space-y-5">
                     <div class="flex justify-between items-center border-b border-indigo-800/60 pb-3">
-                        <span class="text-xs font-bold uppercase tracking-wider text-indigo-300">Resultado Projetado do Cenário</span>
+                        <span class="text-xs font-bold uppercase tracking-wider text-indigo-300">Resultado Projetado (Custo Real do Excel/Lançamentos)</span>
                         <span id="scen-status-badge" class="px-3 py-1 rounded-full text-xs font-black bg-emerald-500 text-white">🟢 Operação Saudável</span>
                     </div>
 
@@ -247,7 +241,7 @@
                             <span id="scen-res-fat" class="text-lg lg:text-xl font-black text-white mt-1 block">R$ 0,00</span>
                         </div>
                         <div class="bg-white/10 p-3.5 rounded-xl border border-indigo-800/40">
-                            <span class="text-[10px] font-bold text-indigo-300 uppercase block">Despesas Totais</span>
+                            <span class="text-[10px] font-bold text-indigo-300 uppercase block">Despesas Totais (Reais)</span>
                             <span id="scen-res-desp" class="text-lg lg:text-xl font-black text-rose-400 mt-1 block">R$ 0,00</span>
                         </div>
                         <div class="bg-white/10 p-3.5 rounded-xl border border-indigo-800/40">
@@ -363,42 +357,73 @@
             </div>
         </div>
 
-        <!-- CONFIGURAÇÕES -->
+        <!-- CONFIGURAÇÕES (MATRIZ LIVRE DE DIAS E TURNOS PARA A PROPRIETÁRIA) -->
         <div id="tab-config" class="tab-content hidden max-w-4xl mx-auto space-y-6">
+            
             <div class="bg-white p-5 rounded-2xl shadow-xs border border-slate-100 space-y-4">
                 <div>
-                    <h2 class="text-sm font-bold text-slate-700 mb-1">⚙️ Grade de Turnos e Disponibilidade Comercial</h2>
-                    <p class="text-xs text-slate-400">Configure os períodos abertos para locação e os horários reservados para uso próprio na Sala 01.</p>
+                    <h2 class="text-sm font-bold text-slate-700 mb-1">⚙️ Matriz de Uso Próprio da Proprietária (Sala 01)</h2>
+                    <p class="text-xs text-slate-400">Marque livremente os dias da semana e turnos em que a proprietária utiliza a Sala 01. Os horários marcados são abatidos da capacidade comercial total.</p>
                 </div>
 
-                <div class="grid grid-cols-1 md:grid-cols-3 gap-4 pt-2">
-                    <div class="p-4 bg-slate-50 border border-slate-200 rounded-xl space-y-2">
-                        <h4 class="text-xs font-bold uppercase text-indigo-700">Terças e Quartas</h4>
-                        <label class="flex items-center gap-2 text-xs font-medium text-slate-700 cursor-pointer">
-                            <input type="checkbox" id="cfg-uso-terqua" checked onchange="saveTurnosConfig()" class="h-4 w-4 rounded-sm text-indigo-600">
-                            <span>Dona usa Sala 01 (Tarde/Noite)</span>
-                        </label>
-                    </div>
+                <div class="overflow-x-auto">
+                    <table class="w-full text-center border-collapse text-xs">
+                        <thead>
+                            <tr class="bg-slate-100 text-slate-600 font-bold uppercase text-[10px]">
+                                <th class="p-3 text-left">Turno / Período</th>
+                                <th class="p-3">Segunda</th>
+                                <th class="p-3">Terça</th>
+                                <th class="p-3">Quarta</th>
+                                <th class="p-3">Quinta</th>
+                                <th class="p-3">Sexta</th>
+                                <th class="p-3">Sábado</th>
+                            </tr>
+                        </thead>
+                        <tbody id="dona-matrix-tbody" class="divide-y divide-slate-100">
+                            <!-- Gerado via JavaScript para flexibilidade total -->
+                        </tbody>
+                    </table>
+                </div>
 
-                    <div class="p-4 bg-slate-50 border border-slate-200 rounded-xl space-y-2">
-                        <h4 class="text-xs font-bold uppercase text-indigo-700">Sábados</h4>
-                        <label class="flex items-center gap-2 text-xs font-medium text-slate-700 cursor-pointer">
-                            <input type="checkbox" id="cfg-uso-sabmanha" checked onchange="saveTurnosConfig()" class="h-4 w-4 rounded-sm text-indigo-600">
-                            <span>Dona usa Sala 01 (Sábado Manhã)</span>
-                        </label>
-                    </div>
-
-                    <div class="p-4 bg-indigo-50 border border-indigo-200 rounded-xl space-y-1 flex flex-col justify-center">
-                        <span class="text-[10px] font-bold uppercase text-indigo-600">Turnos Comerciais Totais</span>
-                        <span id="cfg-total-turnos-badge" class="text-xl font-black text-indigo-900">84 turnos/mês</span>
-                    </div>
+                <div class="flex flex-col sm:flex-row justify-between items-center bg-indigo-50 p-4 rounded-xl gap-3">
+                    <span class="text-xs font-bold text-indigo-900">Total de Turnos Comerciais Disponíveis (2 Salas):</span>
+                    <span id="cfg-total-turnos-badge" class="text-lg font-black text-indigo-900">84 turnos/mês</span>
                 </div>
             </div>
 
             <div class="bg-white p-5 rounded-2xl shadow-xs border border-slate-100 space-y-5">
-                <h2 class="text-sm font-bold text-slate-700 mb-1">Planos e Pacotes de Horas (Áthos)</h2>
+                <div class="flex justify-between items-center">
+                    <div>
+                        <h2 class="text-sm font-bold text-slate-700 mb-1">Planos e Pacotes de Horas (Áthos)</h2>
+                        <p class="text-xs text-slate-400">O Pacote Principal (10h) define a âncora de preço por turno no Módulo de Cenários.</p>
+                    </div>
+                </div>
+                
                 <div class="grid grid-cols-1 md:grid-cols-3 gap-4" id="pacotes-container"></div>
             </div>
+
+            <div class="bg-white p-5 rounded-2xl shadow-xs border border-slate-100">
+                <h2 class="text-sm font-bold text-slate-700 mb-1">Parâmetros Operacionais & Capacidade</h2>
+                <p class="text-xs text-slate-400 mb-5">Ajuste os parâmetros de cálculo e capacidade baseada nos turnos ativos.</p>
+                
+                <div class="space-y-5">
+                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                        <div class="flex flex-col gap-1">
+                            <label class="text-[10px] font-bold uppercase text-slate-500">Capacidade Total Mensal (Horas)</label>
+                            <input type="number" id="cfg-capacidade" class="h-11 px-3 border border-slate-200 rounded-xl text-sm bg-slate-50 focus:bg-white focus:outline-hidden w-full font-bold text-slate-700">
+                        </div>
+                        
+                        <div class="flex flex-col gap-1">
+                            <label class="text-[10px] font-bold uppercase text-slate-500">Preço Base do Maior Turno (10h)</label>
+                            <input type="number" step="0.01" id="cfg-preco" class="h-11 px-3 border border-slate-200 rounded-xl text-sm bg-slate-50 focus:bg-white focus:outline-hidden w-full font-bold text-slate-700" readonly>
+                            <span class="text-[10px] text-slate-400">Derivado do pacote de 10h (&times; 4h por turno).</span>
+                        </div>
+                    </div>
+
+                    <button onclick="saveConfig()" class="w-full h-12 bg-indigo-600 hover:bg-indigo-700 text-white font-semibold rounded-xl text-sm shadow-xs transition-all mt-2 cursor-pointer">Salvar Parâmetros Operacionais</button>
+                </div>
+            </div>
+
         </div>
 
     </main>
@@ -413,7 +438,7 @@
         const nomesMeses = ['Janeiro', 'Fevereiro', 'Março', 'Abril', 'Maio', 'Junho', 'Julho', 'Agosto', 'Setembro', 'Outubro', 'Novembro', 'Dezembro'];
         const nomesCurtos = ['Jan', 'Fev', 'Mar', 'Abr', 'Mai', 'Jun', 'Jul', 'Ago', 'Set', 'Out', 'Nov', 'Dez'];
 
-        let lancamentos = JSON.parse(localStorage.getItem('simulador_lancamentos_v35')) || [
+        let lancamentos = JSON.parse(localStorage.getItem('simulador_lancamentos_v40')) || [
             { id: '8Itjnat1UwZOqqmhnZIh', data: '2026-06-08', tipo: 'receita', sala: 'sala1', desc: 'Receita avulsa - Recarga gás', valor: 200.00 },
             { id: 'FPSqPHBXckuuCvrSo0TM', data: '2026-05-17', tipo: 'receita', sala: 'sala1', desc: 'Estorno cartao - Estorno de 1 caixa de rodapé', valor: 309.54 },
             { id: 'Fm2VHpe47l9GNOAqsBqQ', data: '2026-06-17', tipo: 'receita', sala: 'sala2', desc: 'Andressa Alves Santos - Locação Áthos II', valor: 40.00 },
@@ -424,14 +449,20 @@
             { id: '0Ow7s8v44HmAVrfVccJ7', data: '2026-05-20', tipo: 'investimento', sala: '-', desc: 'Estofados Obra (Serviços)', valor: 500.00 }
         ];
 
-        let pacotes = JSON.parse(localStorage.getItem('simulador_pacotes_v35')) || [
+        let pacotes = JSON.parse(localStorage.getItem('simulador_pacotes_v40')) || [
             { id: 0, nome: 'Áthos Continuidade (Maior Turno)', tipo: 'Pacote Mensal', horas: 10, valor: 300.00, desc: '10h/mês — R$ 30,00/h' },
             { id: 1, nome: 'Áthos Essencial', tipo: 'Pacote Mensal', horas: 5, valor: 175.00, desc: '5h/mês — R$ 35,00/h' },
             { id: 2, nome: 'Áthos Singular', tipo: 'Pacote Mensal', horas: 1, valor: 40.00, desc: '1h/mês — R$ 40,00/h' }
         ];
 
-        let config = JSON.parse(localStorage.getItem('simulador_config_v35')) || {
-            capacidade: 528, preco: 30.00, custoFixo: 0, custoVariavel: 2.00, usoTerQuia: true, usoSabManha: true
+        // Matriz de uso da dona: dias (0=Seg, 1=Ter, 2=Qua, 3=Qui, 4=Sex, 5=Sab) x turnos ('manha', 'tarde', 'noite')
+        let config = JSON.parse(localStorage.getItem('simulador_config_v40')) || {
+            capacidade: 528, preco: 30.00, custoFixo: 0, custoVariavel: 2.00,
+            donaSlots: {
+                '1_tarde': true, '1_noite': true, // Terça Tarde e Noite
+                '2_tarde': true, '2_noite': true, // Quarta Tarde e Noite
+                '5_manha': true                    // Sábado Manhã
+            }
         };
 
         let editingPackageId = null;
@@ -442,75 +473,79 @@
             renderDropdownCheckboxes();
             atualizarCustosAutomaticosSemanticamente();
             renderPacotesUI();
+            renderDonaMatrix();
             sincronizarConfigTurnosUI();
             renderApp();
             
-            const scenFixo = document.getElementById('scen-custofixo');
-            if(scenFixo) { scenFixo.value = config.custoFixo || 2000; calcularCenarios(); }
-
             document.addEventListener('click', (e) => {
                 const menu = document.getElementById('dropdown-menu'), btn = document.getElementById('dropdown-btn');
                 if (menu && btn && !menu.contains(e.target) && !btn.contains(e.target)) menu.classList.add('hidden');
             });
         });
 
-        function sincronizarConfigTurnosUI() {
-            document.getElementById('cfg-uso-terqua').checked = config.usoTerQuia;
-            document.getElementById('cfg-uso-sabmanha').checked = config.usoSabManha;
+        const diasSemana = ['Seg', 'Ter', 'Qua', 'Qui', 'Sex', 'Sáb'];
+        const turnosDia = [
+            { id: 'manha', label: 'Manhã' },
+            { id: 'tarde', label: 'Tarde' },
+            { id: 'noite', label: 'Noite' }
+        ];
+
+        function renderDonaMatrix() {
+            const tbody = document.getElementById('dona-matrix-tbody');
+            if(!tbody) return;
+            tbody.innerHTML = '';
+            turnosDia.forEach(t => {
+                let tr = document.createElement('tr');
+                tr.innerHTML = `<td class="p-3 text-left font-bold text-slate-700">${t.label}</td>`;
+                diasSemana.forEach((d, dIdx) => {
+                    let key = `${dIdx}_${t.id}`;
+                    let checked = config.donaSlots && config.donaSlots[key] ? 'checked' : '';
+                    tr.innerHTML += `
+                        <td class="p-3 text-center">
+                            <input type="checkbox" data-key="${key}" ${checked} onchange="toggleDonaSlot(this)" class="h-4 w-4 rounded-sm text-indigo-600 cursor-pointer">
+                        </td>`;
+                });
+                tbody.appendChild(tr);
+            });
+            calcularTurnosComerciaisDisponiveis();
         }
 
-        function saveTurnosConfig() {
-            config.usoTerQuia = document.getElementById('cfg-uso-terqua').checked;
-            config.usoSabManha = document.getElementById('cfg-uso-sabmanha').checked;
-            localStorage.setItem('simulador_config_v35', JSON.stringify(config));
+        function toggleDonaSlot(checkbox) {
+            let key = checkbox.getAttribute('data-key');
+            if(!config.donaSlots) config.donaSlots = {};
+            config.donaSlots[key] = checkbox.checked;
+            localStorage.setItem('simulador_config_v40', JSON.stringify(config));
             renderApp();
         }
 
         function calcularTurnosComerciaisDisponiveis() {
-            let turnosTotaisSala = 52, turnosDonaSala1 = 0;
-            if(config.usoTerQuia) turnosDonaSala1 += 16;
-            if(config.usoSabManha) turnosDonaSala1 += 4;
-            let total = Math.max(turnosTotaisSala - turnosDonaSala1, 0) + turnosTotaisSala;
-            document.getElementById('cfg-total-turnos-badge').innerText = `${total} turnos/mês`;
-            return total;
-        }
-
-        function calcularCenarios() {
-            let ocupacaoPct = parseFloat(document.getElementById('scen-ocupacao').value) || 100;
-            let precoTurno = parseFloat(document.getElementById('scen-preco').value) || 120;
-            let custoFixoSimulado = parseFloat(document.getElementById('scen-custofixo').value) || 0;
-
-            document.getElementById('lbl-scen-ocupacao').innerText = ocupacaoPct + '%';
-            document.getElementById('lbl-scen-preco').innerText = formatCurrency(precoTurno);
-            document.getElementById('lbl-scen-custofixo').innerText = formatCurrency(custoFixoSimulado);
-
-            let totalTurnos = calcularTurnosComerciaisDisponiveis();
-            let turnosOcupados = Math.round(totalTurnos * (ocupacaoPct / 100));
-            let fatProj = turnosOcupados * precoTurno;
-            let resultadoOp = fatProj - custoFixoSimulado;
-            let turnosEq = precoTurno > 0 ? Math.ceil(custoFixoSimulado / precoTurno) : 0;
-
-            document.getElementById('scen-res-fat').innerText = formatCurrency(fatProj);
-            document.getElementById('scen-res-desp').innerText = formatCurrency(custoFixoSimulado);
-            
-            const resOpEl = document.getElementById('scen-res-op');
-            resOpEl.innerText = formatCurrency(resultadoOp);
-            resOpEl.className = `text-lg lg:text-xl font-black ${resultadoOp >= 0 ? 'text-emerald-400' : 'text-rose-400'} mt-1 block`;
-            document.getElementById('scen-res-eq').innerText = `${turnosEq} turnos`;
-
-            const badge = document.getElementById('scen-status-badge');
-            if (resultadoOp >= 0) {
-                badge.innerText = "🟢 Operação Lucrativa"; badge.className = "px-3 py-1 rounded-full text-xs font-black bg-emerald-500 text-white";
-            } else {
-                badge.innerText = "🔴 Operação em Déficit"; badge.className = "px-3 py-1 rounded-full text-xs font-black bg-rose-500 text-white";
+            // Cada sala tem 18 turnos por semana (6 dias x 3 turnos) = ~72 por mês (ou base 52 turnos comerciais padrão)
+            let turnosTotaisSala1 = 52, turnosTotaisSala2 = 52;
+            let countDonaSlots = 0;
+            if(config.donaSlots) {
+                Object.values(config.donaSlots).forEach(val => { if(val) countDonaSlots++; });
             }
+            // Cada slot marcado representa 4 ocorrências no mês
+            let turnosDonaMes = countDonaSlots * 4;
+            let sala1Comercial = Math.max(turnosTotaisSala1 - turnosDonaMes, 0);
+            let totalComercial = sala1Comercial + turnosTotaisSala2;
+
+            const badge = document.getElementById('cfg-total-turnos-badge');
+            if(badge) badge.innerText = `${totalComercial} turnos/mês`;
+            return totalComercial;
         }
 
-        function resetCenarios() {
-            document.getElementById('scen-ocupacao').value = 100;
-            document.getElementById('scen-preco').value = 120;
-            document.getElementById('scen-custofixo').value = config.custoFixo || 2000;
-            calcularCenarios(); triggerToast("Cenários restaurados.", "🔄");
+        function sincronizarConfigTurnosUI() {
+            const capInput = document.getElementById('cfg-capacidade');
+            if(capInput) capInput.value = config.capacidade;
+            atualizarPrecoMaiorTurno();
+        }
+
+        function saveConfig() {
+            config.capacidade = parseInt(document.getElementById('cfg-capacidade').value) || 528;
+            localStorage.setItem('simulador_config_v40', JSON.stringify(config));
+            triggerToast("Parâmetros operacionais salvos!", "⚙️");
+            renderApp();
         }
 
         function renderPacotesUI() {
@@ -525,12 +560,10 @@
                             <p class="text-xs text-slate-500">${p.horas}h/mês &bull; R$ ${(p.valor/p.horas).toFixed(2)}/h</p>
                             <div class="text-lg font-black text-indigo-600 pt-1">${formatCurrency(p.valor)}</div>
                         </div>
-                        <button type="button" onclick="abrirModalPacote(${idx})" class="mt-2 w-full h-9 bg-white border border-slate-200 hover:bg-slate-100 font-semibold text-slate-700 rounded-xl text-xs cursor-pointer">Editar</button>
+                        <button type="button" onclick="abrirModalPacote(${idx})" class="mt-2 w-full h-9 bg-white border border-slate-200 hover:bg-slate-100 font-semibold text-slate-700 rounded-xl text-xs cursor-pointer shadow-2xs">Editar</button>
                     </div>`;
             });
-            let maior = pacotes.reduce((prev, curr) => (prev.horas > curr.horas) ? prev : curr, pacotes[0]);
-            config.preco = maior.horas > 0 ? Math.round((maior.valor / maior.horas) * 100) / 100 : 30.00;
-            localStorage.setItem('simulador_config_v35', JSON.stringify(config));
+            atualizarPrecoMaiorTurno();
         }
 
         function abrirModalPacote(idx) {
@@ -549,8 +582,82 @@
             pacotes[editingPackageId].nome = document.getElementById('edit-pacote-nome').value;
             pacotes[editingPackageId].horas = parseInt(document.getElementById('edit-pacote-horas').value) || 1;
             pacotes[editingPackageId].valor = parseCurrencyToFloat(document.getElementById('edit-pacote-valor').value);
-            localStorage.setItem('simulador_pacotes_v35', JSON.stringify(pacotes));
+            localStorage.setItem('simulador_pacotes_v40', JSON.stringify(pacotes));
             renderPacotesUI(); fecharModalPacote(); triggerToast("Pacote atualizado!", "✏️"); renderApp();
+        }
+
+        function atualizarPrecoMaiorTurno() {
+            let pacote10h = pacotes.find(p => p.horas === 10) || pacotes.reduce((prev, curr) => (prev.horas > curr.horas) ? prev : curr, pacotes[0]);
+            let taxaHora = pacote10h.horas > 0 ? (pacote10h.valor / pacote10h.horas) : 30.00;
+            config.preco = Math.round(taxaHora * 100) / 100;
+            
+            const precoInput = document.getElementById('cfg-preco');
+            if(precoInput) precoInput.value = config.preco.toFixed(2);
+            
+            // Sincronizar o What-If com o foco no Pacote de 10h (turnos de 4h)
+            let precoTurno10h = taxaHora * 4;
+            const scenSlider = document.getElementById('scen-preco');
+            if(scenSlider && !scenSlider.dataset.userModified) {
+                scenSlider.value = Math.round(precoTurno10h);
+                document.getElementById('lbl-scen-ancora').innerText = `Ancorado no Pacote 10h (R$ ${taxaHora.toFixed(2)}/h × 4h = R$ ${precoTurno10h.toFixed(2)})`;
+            }
+            localStorage.setItem('simulador_config_v40', JSON.stringify(config));
+        }
+
+        // --- CÁLCULO DE CENÁRIOS COM FOCO NO PACOTE DE 10H ---
+        function calcularCenarios() {
+            let ocupacaoPct = parseFloat(document.getElementById('scen-ocupacao').value) || 80;
+            if(ocupacaoPct > 100) ocupacaoPct = 100;
+            
+            let precoTurno = parseFloat(document.getElementById('scen-preco').value) || 120;
+            document.getElementById('scen-preco').dataset.userModified = "true";
+
+            document.getElementById('lbl-scen-ocupacao').innerText = ocupacaoPct + '%';
+            document.getElementById('lbl-scen-preco').innerText = formatCurrency(precoTurno);
+
+            let totalTurnos = calcularTurnosComerciaisDisponiveis();
+            let turnosOcupados = Math.round(totalTurnos * (ocupacaoPct / 100));
+            let fatProj = turnosOcupados * precoTurno;
+            
+            let qtdMeses = mesesAtivos.length || 1;
+            let despesasReaisPeriodo = 0;
+            const filtroAno = document.getElementById('dash-filtro-ano').value;
+            lancamentos.forEach(i => {
+                let dt = new Date(i.data + 'T00:00:00');
+                if(dt.getFullYear().toString() === filtroAno && mesesAtivos.includes(dt.getMonth()) && i.tipo === 'despesa') {
+                    despesasReaisPeriodo += i.valor;
+                }
+            });
+            let custoMedioMensalReal = despesasReaisPeriodo > 0 ? (despesasReaisPeriodo / qtdMeses) : (config.custoFixo || 2000);
+
+            let resultadoOp = fatProj - custoMedioMensalReal;
+            let turnosEq = precoTurno > 0 ? Math.ceil(custoMedioMensalReal / precoTurno) : 0;
+
+            document.getElementById('scen-res-fat').innerText = formatCurrency(fatProj);
+            document.getElementById('scen-res-desp').innerText = formatCurrency(custoMedioMensalReal);
+            
+            const resOpEl = document.getElementById('scen-res-op');
+            resOpEl.innerText = formatCurrency(resultadoOp);
+            resOpEl.className = `text-lg lg:text-xl font-black ${resultadoOp >= 0 ? 'text-emerald-400' : 'text-rose-400'} mt-1 block`;
+            document.getElementById('scen-res-eq').innerText = `${turnosEq} turnos`;
+
+            const badge = document.getElementById('scen-status-badge');
+            if (resultadoOp >= 0) {
+                badge.innerText = "🟢 Operação Lucrativa"; badge.className = "px-3 py-1 rounded-full text-xs font-black bg-emerald-500 text-white";
+            } else {
+                badge.innerText = "🔴 Operação em Déficit"; badge.className = "px-3 py-1 rounded-full text-xs font-black bg-rose-500 text-white";
+            }
+        }
+
+        function resetCenarios() {
+            document.getElementById('scen-ocupacao').value = 80;
+            let pacote10h = pacotes.find(p => p.horas === 10) || pacotes[0];
+            let turnP = (pacote10h.valor / pacote10h.horas) * 4;
+            const scenPreco = document.getElementById('scen-preco');
+            if(scenPreco) { scenPreco.value = Math.round(turnP); delete scenPreco.dataset.userModified; }
+            atualizarPrecoMaiorTurno();
+            calcularCenarios();
+            triggerToast("Cenários restaurados ao Pacote 10h.", "🔄");
         }
 
         function atualizarCustosAutomaticosSemanticamente() {
@@ -562,7 +669,7 @@
                 }
             });
             config.custoFixo = count.size > 0 ? Math.round(totalFixas / count.size) : 2000;
-            localStorage.setItem('simulador_config_v35', JSON.stringify(config));
+            localStorage.setItem('simulador_config_v40', JSON.stringify(config));
         }
 
         // --- IMPORTAÇÃO INTELIGENTE DE EXCEL ---
@@ -660,7 +767,7 @@
                         } catch(err) { console.error(err); }
                     });
 
-                    localStorage.setItem('simulador_lancamentos_v35', JSON.stringify(lancamentos));
+                    localStorage.setItem('simulador_lancamentos_v40', JSON.stringify(lancamentos));
                     atualizarCustosAutomaticosSemanticamente();
                     triggerToast(`Planilha integrada com sucesso! (${count} registros)`, "📥");
                     renderApp(); switchTab('dash');
@@ -757,6 +864,7 @@
 
             document.getElementById('kpi-break-even').innerText = formatCurrency(fatMin);
             let ocuMin = (config.capacidade * qtdMeses) > 0 ? ((fatMin / config.preco) / (config.capacidade * qtdMeses)) * 100 : 0;
+            if(ocuMin > 100) ocuMin = 100;
             document.getElementById('kpi-ponto-eq').innerText = ocuMin.toFixed(1) + '%';
 
             let capex = lancamentos.reduce((acc, i) => i.tipo === 'investimento' ? acc + i.valor : acc, 0) || 50000;
@@ -840,6 +948,7 @@
         // --- NAVEGAÇÃO E FORMULÁRIOS ---
         function switchTab(id) {
             if(id === 'cenarios') calcularCenarios();
+            if(id === 'config') { renderPacotesUI(); renderDonaMatrix(); sincronizarConfigTurnosUI(); }
             document.querySelectorAll('.tab-content').forEach(el => el.classList.add('hidden'));
             document.querySelectorAll('.tab-btn').forEach(el => el.className = "tab-btn snap-center px-4 py-2.5 text-xs lg:text-sm font-semibold rounded-lg text-indigo-200 hover:text-white cursor-pointer");
             document.getElementById(`tab-${id}`).classList.remove('hidden');
@@ -895,7 +1004,7 @@
             if(val <= 0) return;
 
             lancamentos.push({ id: 'man-' + Date.now(), data: d, tipo: selectedType, sala, desc, valor: val });
-            localStorage.setItem('simulador_lancamentos_v35', JSON.stringify(lancamentos));
+            localStorage.setItem('simulador_lancamentos_v40', JSON.stringify(lancamentos));
             document.getElementById('lanc-desc').value = '';
             document.getElementById('lanc-valor').value = '';
             renderApp(); switchTab('dash'); triggerToast("Lançamento salvo com sucesso!", "🟢");
@@ -903,13 +1012,13 @@
 
         function deleteLancamento(id) {
             lancamentos = lancamentos.filter(i => i.id !== id);
-            localStorage.setItem('simulador_lancamentos_v35', JSON.stringify(lancamentos));
+            localStorage.setItem('simulador_lancamentos_v40', JSON.stringify(lancamentos));
             renderApp(); triggerToast("Registro removido.", "🔴");
         }
 
         function clearData() {
             if(confirm("Deseja apagar todos os dados locais?")) {
-                lancamentos = []; localStorage.setItem('simulador_lancamentos_v35', JSON.stringify(lancamentos));
+                lancamentos = []; localStorage.setItem('simulador_lancamentos_v40', JSON.stringify(lancamentos));
                 renderApp(); triggerToast("Banco limpo.", "🧹");
             }
         }
